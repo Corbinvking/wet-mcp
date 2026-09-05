@@ -22,14 +22,14 @@ An API key, OAuth grant, paid tier, readable or enabled adapter, or environment 
 
 ## W.E.T. Scanners and alerts — OAuth, W.E.T.-account scoped
 
-The authenticated tool list is deterministic for the authorized scopes, but inventory does not mean executable. Fourteen source-derived watchlist-event, scanner, and alert reads, previews, tests, create/update/resume/run actions independently return `account_output_contract_pending`, even if the public `source_rights_pending` policy later clears. Scanner execution and delivery also require the venue and headline-source rights chains. Credentials cannot bypass either hold. Scanner pause, alert deletion, and server-enforced two-step scanner deletion remain source-neutral stop controls; resume remains held because it reactivates sourced evaluation.
+The authenticated tool list is deterministic for the authorized scopes, but inventory does not mean executable. Fourteen source-derived watchlist-event, scanner, and alert reads, previews, tests, create/update/resume/run actions independently return `account_output_contract_pending`, even if the public `source_rights_pending` policy later clears. Scanner execution and delivery also require the venue and headline-source rights chains. Credentials cannot bypass either hold. Alert pause and deletion, notification mark-read, scanner pause, and server-enforced two-step scanner deletion remain source-neutral controls; scanner resume remains held because it reactivates sourced evaluation.
 
 | Scope | Authorized tool family | Post-clearance contract / current exception |
 |---|---|---|
 | `wet.research.read` | Public research tools | Read-only inventory; the scope does not clear source rights or bypass the hold |
 | `wet.scanners.read` | `wet_scanner_templates`, `wet_my_scanners`, `wet_get_scanner`, `wet_scanner_status`, `wet_preview_scanner`, `wet_test_scanner` | Held now; after clearance reads templates and owned scanners, previews definitions, runs a non-persisting test, and returns bounded stored run evidence |
 | `wet.scanners.write` | `wet_create_scanner`, `wet_update_scanner`, `wet_pause_scanner`, `wet_resume_scanner`, `wet_run_scanner`, `wet_delete_scanner` | Create, update, resume, and persisted run-now are held; pause and two-step delete remain available as narrowed stop controls |
-| `wet.alerts.write` | `wet_my_alerts`, `wet_create_alert`, `wet_delete_alert` | Source-backed alert reads and creation are held; no alert tool reaches a venue, wallet, order, or trade |
+| `wet.alerts.write` | `wet_my_alerts`, `wet_create_alert`, `wet_delete_alert`, `wet_pause_alert`, `wet_mark_notifications_read` | Source-backed alert reads and creation are held; pause, delete, and notification mark-read remain available and no alert tool reaches a venue, wallet, order, or trade |
 
 Deletion tools are destructive and must be shown as such by clients. OAuth never exposes the legacy watchlist or saved-view API-key tools, and it never grants any venue, wallet, order, or trading permission.
 

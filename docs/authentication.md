@@ -8,7 +8,7 @@ Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sour
 
 Phase 1 uses coarse `coarse-all-rights-protected-sources` enforcement. Mixed-source filtering is not implemented, partial approval cannot emit a partial answer, and disabled audited sources remain protected because historical derived material may persist.
 
-Authorized inventory does not mean executable. Fourteen source-derived watchlist-event, scanner, and alert reads, previews, tests, create/update/resume/run actions independently return `account_output_contract_pending`, even if the public policy later clears. Scanner execution also requires the venue and headline-source rights chains. Scanner pause, alert deletion, and server-enforced two-step scanner deletion remain source-neutral stop controls; resume is held because it reactivates sourced evaluation. See [`scanners.md`](scanners.md).
+Authorized inventory does not mean executable. Fourteen source-derived watchlist-event, scanner, and alert reads, previews, tests, create/update/resume/run actions independently return `account_output_contract_pending`, even if the public policy later clears. Scanner execution also requires the venue and headline-source rights chains. Alert pause and deletion, notification mark-read, scanner pause, and server-enforced two-step scanner deletion remain source-neutral controls; scanner resume is held because it reactivates sourced evaluation. See [`scanners.md`](scanners.md).
 
 ## OAuth flow
 

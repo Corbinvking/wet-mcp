@@ -911,6 +911,9 @@ await check('distribution doctrine, health, routing, and rights copy stay aligne
   assert(/current candidate safety review/iu.test(reviewer), 'reviewer guide must separate the current candidate safety review');
   assert(/post-clearance full lifecycle review/iu.test(reviewer), 'reviewer guide must label the full lifecycle review post-clearance');
   assert(/resume (?:is|remains) held/iu.test(reviewer + tools + authentication), 'account guides must keep scanner resume held');
+  for (const name of ['wet_pause_alert', 'wet_mark_notifications_read']) {
+    assert(tools.includes(name), `tool reference must document source-neutral account control ${name}`);
+  }
   assert(!/complete per-run log/iu.test(reviewer), 'reviewer guide must not describe status receipts as the complete run log');
   assert(tools.includes('wet_run_scanner') && /post-clearance behavior|current exception/iu.test(tools), 'tool reference must document persisted runs without implying current execution');
   assert(scanners.includes(SOURCE_RIGHTS_POLICY) && /default-deny/iu.test(scanners), 'scanner guide must disclose the current default-deny source-rights policy');
