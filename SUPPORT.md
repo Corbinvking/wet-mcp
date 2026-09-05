@@ -10,7 +10,7 @@ Before reporting an integration issue, check:
 
 The current source-rights hold is policy `mcp-source-rights/2026-09-05.phase1`. Six sourced/derived public tools return typed `source_rights_pending`; credentials cannot bypass the hold. Report a different response as a policy-contract issue, not as a request for credential troubleshooting.
 
-For a reproducible problem, open a GitHub issue without credentials or email **hello@wet.news**. Include the client and version, MCP protocol version, tool name, UTC time, request id if returned, expected behavior, actual behavior, and minimal reproduction.
+For a reproducible problem, open a GitHub issue without credentials or email **support@worldeventtrading.com**. Include the client and version, MCP protocol version, tool name, UTC time, request id if returned, expected behavior, actual behavior, and minimal reproduction.
 
 For a data discrepancy, also include the venue, event or market id, source URL, displayed as-of time, and the conflicting source value. Do not include an API key, token, session cookie, one-time code, or personal data.
 

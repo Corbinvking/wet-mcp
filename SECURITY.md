@@ -1,6 +1,6 @@
 # Security policy
 
-Report a suspected vulnerability privately by emailing **hello@wet.news** with “Security” in the subject. Include the affected URL or component, UTC time, reproduction steps, impact, and a safe way to validate the issue.
+Report a suspected vulnerability privately by emailing **security@worldeventtrading.com**. Include the affected URL or component, UTC time, reproduction steps, impact, and a safe way to validate the issue.
 
 Do not include a live secret or another person's personal data unless it is necessary to establish the finding. Never post access tokens, refresh tokens, API keys, authorization codes, session cookies, or one-time codes in a public issue.
 

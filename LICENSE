@@ -1,10 +1,16 @@
 W.E.T. MCP INTEGRATION PACKAGE LICENSE 1.0
 
-Copyright (c) 2026 World Event Trading (W.E.T.). All Rights Reserved.
+Copyright (c) 2026 Jordan V Powell, sole proprietor operating under the
+World Event Trading (W.E.T.) brand. All Rights Reserved.
+
+For this license, "Owner" means Jordan V Powell. "W.E.T." and "World Event
+Trading" refer to the service and integration materials the Owner publishes
+under that unregistered brand; neither name identifies a separate LLC or
+corporation.
 
 1. Limited integration grant
 
-World Event Trading grants you a non-exclusive, revocable, non-transferable
+The Owner grants you a non-exclusive, revocable, non-transferable
 license to download and install an unmodified copy of this integration package
 solely to connect a compatible client to the hosted W.E.T. service, and to copy
 the configuration examples into your own private client configuration for that
@@ -40,11 +46,11 @@ to their owners' rights and terms. This license grants no right in those works.
 6. No warranty; no advice
 
 THE PACKAGE AND HOSTED SERVICE ARE PROVIDED “AS IS,” WITHOUT WARRANTY OF ANY
-KIND. W.E.T. IS NOT AN EXCHANGE, BROKER, FCM, DCM, INVESTMENT ADVISER, OR
-CUSTODIAN; IT DOES NOT OPERATE ORDER FLOW. OUTPUTS ARE NOT INVESTMENT OR
+KIND. THE OWNER AND W.E.T. SERVICE DO NOT ACT AS AN EXCHANGE, BROKER, FCM, DCM,
+INVESTMENT ADVISER, OR CUSTODIAN; NEITHER OPERATES ORDER FLOW. OUTPUTS ARE NOT INVESTMENT OR
 TRADING ADVICE OR AN OFFER TO BUY OR SELL A CONTRACT.
 
 7. Contact
 
-Integration questions: hello@wet.news
+Integration questions: developers@worldeventtrading.com
 Benchmark licensing: indices@worldeventtrading.com
