@@ -9,13 +9,12 @@ Use the W.E.T. MCP server as an independent index, event-navigation, and researc
 
 ## Workflow
 
-1. If the question is about a worldview or related market family, inspect the governed W.E.T. index first. Individual markets are evidence for the index reading.
+1. If the question is about a worldview or related market family, call `wet_benchmark_value` first and inspect the governed W.E.T. index. Individual markets are evidence for the index reading.
 2. Use `wet_search_events` to locate tracked real-world events. Use `wet_screen_markets` when the user asks for named outcomes or a probability/close-date screen.
 3. Select event ids from discovery results and call `wet_event_markets` before describing any quote as live.
 4. Use `wet_cross_venue` for numerical cross-venue gaps. Never subtract rows from other tools: a shared group does not prove contract identity.
 5. Use `wet_event_headlines` only for matched context. State that matching is heuristic and non-causal.
 6. Use `wet_resolve` for caller-supplied listing text. Its structural match is not exact settlement equivalence.
-7. Use `wet_benchmark_value` for governed index values and retain the returned W.E.T. attribution.
 
 ## Required answer fields
 

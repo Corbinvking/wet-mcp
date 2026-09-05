@@ -13,4 +13,4 @@ Volume units are source-native. Polymarket-style USD volume and Kalshi-style con
 
 Before saying “current” or “live,” refresh the selected event with `wet_event_markets`. Before comparing two venues, use `wet_cross_venue`, which supplies the confirmed identity and comparison basis.
 
-The live status document applies source-specific freshness rules; it does not collapse all feeds into one service-up/service-down bit.
+The keyless [service and feed health JSON](https://www.worldeventtrading.com/api/wet/v1/health) applies source-specific freshness rules; it does not collapse all feeds into one service-up/service-down bit. The human [status page](https://www.worldeventtrading.com/status) is narrower: it reports benchmark-publication state and latest closes.

@@ -10,15 +10,16 @@ const ENDPOINT = 'https://www.worldeventtrading.com/api/mcp';
 const SERVER_NAME = 'com.worldeventtrading/prediction-markets';
 const PACKAGE_LICENSE = 'LicenseRef-WET-Integration-1.0';
 const LEGACY_PROTOCOL_VERSION = '2025-06-18';
-const PUBLIC_TOOLS = [
+const PUBLIC_TOOL_ORDER = [
   'wet_benchmark_value',
+  'wet_search_events',
+  'wet_screen_markets',
+  'wet_event_markets',
   'wet_cross_venue',
   'wet_event_headlines',
-  'wet_event_markets',
   'wet_resolve',
-  'wet_screen_markets',
-  'wet_search_events',
-].sort();
+];
+const PUBLIC_TOOLS = [...PUBLIC_TOOL_ORDER].sort();
 
 const REQUIRED_FILES = [
   '.claude-plugin/plugin.json',
@@ -391,6 +392,10 @@ await check('official registry publishing is pinned and domain-authenticated', a
   );
   assert(workflow.includes('sha256sum --check --strict'), 'publisher archive checksum must be verified');
   assert(
+    workflow.includes('./mcp-publisher validate'),
+    'official publisher must validate server.json before registry authentication',
+  );
+  assert(
     workflow.includes('login http') && workflow.includes('--domain worldeventtrading.com'),
     'publisher must authenticate the domain namespace over HTTPS',
   );
@@ -484,7 +489,59 @@ await check('public tool contract remains seven keyless read-only tools', async 
   const publicSection = toolDoc.split('## W.E.T. Scanners and alerts')[0];
   const listed = [...publicSection.matchAll(/^\|\s*`(wet_[a-z0-9_]+)`\s*\|/gmu)].map((match) => match[1]);
   assertSameMembers(listed, PUBLIC_TOOLS, 'documented public tools');
+  assert(
+    JSON.stringify(listed) === JSON.stringify(PUBLIC_TOOL_ORDER),
+    `public tools must remain index-first; received ${listed.join(', ')}`,
+  );
   assert(publicSection.includes('All seven declare read-only, non-destructive annotations.'), 'public annotation commitment is missing');
+});
+
+await check('distribution doctrine, health, routing, and rights copy stay aligned', async () => {
+  const [readme, identity, dataSources, freshness, limitations, support, quickstart, reviewer, gemini, skill] = await Promise.all([
+    readFile(path.join(PACKAGE_ROOT, 'README.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/CONTRACT-IDENTITY.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/DATA-SOURCES.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/FRESHNESS.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/LIMITATIONS.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'SUPPORT.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/QUICKSTART.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/REVIEWER-GUIDE.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'GEMINI.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'skills/wet-research/SKILL.md'), 'utf8'),
+  ]);
+
+  assert(identity.includes('Human-confirmed same-question identity'), 'identity guide must name the canonical confirmation tier');
+  assert(
+    /does not mean identical settlement[\s\S]*sources[\s\S]*windows[\s\S]*rules[\s\S]*void terms/iu.test(identity),
+    'identity guide must retain the settlement-difference caution',
+  );
+  assert(!/human-confirmed equivalence|same claim after inspecting/iu.test(identity), 'identity guide must not claim settlement equivalence');
+
+  const healthDocs = [readme, dataSources, freshness, limitations, support, quickstart, reviewer];
+  for (const source of healthDocs) {
+    assert(source.includes('https://www.worldeventtrading.com/api/wet/v1/health'), 'health guidance must point to the keyless health endpoint');
+    if (source.includes('https://www.worldeventtrading.com/status')) {
+      assert(/benchmark(?:-| )publication|Benchmark publication/iu.test(source), '/status must be labelled as benchmark publication');
+    }
+  }
+
+  const dataRow = readme.split(/\r?\n/u).find((line) => line.includes('| W.E.T. Data |')) ?? '';
+  assert(/Normalized current venue API and higher throughput/iu.test(dataRow), 'W.E.T. Data row must describe the live entitlement');
+  assert(!/history|commercial/iu.test(dataRow), 'W.E.T. Data entitlement row must not sell history or commercial rights');
+  assert(
+    /commercial-use and redistribution[\s\S]*planned[\s\S]*not currently purchasable[\s\S]*no entitlement/iu.test(readme),
+    'README must state that commercial and redistribution rights are planned and create no entitlement',
+  );
+
+  assert(
+    /event id[\s\S]{0,180}(?:venue supports drill-down|supported (?:venue )?drill-down adapter)[\s\S]{0,180}typed refusal/iu.test(quickstart) &&
+      /supported venue drill-down adapter[\s\S]{0,180}typed refusal/iu.test(gemini),
+    'client guidance must qualify event-id live reads by adapter support and preserve refusals',
+  );
+  assert(
+    /^1\. .*`wet_benchmark_value` first/mu.test(skill),
+    'the packaged research workflow must begin with the governed benchmark tool when applicable',
+  );
 });
 
 await check('truthful demo storyboards and clean-client proof are wired', async () => {

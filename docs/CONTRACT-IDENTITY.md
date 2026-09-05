@@ -4,7 +4,7 @@ Prediction-market titles that look alike can settle differently. W.E.T. therefor
 
 1. **Event grouping:** venue markets concern the same real-world event or matchup. This helps navigation but says nothing about identical settlement.
 2. **Structural identity:** caller text can be parsed into the same subject, relation, parameters, and time frame. This is useful evidence, but caller-supplied text is not venue-verified settlement evidence.
-3. **Human-confirmed equivalence:** a reviewer confirmed that venue contracts ask the same claim after inspecting their settlement basis. Only this tier may produce a numerical cross-venue gap.
+3. **Human-confirmed same-question identity:** a reviewer confirmed that the venue contracts ask the same question after inspecting each leg's settlement basis. Only this tier may produce a numerical cross-venue gap. It does not mean identical settlement: sources, windows, rules, and void terms may still differ and must remain in an explicit settlement caution.
 
 `wet_search_events` and `wet_event_markets` can show multiple venues around an event. Do not subtract those prices.
 

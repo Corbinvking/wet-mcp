@@ -16,6 +16,10 @@ W.E.T. exposes OAuth 2.1-style authorization-code flow metadata for MCP clients:
 
 Authorization code clients are public clients and must use PKCE `S256`. Redirect URIs are exactly matched, except that registered loopback redirects may use an ephemeral local port. Authorization responses include the RFC 9207 `iss` parameter.
 
+Dynamic registrations are self-asserted, not W.E.T.-verified identities. The consent screen therefore identifies the client as unverified and shows both its exact client ID and callback URI; confirm that you initiated the connection and recognize those values before allowing access. Valid registrations are admitted through durable per-source and service-wide hourly ceilings. A registration that never completes a grant expires after seven days and is removed by the scheduled retention purge.
+
+OAuth form endpoints accept at most 16 KiB of unencoded `application/x-www-form-urlencoded` data. Dynamic registration accepts at most 32 KiB of unencoded `application/json`. Compressed or otherwise content-encoded request bodies are refused.
+
 ## Scopes
 
 ```text
@@ -26,6 +30,8 @@ wet.alerts.write
 ```
 
 Request the smallest set needed. There is deliberately no trading, venue-account, wallet, order, routing, or execution scope.
+
+An authorization request may select only a subset of the scopes recorded at client registration; it cannot widen the client's registered permission envelope.
 
 ## Token handling
 

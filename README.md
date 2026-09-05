@@ -26,8 +26,8 @@ After connecting, try:
 
 ```text
 Find Trump mention markets that resolve this week. Show the named outcomes,
-refresh every quoted price live, include the venue and timestamp, and flag
-anything W.E.T. refuses to compare.
+refresh quoted prices only where the venue has a live drill-down adapter,
+include the venue and timestamp, and preserve any typed refusal.
 ```
 
 ```text
@@ -43,14 +43,18 @@ do not infer equivalence from shared event grouping.
 | W.E.T. Benchmarks | Governed indexes, constituents, methodology, closes, corrections | Public; attribution required |
 | W.E.T. Research | Event search, outcome screening, live books, matched news, identity, typed refusals | Public, keyless, read-only |
 | W.E.T. Scanners | Preview and save monitoring criteria; manage alerts in one W.E.T. account | OAuth; W.E.T.-account writes only |
-| W.E.T. Data | Normalized API access, higher throughput, history and commercial-use arrangements | Account/API-key entitlement |
+| W.E.T. Data | Normalized current venue API and higher throughput | Premium account/API-key entitlement |
+
+Public benchmark-ledger and dated-corpus history are documented separately. Institutional commercial-use and redistribution
+rights are planned, separately reviewed arrangements; they are not currently purchasable, and starting a conversation creates
+no entitlement, licence, service guarantee, or bulk-history access.
 
 The index is the intelligence object. Individual venue markets are evidence. W.E.T. is independent of every venue it covers and does not accept venue methodology control or reorder results for affiliate economics.
 
 ## Safety and interpretation rules
 
 - A shared event group is not proof that two contracts settle on the same claim.
-- Only `wet_cross_venue` may publish a numerical cross-venue gap, and only for a human-confirmed identity.
+- Only `wet_cross_venue` may publish a numerical cross-venue gap, and only for a human-confirmed same-question identity. Settlement sources, windows, rules, and void terms may still differ and remain cautioned.
 - Volume always retains its venue-native unit. USD and contracts are never summed.
 - A dated snapshot is not described as live. Use `wet_event_markets` with an event id for a live refresh where that venue adapter supports drilldown; otherwise preserve its typed refusal.
 - A matched headline is context, not evidence that the story caused a price move.
@@ -62,7 +66,8 @@ See [`docs/TOOLS.md`](docs/TOOLS.md), [`docs/CONTRACT-IDENTITY.md`](docs/CONTRAC
 
 ## Trust record
 
-- [Service status](https://www.worldeventtrading.com/status)
+- [Service and feed health JSON](https://www.worldeventtrading.com/api/wet/v1/health)
+- [Benchmark publication status](https://www.worldeventtrading.com/status)
 - [Coverage](https://www.worldeventtrading.com/coverage) and [machine-readable coverage](https://www.worldeventtrading.com/coverage.json)
 - [Data sources](https://www.worldeventtrading.com/data-sources)
 - [Limitations](https://www.worldeventtrading.com/limitations)

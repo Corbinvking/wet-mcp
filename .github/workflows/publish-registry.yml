@@ -49,6 +49,9 @@ jobs:
           tar -xzf "$archive" mcp-publisher
           chmod +x mcp-publisher
 
+      - name: Validate with the Official MCP Registry publisher
+        run: ./mcp-publisher validate
+
       - name: Authenticate the worldeventtrading.com namespace
         env:
           MCP_REGISTRY_PRIVATE_KEY: ${{ secrets.MCP_REGISTRY_PRIVATE_KEY }}

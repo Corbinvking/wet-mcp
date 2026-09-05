@@ -2,10 +2,11 @@
 
 Before reporting an integration issue, check:
 
-1. [Status](https://www.worldeventtrading.com/status) for source-specific degradation.
-2. [Changelog](https://www.worldeventtrading.com/changelog) for an interface change.
-3. [Coverage](https://www.worldeventtrading.com/coverage) and [limitations](https://www.worldeventtrading.com/limitations) before treating an omitted venue or refusal as a defect.
-4. [`docs/QUICKSTART.md`](docs/QUICKSTART.md) and the client example in [`clients/`](clients/).
+1. [Service and feed health JSON](https://www.worldeventtrading.com/api/wet/v1/health) for current liveness, freshness, and source-specific degradation.
+2. [Benchmark publication status](https://www.worldeventtrading.com/status) for the index desk's latest-close state.
+3. [Changelog](https://www.worldeventtrading.com/changelog) for an interface change.
+4. [Coverage](https://www.worldeventtrading.com/coverage) and [limitations](https://www.worldeventtrading.com/limitations) before treating an omitted venue or refusal as a defect.
+5. [`docs/QUICKSTART.md`](docs/QUICKSTART.md) and the client example in [`clients/`](clients/).
 
 For a reproducible problem, open a GitHub issue without credentials or email **hello@wet.news**. Include the client and version, MCP protocol version, tool name, UTC time, request id if returned, expected behavior, actual behavior, and minimal reproduction.
 
