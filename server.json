@@ -1,0 +1,43 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.worldeventtrading/prediction-markets",
+  "title": "W.E.T. Prediction-Market Intelligence",
+  "description": "Agent-safe prediction-market research with verified identity, refusals, live books, and indexes.",
+  "version": "0.5.0",
+  "websiteUrl": "https://www.worldeventtrading.com/mcp",
+  "repository": {
+    "url": "https://github.com/Corbinvking/wet-mcp",
+    "source": "github"
+  },
+  "icons": [
+    {
+      "src": "https://www.worldeventtrading.com/icon.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://www.worldeventtrading.com/api/mcp"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "tagline": "Prediction-market intelligence your agent can quote safely.",
+      "access": {
+        "research": "keyless-read-only",
+        "account": "oauth-optional"
+      },
+      "boundaries": [
+        "no-order-flow",
+        "no-trading-advice",
+        "no-inferred-cross-venue-gaps",
+        "venue-native-volume-units"
+      ],
+      "privacyUrl": "https://www.worldeventtrading.com/privacy",
+      "termsUrl": "https://www.worldeventtrading.com/terms",
+      "supportUrl": "https://www.worldeventtrading.com/support"
+    }
+  }
+}

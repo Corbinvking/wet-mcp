@@ -1,0 +1,49 @@
+name: Validate integration package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      live:
+        description: Also validate the deployed endpoint
+        required: false
+        default: false
+        type: boolean
+      endpoint:
+        description: Hosted or preview MCP endpoint used by live checks
+        required: false
+        default: https://www.worldeventtrading.com/api/mcp
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          node --check scripts/verify-live.mjs
+          node scripts/validate.mjs
+
+  live:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.live }}
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/validate.mjs --live
+        env:
+          WET_MCP_ENDPOINT: ${{ inputs.endpoint }}
+      - run: node scripts/verify-live.mjs
+        env:
+          WET_MCP_ENDPOINT: ${{ inputs.endpoint }}

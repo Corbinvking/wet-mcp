@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Corbinvking/wet-mcp/blob/main/evals/schema.json",
+  "type": "object",
+  "required": ["version", "asOf", "positive", "negative"],
+  "properties": {
+    "$schema": { "type": "string", "format": "uri-reference" },
+    "version": { "type": "string" },
+    "asOf": { "type": "string", "format": "date" },
+    "principles": { "type": "array", "items": { "type": "string" } },
+    "positive": { "$ref": "#/$defs/cases" },
+    "negative": { "$ref": "#/$defs/cases" }
+  },
+  "$defs": {
+    "cases": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["id", "prompt", "expectedTools", "assertions"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "prompt": { "type": "string", "minLength": 10 },
+          "expectedTools": { "type": "array", "items": { "type": "string", "pattern": "^wet_" } },
+          "assertions": { "type": "array", "minItems": 2, "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "wet": {
+      "httpUrl": "https://www.worldeventtrading.com/api/mcp",
+      "timeout": 30000
+    }
+  }
+}

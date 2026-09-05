@@ -1,0 +1,12 @@
+{
+  "name": "wet-prediction-market-research",
+  "version": "0.5.0",
+  "description": "Agent-safe prediction-market research with governed indexes, confirmed identity, live books, and typed refusals.",
+  "mcpServers": {
+    "wet": {
+      "httpUrl": "https://www.worldeventtrading.com/api/mcp",
+      "timeout": 30000
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}

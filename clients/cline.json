@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "wet": {
+      "type": "streamableHttp",
+      "url": "https://www.worldeventtrading.com/api/mcp",
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

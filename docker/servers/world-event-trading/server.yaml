@@ -1,0 +1,19 @@
+name: world-event-trading
+type: remote
+dynamic:
+  tools: true
+meta:
+  category: analytics
+  tags:
+    - analytics
+    - prediction-markets
+    - event-data
+    - indexes
+    - remote
+about:
+  title: W.E.T. Prediction-Market Intelligence
+  description: Read governed W.E.T. benchmarks and research prediction-market events across enabled feeds with typed refusals and identity safeguards
+  icon: https://www.worldeventtrading.com/icon.png
+remote:
+  transport_type: streamable-http
+  url: https://www.worldeventtrading.com/api/mcp

@@ -1,0 +1,7 @@
+extensions:
+  wet:
+    name: W.E.T. Prediction-Market Research
+    type: streamable_http
+    uri: https://www.worldeventtrading.com/api/mcp
+    enabled: true
+    timeout: 300

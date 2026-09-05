@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "wet-prediction-market-research",
+  "displayName": "W.E.T. Prediction-Market Research",
+  "version": "0.5.0",
+  "description": "Research prediction markets with governed indexes, confirmed cross-venue identity, live books, and typed refusals.",
+  "author": {
+    "name": "World Event Trading",
+    "email": "hello@wet.news",
+    "url": "https://www.worldeventtrading.com"
+  },
+  "homepage": "https://www.worldeventtrading.com/mcp",
+  "repository": "https://github.com/Corbinvking/wet-mcp",
+  "license": "LicenseRef-WET-Integration-1.0",
+  "keywords": ["prediction-markets", "event-contracts", "market-data", "indexes", "research"],
+  "defaultEnabled": false,
+  "mcpServers": "./.mcp.json"
+}

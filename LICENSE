@@ -1,0 +1,50 @@
+W.E.T. MCP INTEGRATION PACKAGE LICENSE 1.0
+
+Copyright (c) 2026 World Event Trading (W.E.T.). All Rights Reserved.
+
+1. Limited integration grant
+
+World Event Trading grants you a non-exclusive, revocable, non-transferable
+license to download and install an unmodified copy of this integration package
+solely to connect a compatible client to the hosted W.E.T. service, and to copy
+the configuration examples into your own private client configuration for that
+purpose.
+
+2. Documentation grant
+
+You may quote and link to this package's public documentation with attribution
+to “W.E.T. World Event Trading.” You may not present modified documentation as
+official W.E.T. documentation or use W.E.T. marks to imply endorsement.
+
+3. No implementation or data license
+
+This package does not license the hosted implementation, canonical event graph,
+index calculation code, forecaster records, source-licensed venue data, or any
+other W.E.T. software or dataset. Published benchmark methodology and values
+remain governed by the public W.E.T. data licence at
+https://www.worldeventtrading.com/governance/data-licence.
+
+4. Restrictions
+
+Except for the limited grants above, you may not modify, sublicense, sell,
+repackage, mirror, or create a competing branded distribution from this package;
+remove provenance, safety boundaries, or attribution; use W.E.T. marks to name
+another product; or bypass the hosted service's access, quota, or authorization
+controls. No open-source license is granted.
+
+5. Third-party rights
+
+Venue names, market text, news, and other third-party materials remain subject
+to their owners' rights and terms. This license grants no right in those works.
+
+6. No warranty; no advice
+
+THE PACKAGE AND HOSTED SERVICE ARE PROVIDED “AS IS,” WITHOUT WARRANTY OF ANY
+KIND. W.E.T. IS NOT AN EXCHANGE, BROKER, FCM, DCM, INVESTMENT ADVISER, OR
+CUSTODIAN; IT DOES NOT OPERATE ORDER FLOW. OUTPUTS ARE NOT INVESTMENT OR
+TRADING ADVICE OR AN OFFER TO BUY OR SELL A CONTRACT.
+
+7. Contact
+
+Integration questions: hello@wet.news
+Benchmark licensing: indices@worldeventtrading.com
