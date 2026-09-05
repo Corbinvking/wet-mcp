@@ -10,6 +10,11 @@ A refusal case passes when the agent withholds the prohibited claim and explains
 
 These cases are suitable for directory review fixtures. They do not claim an independently audited quality score. Dated run reports should record client, model, server version, UTC run time, source health, and per-assertion evidence.
 
+`target.candidateCommitSha` is the full source commit SHA of the deployed W.E.T. application that
+the run exercised. It is deliberately not the commit of this packaging repository: registry
+publishing binds the package with its immutable version tag, then independently requires the live
+status document to report the application SHA recorded by the completed evaluation.
+
 ## Record and score a run
 
 Copy [`run-result-template.json`](run-result-template.json) to a dated evidence file, fill it from the

@@ -135,12 +135,14 @@ const SUMMARY_COUNT_KEYS = [
 ];
 
 function usage() {
-  return `Usage: node scripts/verify-live.mjs [--endpoint URL] [--timeout-ms N] [--candidate-allow-source-rights-pending]
+  return `Usage: node scripts/verify-live.mjs [--endpoint URL] [--timeout-ms N] [--expected-deployment-sha SHA] [--candidate-allow-source-rights-pending]
 
 Runs Gate 4 trust/health preflight and a clean, anonymous MCP client against
 all seven public W.E.T. tools.
 The default endpoint comes from server.json. WET_MCP_ENDPOINT and
 WET_MCP_TIMEOUT_MS are supported as environment overrides.
+WET_MCP_EXPECTED_DEPLOYMENT_SHA may bind the proof to one exact deployed
+application source revision; registry publishing always supplies it.
 
 Output is newline-delimited JSON (NDJSON). It includes observed timing,
 transport status, bounded semantic summaries, and SHA-256 result digests;
@@ -163,6 +165,7 @@ function parseArguments(argv) {
   const parsed = {
     endpoint: process.env.WET_MCP_ENDPOINT || DEFAULT_ENDPOINT,
     timeoutMs: Number(process.env.WET_MCP_TIMEOUT_MS || 30_000),
+    expectedDeploymentSha: process.env.WET_MCP_EXPECTED_DEPLOYMENT_SHA || null,
     candidateAllowSourceRightsPending: false,
   };
 
@@ -189,6 +192,15 @@ function parseArguments(argv) {
     }
     if (arg.startsWith('--timeout-ms=')) {
       parsed.timeoutMs = Number(arg.slice('--timeout-ms='.length));
+      continue;
+    }
+    if (arg === '--expected-deployment-sha') {
+      parsed.expectedDeploymentSha = argv[index + 1];
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith('--expected-deployment-sha=')) {
+      parsed.expectedDeploymentSha = arg.slice('--expected-deployment-sha='.length);
       continue;
     }
     throw new Error(`unknown option ${arg}`);
@@ -235,6 +247,13 @@ if (endpointUrl.username || endpointUrl.password || endpointUrl.search || endpoi
 if (!Number.isInteger(options.timeoutMs) || options.timeoutMs < 1_000 || options.timeoutMs > 120_000) {
   console.error('--timeout-ms must be an integer from 1000 through 120000.');
   process.exit(2);
+}
+if (options.expectedDeploymentSha !== null) {
+  options.expectedDeploymentSha = String(options.expectedDeploymentSha).trim().toLowerCase();
+  if (!/^[a-f0-9]{40}$/.test(options.expectedDeploymentSha)) {
+    console.error('--expected-deployment-sha must be a full 40-character hexadecimal git SHA.');
+    process.exit(2);
+  }
 }
 
 const endpoint = endpointUrl.toString();
@@ -818,6 +837,11 @@ async function runGate4Preflight() {
     ? statusPayload.tools.map((tool) => tool?.name).filter((name) => typeof name === 'string')
     : [];
   const statusRights = isRecord(statusPayload?.sourceRights) ? statusPayload.sourceRights : null;
+  const statusDeployment = isRecord(statusPayload?.deployment) ? statusPayload.deployment : null;
+  const observedDeploymentSha =
+    typeof statusDeployment?.commitSha === 'string' ? statusDeployment.commitSha.toLowerCase() : null;
+  const deploymentShaMatches =
+    options.expectedDeploymentSha === null || observedDeploymentSha === options.expectedDeploymentSha;
   const venueSourceRights = isRecord(statusRights?.venueSourceRights) ? statusRights.venueSourceRights : null;
   const headlineSourceRights = isRecord(statusRights?.headlineSourceRights) ? statusRights.headlineSourceRights : null;
   const sourceRightsValid =
@@ -841,7 +865,8 @@ async function runGate4Preflight() {
     Array.isArray(statusPayload?.protocolVersions) &&
     statusPayload.protocolVersions.includes(PROTOCOL_VERSION) &&
     sameMembers(statusTools, PUBLIC_TOOLS) &&
-    sourceRightsValid;
+    sourceRightsValid &&
+    deploymentShaMatches;
   if (sourceRightsValid) {
     statusVenueSourceRights = venueSourceRights;
   }
@@ -853,6 +878,9 @@ async function runGate4Preflight() {
       method: 'GET',
       serverNameMatches: statusPayload?.server?.name === 'wet',
       serverVersionMatches: statusPayload?.server?.version === PACKAGE_VERSION,
+      observedDeploymentCommitSha: observedDeploymentSha,
+      expectedDeploymentCommitSha: options.expectedDeploymentSha,
+      deploymentCommitMatches: deploymentShaMatches,
       anonymousToolCount: statusTools.length,
       advertisedEndpointAccepted: permittedEndpoint(statusPayload?.endpoint),
       sourceRightsPolicy: sourceRightsValid ? venueSourceRights.policyVersion : null,

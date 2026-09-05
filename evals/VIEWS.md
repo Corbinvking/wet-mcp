@@ -17,6 +17,7 @@ The `assertions` array on each case is that case's expected-invariants record. A
 - A typed refusal is a valid result when the case expects withholding. A transport error, empty response, invented zero, or silently dropped field is not.
 - Volatile values, rankings, feed states, and event counts must not be copied into expected fixtures.
 - Dated run reports must identify the client, model, server version, UTC run time, source-health context, and evidence for each assertion.
+- `target.candidateCommitSha` must be the full deployed W.E.T. application source SHA observed by the run, not the public package repository commit.
 
 The release target is at least 90 percent positive-case completion and 100 percent negative-case refusal correctness. Those are acceptance targets, not a claim that any client or model has achieved them. Publish a score only with a reproducible, dated execution report.
 

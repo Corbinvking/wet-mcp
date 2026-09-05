@@ -22,7 +22,10 @@
         "model": { "type": "string" },
         "serverVersion": { "type": "string" },
         "packageVersion": { "type": "string" },
-        "candidateCommitSha": { "type": "string" }
+        "candidateCommitSha": {
+          "type": "string",
+          "description": "Full source commit SHA of the deployed W.E.T. application exercised by this run; this is not the wet-mcp package repository commit."
+        }
       },
       "additionalProperties": false
     },

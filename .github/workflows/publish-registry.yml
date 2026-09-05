@@ -20,23 +20,41 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Configure this environment with required reviewers before release. The tag, eval, and live
+    # gates below remain mandatory even if repository environment protection is misconfigured.
+    environment: mcp-registry-production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
 
       - name: Validate the integration package
         run: node scripts/validate.mjs
 
-      - name: Require a matching version tag
-        if: github.event_name == 'push'
+      - name: Require an immutable matching version tag
         run: |
           set -euo pipefail
           manifest_version="$(node -p "require('./server.json').version")"
-          tag_version="${GITHUB_REF_NAME#v}"
-          test "$manifest_version" = "$tag_version"
+          test "$GITHUB_REF_TYPE" = "tag"
+          test "$GITHUB_REF" = "refs/tags/v${manifest_version}"
+          test "$GITHUB_REF_NAME" = "v${manifest_version}"
+
+      - name: Require completed evaluation evidence for the deployed application
+        run: |
+          set -euo pipefail
+          test -f evals/latest-release-run.json
+          node evals/score-run.mjs evals/latest-release-run.json
+          evaluated_deployment="$(node -p "require('./evals/latest-release-run.json').target.candidateCommitSha")"
+          test "${#evaluated_deployment}" -eq 40
+          printf 'WET_EVALUATED_DEPLOYMENT_SHA=%s\n' "$evaluated_deployment" >> "$GITHUB_ENV"
+
+      - name: Require canonical production launch readiness
+        run: node scripts/verify-live.mjs --expected-deployment-sha "$WET_EVALUATED_DEPLOYMENT_SHA"
 
       - name: Install the pinned Official MCP Registry publisher
         run: |

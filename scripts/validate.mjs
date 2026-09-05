@@ -528,6 +528,42 @@ await check('official registry publishing is pinned and domain-authenticated', a
     path.join(PACKAGE_ROOT, '.github/workflows/publish-registry.yml'),
     'utf8',
   );
+  const liveVerifier = await readFile(path.join(PACKAGE_ROOT, 'scripts/verify-live.mjs'), 'utf8');
+  assert(
+    workflow.includes('actions/checkout@11d5960a326750d5838078e36cf38b85af677262') &&
+      workflow.includes('actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020'),
+    'registry workflow GitHub actions must be pinned to immutable commits',
+  );
+  assert(
+    /environment:\s*mcp-registry-production\s*$/mu.test(workflow),
+    'registry publishing must use the owner-protected production environment',
+  );
+  assert(
+    workflow.includes('test "$GITHUB_REF_TYPE" = "tag"') &&
+      workflow.includes('test "$GITHUB_REF" = "refs/tags/v${manifest_version}"') &&
+      workflow.includes('test "$GITHUB_REF_NAME" = "v${manifest_version}"') &&
+      !workflow.includes("if: github.event_name == 'push'"),
+    'every registry invocation, including workflow_dispatch, must require the exact manifest version tag',
+  );
+  assert(
+    workflow.includes('test -f evals/latest-release-run.json') &&
+      workflow.includes('node evals/score-run.mjs evals/latest-release-run.json') &&
+      !workflow.includes('score-run.mjs evals/latest-release-run.json --allow-incomplete') &&
+      workflow.includes('WET_EVALUATED_DEPLOYMENT_SHA=%s') &&
+      !workflow.includes('test "$evaluated_commit" = "$(git rev-parse HEAD)"'),
+    'registry publishing must require completed eval evidence bound to a deployed application revision',
+  );
+  assert(
+    workflow.includes('run: node scripts/verify-live.mjs --expected-deployment-sha "$WET_EVALUATED_DEPLOYMENT_SHA"') &&
+      !workflow.includes('verify-live.mjs --candidate-allow-source-rights-pending'),
+    'registry publishing must require full canonical production readiness for the evaluated deployment',
+  );
+  assert(
+    liveVerifier.includes("arg === '--expected-deployment-sha'") &&
+      liveVerifier.includes('statusPayload?.deployment') &&
+      liveVerifier.includes('deploymentShaMatches'),
+    'live verifier must compare the evaluated application SHA with the canonical status document',
+  );
   assert(workflow.includes('MCP_PUBLISHER_VERSION: v1.7.9'), 'publisher release must be pinned');
   assert(
     workflow.includes('ab128162b0616090b47cf245afe0a23f3ef08936fdce19074f5ba0a4469281ac'),
@@ -550,6 +586,21 @@ await check('official registry publishing is pinned and domain-authenticated', a
   assert(
     workflow.includes('registry.modelcontextprotocol.io/v0.1/servers'),
     'publisher workflow must verify the resulting registry record',
+  );
+  const orderedGates = [
+    'node scripts/validate.mjs',
+    'test "$GITHUB_REF_TYPE" = "tag"',
+    'node evals/score-run.mjs evals/latest-release-run.json',
+    'run: node scripts/verify-live.mjs --expected-deployment-sha "$WET_EVALUATED_DEPLOYMENT_SHA"',
+    './mcp-publisher validate',
+    './mcp-publisher login http',
+    './mcp-publisher publish',
+    'registry.modelcontextprotocol.io/v0.1/servers',
+  ].map((marker) => workflow.indexOf(marker));
+  assert(
+    orderedGates.every((position) => position >= 0) &&
+      orderedGates.every((position, index) => index === 0 || position > orderedGates[index - 1]),
+    'registry validation, tag, eval, live, authentication, publish, and verification gates must stay ordered',
   );
 });
 
@@ -938,15 +989,16 @@ await check('literal compatibility paths delegate to canonical records without c
   );
   const currentEvidenceRows = [
     '| MCP contract | `npm run mcp:verify` | 283/283 passed |',
-    '| Source-rights contract | `npm run mcp:source-rights:verify` | 101/101 passed |',
+    '| Source-rights contract | `npm run mcp:source-rights:verify` | 109/109 passed |',
     '| MCP route | `npm run mcp:route:check` | 97/97 passed |',
     '| OAuth | `npm run oauth:verify` | 72/72 passed |',
     '| Account API | `npm run account:verify` | 90/90 passed |',
     '| Account deletion | `npm run account:delete:verify` | 44/44 passed |',
     '| Alerts | `npm run alerts:verify` | 84/84 passed |',
-    '| Scanner contract | `npm run scanners:verify` | 312/312 passed |',
-    '| Scanner lifecycle (static) | `npm run scanners:lifecycle:verify` | 201/201 passed |',
-    '| Scanner lifecycle (fresh isolated PostgreSQL) | `npm run scanners:lifecycle:db:verify` | 65/65 passed |',
+    '| Scanner contract | `npm run scanners:verify` | 371/371 passed |',
+    '| Scanner lifecycle (static) | `npm run scanners:lifecycle:verify` | 223/223 passed |',
+    '| Scanner lifecycle (fresh isolated PostgreSQL) | `npm run scanners:lifecycle:db:verify` | 95/95 passed |',
+    '| Browser scanner routes (fresh isolated PostgreSQL) | `npm run scanners:browser-route:db:verify` | 53/53 passed |',
     '| Public proof surfaces | `npm run mcp:public-proof:verify` | 24/24 passed |',
     '| Playbook gaps | `npm run mcp:playbook:gaps:verify` | 11/11 passed |',
     '| Output schemas | `npm run mcp:outputschema:verify` | 77/77 passed |',
@@ -959,6 +1011,9 @@ await check('literal compatibility paths delegate to canonical records without c
     '| Prediction matchup | `npm run predictions:matchup:verify` | 10/10 passed |',
     '| API semantics | `npm run api:semantics:verify` | 160/160 passed |',
     '| Migration runner self-check | `node scripts/apply-migrations.mjs --self-check` | 8/8 passed |',
+    '| Billing migration precursor gate | `npm run billing:migration:precursor-verify` | 23/23 passed |',
+    '| Billing migration runtime gate | `npm run billing:migration:verify` | 23/23 passed |',
+    '| Schema drift | `npm run schema:drift:verify` | 7/7 passed |',
   ];
   for (const row of currentEvidenceRows) {
     assert(evidence.includes(row), `offline conformance evidence is missing current result: ${row}`);
@@ -969,8 +1024,8 @@ await check('literal compatibility paths delegate to canonical records without c
     'offline conformance evidence must disclaim production, clean-client, and independent proof',
   );
   assert(
-    /Local browser and MCP Inspector[^\r\n]*zero schema warnings[^\r\n]*six[^\r\n]*source_rights_pending[^\r\n]*wet_resolve[^\r\n]*caller-supplied/iu.test(evidence),
-    'offline conformance evidence must record the bounded local browser and Inspector result',
+    /Historical pre-freeze local browser and MCP Inspector observation[\s\S]{0,600}zero schema warnings[\s\S]{0,600}six[\s\S]{0,600}source_rights_pending[\s\S]{0,600}wet_resolve[\s\S]{0,600}caller-supplied[\s\S]{0,600}predates the final/iu.test(evidence),
+    'offline conformance evidence must bound the historical local browser and Inspector result without relabeling it as code-freeze proof',
   );
   assert(
     /Local live verifier[^\r\n]*protocol conformant[^\r\n]*not launch ready[^\r\n]*canonical host[^\r\n]*development health[^\r\n]*source-rights/iu.test(evidence),
@@ -992,6 +1047,12 @@ await check('literal compatibility paths delegate to canonical records without c
   assert(
     /## Final-sync refresh[\s\S]*Final-sync status:\s*\*\*NOT COMPLETE\*\*/iu.test(evidence),
     'offline conformance evidence must keep final sync explicitly incomplete',
+  );
+  assert(
+    evidence.includes('e9dc1bc194783102b7ea88969d124f62c4cce8a6') &&
+      evidence.includes('2026-09-05T12:40:52.679Z') &&
+      evidence.includes('1c74c3aaa67014631f9c354b7614bbee609a6a3d7c07bf3fc005c233aba55455'),
+    'offline conformance evidence must bind the local code freeze, UTC observation, and public-output contract',
   );
   assert(
     /Public package[^\r\n]*`node distribution\/wet-mcp\/scripts\/validate\.mjs`[^\r\n]*\d+\/\d+ passed/iu.test(evidence) &&
