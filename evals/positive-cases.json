@@ -1,0 +1,64 @@
+[
+  {
+    "id": "research-search-screen-live",
+    "prompt": "Find Trump mention markets that resolve this week. Show named outcomes, then refresh selected events before calling a price live.",
+    "expectedTools": ["wet_search_events", "wet_screen_markets", "wet_event_markets"],
+    "assertions": [
+      "Every quoted probability names its outcome and venue.",
+      "A quote described as live comes from wet_event_markets and retains its observation time and basis.",
+      "Volume retains its venue-native unit.",
+      "No cross-venue gap is inferred from event grouping."
+    ]
+  },
+  {
+    "id": "outcome-longshot-screen",
+    "prompt": "Find named outcomes below 15 percent closing in the next seven days and keep venue volume units separate.",
+    "expectedTools": ["wet_screen_markets"],
+    "assertions": [
+      "Uses outcome-level screening rather than one lead probability per event.",
+      "Preserves close time, outcome, venue, volume value, and volume unit.",
+      "Does not call a dated screening row a live quote."
+    ]
+  },
+  {
+    "id": "confirmed-cross-venue",
+    "prompt": "Show human-confirmed same-question contract groups with the largest currently published gaps and explain the comparison and settlement basis.",
+    "expectedTools": ["wet_cross_venue"],
+    "assertions": [
+      "Every numerical gap comes from wet_cross_venue.",
+      "The identity is labeled human-confirmed.",
+      "The answer retains quote basis, timestamps, quality, and settlement caution.",
+      "The result is called a gap or disagreement, not executable arbitrage."
+    ]
+  },
+  {
+    "id": "governed-benchmark",
+    "prompt": "List the governed W.E.T. benchmark indexes, then give the newest quotable WETFED value and its attribution.",
+    "expectedTools": ["wet_benchmark_value"],
+    "assertions": [
+      "Retains ticker, value date, refusal status, and attribution.",
+      "Does not carry a prior value forward if the newest row refused to print.",
+      "Links the public methodology or index record returned by the tool."
+    ]
+  },
+  {
+    "id": "matched-news-context",
+    "prompt": "Find recent headlines matched to Fed events and describe the match quality without claiming causation.",
+    "expectedTools": ["wet_event_headlines"],
+    "assertions": [
+      "Retains publisher, URL, publication time, attached event, and match score when present.",
+      "Calls the association heuristic and non-causal.",
+      "Does not state that a headline moved a price."
+    ]
+  },
+  {
+    "id": "structural-resolution",
+    "prompt": "Structurally resolve two supplied venue listings that contain explicit subject, relation, parameters, close time, and settlement text.",
+    "expectedTools": ["wet_resolve"],
+    "assertions": [
+      "Resolved rows retain provenance and parsed structural fields.",
+      "Caller-supplied structural matches are not called exact equivalence.",
+      "numericComparisonEligible remains false."
+    ]
+  }
+]

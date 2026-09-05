@@ -1,6 +1,14 @@
 # Authentication and authorization
 
-The seven W.E.T. Research tools are keyless. Authentication is requested only for optional account-scoped scanner and alert actions.
+The anonymous seven-tool W.E.T. Research inventory is keyless. Authentication is requested only for optional account-scoped scanner and alert actions.
+
+## Source rights are not credentials
+
+Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived public tools return typed `source_rights_pending`; only `wet_resolve` remains usable for caller-supplied listing text. An API key, OAuth grant, paid tier, readable or enabled adapter, or environment setting cannot approve source rights or bypass the hold. Environment controls may only disable sources.
+
+Phase 1 uses coarse `coarse-all-rights-protected-sources` enforcement. Mixed-source filtering is not implemented, partial approval cannot emit a partial answer, and disabled audited sources remain protected because historical derived material may persist.
+
+Authorized inventory does not mean executable. Fourteen source-derived watchlist-event, scanner, and alert reads, previews, tests, create/update/resume/run actions independently return `account_output_contract_pending`, even if the public policy later clears. Scanner execution also requires the venue and headline-source rights chains. Scanner pause, alert deletion, and server-enforced two-step scanner deletion remain source-neutral stop controls; resume is held because it reactivates sourced evaluation. See [`scanners.md`](scanners.md).
 
 ## OAuth flow
 
@@ -57,4 +65,6 @@ API-key access may include legacy watchlist and saved-view tools that are not pa
 - A valid token without the required scope returns `403` with `insufficient_scope` and the required scope.
 - A mixed batch containing an unauthorized protected call is rejected before any member executes, preventing partial mutation.
 
-Public research calls remain available without a token even when account authorization is not configured.
+Public research calls remain callable without a token even when account authorization is not configured. The six held calls still return `source_rights_pending`; authentication cannot turn them into useful sourced results.
+
+Likewise, authentication can reveal only the account tools granted by scope; it cannot bypass the independent `account_output_contract_pending` hold or the source-rights chains required by scanner execution.

@@ -16,6 +16,11 @@ on:
         required: false
         default: https://www.worldeventtrading.com/api/mcp
         type: string
+      candidate_protocol_only:
+        description: Permit the expected source-rights hold for candidate evidence; never reports launch readiness
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -30,7 +35,9 @@ jobs:
           node-version: 22
       - run: |
           node --check scripts/verify-live.mjs
+          node --check evals/score-run.mjs
           node scripts/validate.mjs
+          node evals/score-run.mjs evals/run-result-template.json --allow-incomplete
 
   live:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.live }}
@@ -44,6 +51,13 @@ jobs:
       - run: node scripts/validate.mjs --live
         env:
           WET_MCP_ENDPOINT: ${{ inputs.endpoint }}
-      - run: node scripts/verify-live.mjs
+      - name: Gate 4 launch-readiness proof
+        if: ${{ !inputs.candidate_protocol_only }}
+        run: node scripts/verify-live.mjs
+        env:
+          WET_MCP_ENDPOINT: ${{ inputs.endpoint }}
+      - name: Gate 4 candidate protocol proof
+        if: ${{ inputs.candidate_protocol_only }}
+        run: node scripts/verify-live.mjs --candidate-allow-source-rights-pending
         env:
           WET_MCP_ENDPOINT: ${{ inputs.endpoint }}

@@ -3,6 +3,7 @@
 **Target runtime:** 55 seconds at a clear conversational pace.
 **Recording state:** storyboard only; not evidence of a completed live run.
 **Value policy:** show only values, timestamps, source labels, and refusals returned during the recorded take.
+**Current gate:** do not record this positive sourced demo while policy `mcp-source-rights/2026-09-05.phase1` returns `source_rights_pending`; protocol-safe hold responses are not useful sourced results.
 
 ## Storyboard
 

@@ -12,7 +12,7 @@ meta:
     - remote
 about:
   title: W.E.T. Prediction-Market Intelligence
-  description: Read governed W.E.T. benchmarks and research prediction-market events across enabled feeds with typed refusals and identity safeguards
+  description: "Phase-1: six W.E.T.-sourced/derived tools return typed source_rights_pending under a default-deny hold; wet_resolve remains usable on caller-supplied text, and credentials cannot bypass the hold"
   icon: https://www.worldeventtrading.com/icon.png
 remote:
   transport_type: streamable-http

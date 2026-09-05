@@ -10,6 +10,18 @@ const ENDPOINT = 'https://www.worldeventtrading.com/api/mcp';
 const SERVER_NAME = 'com.worldeventtrading/prediction-markets';
 const PACKAGE_LICENSE = 'LicenseRef-WET-Integration-1.0';
 const LEGACY_PROTOCOL_VERSION = '2025-06-18';
+const SOURCE_RIGHTS_POLICY = 'mcp-source-rights/2026-09-05.phase1';
+const SOURCE_RIGHTS_REFUSAL = 'source_rights_pending';
+const ACCOUNT_OUTPUT_CONTRACT_REFUSAL = 'account_output_contract_pending';
+const SOURCE_RIGHTS_FILTERING = 'coarse-all-rights-protected-sources';
+const SOURCE_RIGHTS_GATED_TOOLS = [
+  'wet_benchmark_value',
+  'wet_search_events',
+  'wet_screen_markets',
+  'wet_event_markets',
+  'wet_cross_venue',
+  'wet_event_headlines',
+];
 const PUBLIC_TOOL_ORDER = [
   'wet_benchmark_value',
   'wet_search_events',
@@ -24,21 +36,27 @@ const PUBLIC_TOOLS = [...PUBLIC_TOOL_ORDER].sort();
 const REQUIRED_FILES = [
   '.claude-plugin/plugin.json',
   '.github/workflows/publish-registry.yml',
+  '.github/workflows/validate-mcp.yml',
   '.github/workflows/validate.yml',
   '.mcp.json',
   'CHANGELOG.md',
   'CONTRIBUTING.md',
+  'DATA-SOURCES.md',
   'GEMINI.md',
   'LICENSE',
+  'LIMITATIONS.md',
   'PRIVACY.md',
   'README.md',
   'SECURITY.md',
   'SUPPORT.md',
   'TERMS.md',
-  'assets/icon.png',
+  'assets/cline-icon-400.png',
   'assets/demo/README.md',
   'assets/demo/negative-refusal-storyboard.md',
   'assets/demo/positive-55s-storyboard.md',
+  'assets/icon-512.png',
+  'assets/icon.png',
+  'assets/screenshots/README.md',
   'clients/README.md',
   'clients/claude-code.json',
   'clients/cline.json',
@@ -50,8 +68,36 @@ const REQUIRED_FILES = [
   'docker/servers/world-event-trading/readme.md',
   'docker/servers/world-event-trading/server.yaml',
   'docker/servers/world-event-trading/tools.json',
+  'docs/DIRECTORY-SUBMISSION-WORKSHEET.md',
+  'docs/authentication.md',
+  'docs/coverage.md',
+  'docs/freshness-and-quotes.md',
+  'docs/identity-methodology.md',
+  'docs/quickstart.md',
+  'docs/refusal-contract.md',
+  'docs/scanners.md',
+  'docs/tools.md',
+  'evals/VIEWS.md',
   'evals/cases.json',
+  'evals/expected-invariants.md',
+  'evals/machine-expectations.json',
+  'evals/positive-cases.json',
+  'evals/refusal-cases.json',
+  'evals/run-result-schema.json',
+  'evals/run-result-template.json',
   'evals/schema.json',
+  'evals/score-run.mjs',
+  'evidence/2026-09-05-release-candidate-offline-conformance.md',
+  'examples/chatgpt.md',
+  'examples/claude.md',
+  'examples/client-configurations.md',
+  'examples/cline.md',
+  'examples/cursor.md',
+  'examples/gemini-cli.md',
+  'examples/goose.md',
+  'examples/mcp-inspector.md',
+  'examples/vscode.md',
+  'examples/windsurf.md',
   'gemini-extension.json',
   'llms-install.md',
   'mcp.json',
@@ -68,8 +114,9 @@ if (args.has('--help') || args.has('-h')) {
 
 Without flags, validates the package offline: inventory, every JSON file,
 manifests, evaluation cases, versions, endpoint references, client examples,
-demo/proof assets, the local icon, Docker MCP Catalog submission files,
-proprietary licensing, and relative Markdown links.
+compatibility entry points, listing copy, demo/proof assets, local icons,
+Docker MCP Catalog submission files, proprietary licensing, and relative
+Markdown links.
 
 --live  Also makes read-only requests to the configured hosted MCP endpoint and
         verifies its discovery document, version, anonymous tool list, and
@@ -123,6 +170,24 @@ function valueAt(object, keys, label) {
 
 function assertString(value, label) {
   assert(typeof value === 'string' && value.trim().length > 0, `${label} must be a non-empty string`);
+}
+
+function assertSourceRightsDescription(value, label) {
+  assertString(value, label);
+  for (const marker of ['six', SOURCE_RIGHTS_REFUSAL, 'default-deny', 'wet_resolve']) {
+    assert(value.includes(marker), `${label} must disclose ${marker}`);
+  }
+  assert(/credentials? cannot bypass the hold/iu.test(value), `${label} must reject credential bypass`);
+}
+
+function assertSourceRightsRecord(value, label, { requireToolNames = true } = {}) {
+  for (const marker of [SOURCE_RIGHTS_POLICY, SOURCE_RIGHTS_REFUSAL, 'default-deny', 'wet_resolve']) {
+    assert(value.includes(marker), `${label} must disclose ${marker}`);
+  }
+  assert(/(?:credential|API key|OAuth)/iu.test(value) && /bypass/iu.test(value), `${label} must reject credential bypass`);
+  if (requireToolNames) {
+    for (const tool of SOURCE_RIGHTS_GATED_TOOLS) assert(value.includes(tool), `${label} must name held tool ${tool}`);
+  }
 }
 
 function assertUrl(value, label, { https = true } = {}) {
@@ -180,14 +245,25 @@ function validateWithLocalSchema(value, definition, rootSchema, location = '$') 
   let schema = definition;
   if (typeof schema?.$ref === 'string') schema = resolveJsonPointer(rootSchema, schema.$ref);
 
-  const typeMatches =
-    schema.type === undefined ||
-    (schema.type === 'object' && isRecord(value)) ||
-    (schema.type === 'array' && Array.isArray(value)) ||
-    (schema.type === 'string' && typeof value === 'string');
-  if (!typeMatches) return [`${location} must be ${schema.type}`];
+  const types = schema.type === undefined ? [] : Array.isArray(schema.type) ? schema.type : [schema.type];
+  const typeMatches = types.length === 0 || types.some((type) =>
+    (type === 'object' && isRecord(value)) ||
+    (type === 'array' && Array.isArray(value)) ||
+    (type === 'string' && typeof value === 'string') ||
+    (type === 'number' && typeof value === 'number' && Number.isFinite(value)) ||
+    (type === 'integer' && Number.isInteger(value)) ||
+    (type === 'boolean' && typeof value === 'boolean') ||
+    (type === 'null' && value === null));
+  if (!typeMatches) return [`${location} must be ${types.join(' or ')}`];
 
-  if (schema.type === 'object') {
+  if ('const' in schema && JSON.stringify(value) !== JSON.stringify(schema.const)) {
+    errors.push(`${location} must equal the declared constant`);
+  }
+  if (Array.isArray(schema.enum) && !schema.enum.some((candidate) => JSON.stringify(candidate) === JSON.stringify(value))) {
+    errors.push(`${location} is not in the declared enum`);
+  }
+
+  if (types.includes('object') && isRecord(value)) {
     for (const key of schema.required ?? []) {
       if (!(key in value)) errors.push(`${location} is missing required property ${key}`);
     }
@@ -202,9 +278,12 @@ function validateWithLocalSchema(value, definition, rootSchema, location = '$') 
     }
   }
 
-  if (schema.type === 'array') {
+  if (types.includes('array') && Array.isArray(value)) {
     if (typeof schema.minItems === 'number' && value.length < schema.minItems) {
       errors.push(`${location} must contain at least ${schema.minItems} items`);
+    }
+    if (typeof schema.maxItems === 'number' && value.length > schema.maxItems) {
+      errors.push(`${location} must contain at most ${schema.maxItems} items`);
     }
     if (schema.items) {
       value.forEach((item, index) => {
@@ -213,14 +292,20 @@ function validateWithLocalSchema(value, definition, rootSchema, location = '$') 
     }
   }
 
-  if (schema.type === 'string') {
+  if (types.includes('string') && typeof value === 'string') {
     if (typeof schema.minLength === 'number' && value.length < schema.minLength) {
       errors.push(`${location} must contain at least ${schema.minLength} characters`);
+    }
+    if (typeof schema.maxLength === 'number' && value.length > schema.maxLength) {
+      errors.push(`${location} must contain at most ${schema.maxLength} characters`);
     }
     if (typeof schema.pattern === 'string' && !new RegExp(schema.pattern, 'u').test(value)) {
       errors.push(`${location} does not match ${schema.pattern}`);
     }
     if (schema.format === 'date' && !validDate(value)) errors.push(`${location} is not a valid calendar date`);
+    if (schema.format === 'date-time' && !Number.isFinite(Date.parse(value))) {
+      errors.push(`${location} is not a valid date-time`);
+    }
     if (schema.format === 'uri-reference') {
       try {
         new URL(value, 'https://package.invalid/');
@@ -228,6 +313,11 @@ function validateWithLocalSchema(value, definition, rootSchema, location = '$') 
         errors.push(`${location} is not a URI reference`);
       }
     }
+  }
+
+  if ((types.includes('number') || types.includes('integer')) && typeof value === 'number') {
+    if (typeof schema.minimum === 'number' && value < schema.minimum) errors.push(`${location} is below minimum`);
+    if (typeof schema.maximum === 'number' && value > schema.maximum) errors.push(`${location} is above maximum`);
   }
 
   return errors;
@@ -286,6 +376,16 @@ await check('required package, client, CI, Docker, and asset inventory', async (
   const present = new Set(files.map(relative));
   const missing = REQUIRED_FILES.filter((file) => !present.has(file));
   assert(missing.length === 0, `missing: ${missing.join(', ')}`);
+  const caseGroups = new Map();
+  for (const name of present) {
+    const key = name.toLowerCase();
+    caseGroups.set(key, [...(caseGroups.get(key) ?? []), name]);
+  }
+  const collisions = [...caseGroups.values()].filter((names) => names.length > 1);
+  assert(collisions.length === 0, `case-colliding paths: ${collisions.map((names) => names.join(' / ')).join(', ')}`);
+  for (const legacyCase of ['docs/AUTHENTICATION.md', 'docs/QUICKSTART.md', 'docs/SCANNERS.md', 'docs/TOOLS.md']) {
+    assert(!present.has(legacyCase), `${legacyCase} must be represented only by its lowercase canonical path`);
+  }
 });
 
 for (const file of jsonFiles) {
@@ -322,9 +422,20 @@ await check('MCP Registry server manifest', async () => {
   assert(Array.isArray(manifest.remotes) && manifest.remotes.length === 1, 'server manifest must have one remote');
   assert(manifest.remotes[0].type === 'streamable-http', 'server remote must use streamable-http');
   assert(manifest.remotes[0].url === ENDPOINT, `server remote must be ${ENDPOINT}`);
-  const access = manifest._meta?.['io.modelcontextprotocol.registry/publisher-provided']?.access;
+  assertSourceRightsDescription(manifest.description, 'server description');
+  const publisherMeta = manifest._meta?.['io.modelcontextprotocol.registry/publisher-provided'];
+  const access = publisherMeta?.access;
   assert(access?.research === 'keyless-read-only', 'research access must remain keyless-read-only');
   assert(access?.account === 'oauth-optional', 'account access must remain oauth-optional');
+  const sourceRights = publisherMeta?.sourceRights;
+  assert(sourceRights?.policyVersion === SOURCE_RIGHTS_POLICY, 'server source-rights policy mismatch');
+  assert(sourceRights?.enforcement === 'default-deny', 'server source-rights enforcement must be default-deny');
+  assert(sourceRights?.filtering === SOURCE_RIGHTS_FILTERING, 'server source-rights filtering mismatch');
+  assert(sourceRights?.mixedSourceFiltering === false, 'server must disclose that mixed-source filtering is unavailable');
+  assertSameMembers(sourceRights?.heldTools ?? [], SOURCE_RIGHTS_GATED_TOOLS, 'server held source-rights tools');
+  assertSameMembers(sourceRights?.usableTools ?? [], ['wet_resolve'], 'server source-rights exceptions');
+  assert(sourceRights?.refusalCode === SOURCE_RIGHTS_REFUSAL, 'server source-rights refusal code mismatch');
+  assert(sourceRights?.credentialBypass === false, 'server must forbid credential bypass');
 });
 
 await check('Agent Plugins, Claude, and Gemini manifests', async () => {
@@ -342,7 +453,7 @@ await check('Agent Plugins, Claude, and Gemini manifests', async () => {
   ]) {
     assert(manifest.version === packageVersion, `${name} version must be ${packageVersion}`);
     assertString(manifest.name, `${name} name`);
-    assertString(manifest.description, `${name} description`);
+    assertSourceRightsDescription(manifest.description, `${name} description`);
   }
   assert(plugin.license === PACKAGE_LICENSE, `plugin.json license must be ${PACKAGE_LICENSE}`);
   assert(claude.license === PACKAGE_LICENSE, `.claude-plugin/plugin.json license must be ${PACKAGE_LICENSE}`);
@@ -376,8 +487,40 @@ await check('standalone CI runs offline validation with opt-in live checks', asy
   assert(workflow.includes('node scripts/verify-live.mjs'), 'standalone CI must expose the seven-tool clean-client proof');
   assert(/workflow_dispatch:[\s\S]*?live:[\s\S]*?type:\s*boolean/mu.test(workflow), 'live validation must be an explicit boolean workflow-dispatch input');
   assert(/workflow_dispatch:[\s\S]*?endpoint:[\s\S]*?type:\s*string/mu.test(workflow), 'clean-client CI must accept a preview endpoint');
+  assert(/workflow_dispatch:[\s\S]*?candidate_protocol_only:[\s\S]*?type:\s*boolean/mu.test(workflow), 'clean-client CI must expose an explicit candidate-only mode');
   assert(/github\.event_name == 'workflow_dispatch' && inputs\.live/u.test(workflow), 'live CI job must be manually gated');
   assert(/WET_MCP_ENDPOINT:\s*\$\{\{ inputs\.endpoint \}\}/u.test(workflow), 'clean-client CI must pass the selected endpoint as data');
+  assert(workflow.includes('node scripts/verify-live.mjs --candidate-allow-source-rights-pending'), 'clean-client CI must keep candidate proof explicit');
+  assert(/!inputs\.candidate_protocol_only[\s\S]*node scripts\/verify-live\.mjs/u.test(workflow), 'default live CI must run full launch readiness');
+
+  const compatibilityWorkflow = await readFile(
+    path.join(PACKAGE_ROOT, '.github/workflows/validate-mcp.yml'),
+    'utf8',
+  );
+  for (const marker of [
+    'node-version: 22',
+    'node --check scripts/verify-live.mjs',
+    'node scripts/validate.mjs',
+    'node scripts/validate.mjs --live',
+    'node scripts/verify-live.mjs',
+    'node scripts/verify-live.mjs --candidate-allow-source-rights-pending',
+    'candidate_protocol_only:',
+    'WET_MCP_ENDPOINT: ${{ inputs.endpoint }}',
+  ]) {
+    assert(compatibilityWorkflow.includes(marker), `validate-mcp.yml is missing ${marker}`);
+  }
+  assert(
+    /workflow_dispatch:[\s\S]*?live:[\s\S]*?type:\s*boolean/mu.test(compatibilityWorkflow),
+    'validate-mcp.yml must retain the explicit live-check gate',
+  );
+  assert(
+    /workflow_dispatch:[\s\S]*?candidate_protocol_only:[\s\S]*?type:\s*boolean/mu.test(compatibilityWorkflow),
+    'validate-mcp.yml must retain the explicit candidate-only gate',
+  );
+  assert(
+    !/^\s*(?:push|pull_request):/mu.test(compatibilityWorkflow),
+    'validate-mcp.yml must remain manual so it does not duplicate canonical push or pull-request CI',
+  );
 });
 
 await check('official registry publishing is pinned and domain-authenticated', async () => {
@@ -447,15 +590,56 @@ await check('client configurations use the canonical endpoint', async () => {
   ]) {
     assert(clientReadme.includes(marker), `clients/README.md does not advertise ${client} via ${marker}`);
   }
+  assertSourceRightsRecord(clientReadme, 'clients/README.md', { requireToolNames: false });
+
+  const markdownExamples = [
+    ['examples/claude.md', 'clients/claude-code.json'],
+    ['examples/chatgpt.md', 'developers.openai.com/plugins/deploy/connect-chatgpt'],
+    ['examples/cursor.md', 'clients/cursor.json'],
+    ['examples/vscode.md', 'clients/vscode.json'],
+    ['examples/cline.md', 'clients/cline.json'],
+    ['examples/windsurf.md', 'clients/windsurf.json'],
+    ['examples/gemini-cli.md', 'clients/gemini-cli.json'],
+    ['examples/goose.md', 'clients/goose.yaml'],
+    ['examples/mcp-inspector.md', '@modelcontextprotocol/inspector'],
+  ];
+  for (const [name, canonicalMarker] of markdownExamples) {
+    const source = await readFile(path.join(PACKAGE_ROOT, name), 'utf8');
+    assert(source.includes(ENDPOINT), `${name} endpoint mismatch`);
+    assert(source.includes(canonicalMarker), `${name} does not delegate to ${canonicalMarker}`);
+    assert(/record .*(?:version|UTC)|record the .*version and UTC/iu.test(source), `${name} must require dated client evidence`);
+    assertSourceRightsRecord(source, name, { requireToolNames: false });
+  }
+
+  const exampleIndex = await readFile(path.join(PACKAGE_ROOT, 'examples/client-configurations.md'), 'utf8');
+  assert(exampleIndex.includes(ENDPOINT), 'examples/client-configurations.md endpoint mismatch');
+  assertSourceRightsRecord(exampleIndex, 'examples/client-configurations.md', { requireToolNames: false });
+  for (const marker of ['claude-code.json', 'cline.json', 'cursor.json', 'gemini-cli.json', 'goose.yaml', 'mcp-inspector.md', 'vscode.json', 'windsurf.json']) {
+    assert(exampleIndex.includes(marker), `examples/client-configurations.md is missing ${marker}`);
+  }
 });
 
-await check('all package endpoint references are canonical', async () => {
+await check('configuration endpoints are canonical and local evidence endpoints are bounded', async () => {
   let referenceCount = 0;
   for (const file of files.filter((candidate) => /\.(?:json|md|ya?ml)$/iu.test(candidate))) {
     const source = await readFile(file, 'utf8');
+    const fileName = relative(file);
     for (const reference of endpointReferences(source)) {
       referenceCount += 1;
-      assert(reference === ENDPOINT, `${relative(file)} contains a non-canonical MCP endpoint: ${reference}`);
+      const boundedLoopbackEvidence =
+        fileName.startsWith('evidence/') &&
+        /^http:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?\/api\/mcp\/?$/iu.test(reference);
+      assert(
+        reference === ENDPOINT || boundedLoopbackEvidence,
+        `${fileName} contains a non-canonical MCP endpoint outside the local-evidence exception: ${reference}`,
+      );
+      if (boundedLoopbackEvidence) {
+        assert(
+          /local release-candidate evidence only[\s\S]*does not establish[\s\S]*launch\s+readiness/iu.test(source) &&
+            /not the canonical advertised host/iu.test(source),
+          `${fileName} must identify a loopback endpoint as non-canonical local evidence`,
+        );
+      }
     }
   }
   assert(referenceCount >= 10, `expected package-wide endpoint references, found only ${referenceCount}`);
@@ -464,28 +648,117 @@ await check('all package endpoint references are canonical', async () => {
 await check('evaluation cases conform to evals/schema.json', async () => {
   const schema = packageJson('evals/schema.json');
   const cases = packageJson('evals/cases.json');
+  const positiveView = packageJson('evals/positive-cases.json');
+  const refusalView = packageJson('evals/refusal-cases.json');
+  const machineExpectations = packageJson('evals/machine-expectations.json');
+  const runResultSchema = packageJson('evals/run-result-schema.json');
+  const runResultTemplate = packageJson('evals/run-result-template.json');
   assert(schema.$schema === 'https://json-schema.org/draft/2020-12/schema', 'evaluation schema must use JSON Schema 2020-12');
   assert(schema.additionalProperties === false, 'evaluation schema must reject unknown top-level properties');
   assert(isRecord(schema.properties?.$schema), 'evaluation schema must allow the cases.json $schema property');
   assert(cases.$schema === './schema.json', 'cases.json must reference ./schema.json');
   const errors = validateWithLocalSchema(cases, schema, schema);
   assert(errors.length === 0, errors.join('; '));
+  assert(
+    cases.principles.some(
+      (principle) =>
+        principle.includes(SOURCE_RIGHTS_POLICY) &&
+        principle.includes(SOURCE_RIGHTS_REFUSAL) &&
+        principle.includes('post-clearance targets') &&
+        principle.includes('wet_resolve'),
+    ),
+    'eval principles must distinguish held sourced cases from the currently usable resolver case',
+  );
+  assert(Array.isArray(positiveView), 'evals/positive-cases.json must be an array');
+  assert(Array.isArray(refusalView), 'evals/refusal-cases.json must be an array');
+  assert(
+    JSON.stringify(positiveView) === JSON.stringify(cases.positive),
+    'evals/positive-cases.json must be an exact view of cases.json#/positive',
+  );
+  assert(
+    JSON.stringify(refusalView) === JSON.stringify(cases.negative),
+    'evals/refusal-cases.json must be an exact view of cases.json#/negative',
+  );
 
   const allCases = [...cases.positive, ...cases.negative];
   const ids = allCases.map((entry) => entry.id);
   assert(new Set(ids).size === ids.length, 'evaluation case ids must be unique');
-  const toolDoc = await readFile(path.join(PACKAGE_ROOT, 'docs/TOOLS.md'), 'utf8');
+  assert(
+    machineExpectations.schemaVersion === 'wet.eval-machine-expectations/v1',
+    'machine expectations version mismatch',
+  );
+  assertSameMembers(Object.keys(machineExpectations.cases ?? {}), ids, 'machine expectation case ids');
+  for (const entry of allCases) {
+    const expectation = machineExpectations.cases?.[entry.id];
+    assert(isRecord(expectation), `${entry.id} has no machine expectation`);
+    assert(
+      expectation.toolSequence === 'exact' || expectation.toolSequence === 'ordered-subsequence',
+      `${entry.id} has an invalid toolSequence policy`,
+    );
+    assert(Array.isArray(expectation.requiredCitationFields), `${entry.id} citation fields must be an array`);
+    assert(
+      expectation.requiredCitationFields.every((field) => ['source_url', 'venue', 'timestamp'].includes(field)),
+      `${entry.id} contains an unsupported citation field`,
+    );
+    assert(Array.isArray(expectation.requiredRefusalCodes), `${entry.id} refusal codes must be an array`);
+  }
+  assert(
+    runResultSchema.$schema === 'https://json-schema.org/draft/2020-12/schema' &&
+      runResultSchema.additionalProperties === false,
+    'run-result schema must be a closed JSON Schema 2020-12 document',
+  );
+  const runTemplateErrors = validateWithLocalSchema(runResultTemplate, runResultSchema, runResultSchema);
+  assert(runTemplateErrors.length === 0, runTemplateErrors.join('; '));
+  assert(runResultTemplate.status === 'not-run', 'the committed eval template must remain explicitly not-run');
+  assertSameMembers(runResultTemplate.cases.map((entry) => entry.id), ids, 'run-result template case ids');
+  for (const entry of allCases) {
+    const templateCase = runResultTemplate.cases.find((candidate) => candidate.id === entry.id);
+    assert(templateCase.view === (cases.positive.includes(entry) ? 'positive' : 'refusal'), `${entry.id} template view mismatch`);
+    assert(
+      JSON.stringify(templateCase.assertions.map((assertion) => assertion.text)) === JSON.stringify(entry.assertions),
+      `${entry.id} template assertions drifted from cases.json`,
+    );
+  }
+  const scoreRunner = await readFile(path.join(PACKAGE_ROOT, 'evals/score-run.mjs'), 'utf8');
+  for (const marker of ['orderedSubsequence', 'requiredCitationFields', 'requiredRefusalCodes', 'positiveMinimum: 0.9', 'refusalMinimum: 1']) {
+    assert(scoreRunner.includes(marker), `eval score runner is missing deterministic check marker ${marker}`);
+  }
+  const toolDoc = await readFile(path.join(PACKAGE_ROOT, 'docs/tools.md'), 'utf8');
   const documentedTools = new Set([...toolDoc.matchAll(/`(wet_[a-z0-9_]+)`/gu)].map((match) => match[1]));
-  for (const tool of PUBLIC_TOOLS) assert(documentedTools.has(tool), `${tool} is missing from docs/TOOLS.md`);
+  for (const tool of PUBLIC_TOOLS) assert(documentedTools.has(tool), `${tool} is missing from docs/tools.md`);
   for (const entry of allCases) {
     for (const tool of entry.expectedTools) {
       assert(documentedTools.has(tool), `${entry.id} expects undocumented tool ${tool}`);
     }
   }
+
+  const [views, invariants] = await Promise.all([
+    readFile(path.join(PACKAGE_ROOT, 'evals/VIEWS.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'evals/expected-invariants.md'), 'utf8'),
+  ]);
+  for (const marker of ['positive-cases.json', 'refusal-cases.json', 'expected-invariants.md']) {
+    assert(views.includes(marker), `evals/VIEWS.md is missing ${marker}`);
+  }
+  for (const entry of allCases) {
+    assert(invariants.includes(`\`${entry.id}\``), `evals/expected-invariants.md is missing ${entry.id}`);
+  }
+  for (const [label, source] of [
+    ['evals/VIEWS.md', views],
+    ['evals/expected-invariants.md', invariants],
+  ]) {
+    for (const marker of [SOURCE_RIGHTS_POLICY, SOURCE_RIGHTS_REFUSAL, 'wet_resolve']) {
+      assert(source.includes(marker), `${label} is missing current source-rights marker: ${marker}`);
+    }
+  }
+  assert(
+    /90 percent positive[\s\S]*100 percent refusal/iu.test(invariants) &&
+      /release targets, not prefilled results/iu.test(invariants),
+    'expected-invariants.md must distinguish release targets from achieved scores',
+  );
 });
 
 await check('public tool contract remains seven keyless read-only tools', async () => {
-  const toolDoc = await readFile(path.join(PACKAGE_ROOT, 'docs/TOOLS.md'), 'utf8');
+  const toolDoc = await readFile(path.join(PACKAGE_ROOT, 'docs/tools.md'), 'utf8');
   const publicSection = toolDoc.split('## W.E.T. Scanners and alerts')[0];
   const listed = [...publicSection.matchAll(/^\|\s*`(wet_[a-z0-9_]+)`\s*\|/gmu)].map((match) => match[1]);
   assertSameMembers(listed, PUBLIC_TOOLS, 'documented public tools');
@@ -494,20 +767,27 @@ await check('public tool contract remains seven keyless read-only tools', async 
     `public tools must remain index-first; received ${listed.join(', ')}`,
   );
   assert(publicSection.includes('All seven declare read-only, non-destructive annotations.'), 'public annotation commitment is missing');
+  assertSourceRightsRecord(publicSection, 'docs/tools.md');
+  assert(publicSection.includes(SOURCE_RIGHTS_FILTERING), 'tool reference must disclose coarse source-rights filtering');
+  assert(/zero market or index value fields/iu.test(publicSection), 'tool reference must disclose the zero-value hold boundary');
 });
 
 await check('distribution doctrine, health, routing, and rights copy stay aligned', async () => {
-  const [readme, identity, dataSources, freshness, limitations, support, quickstart, reviewer, gemini, skill] = await Promise.all([
+  const [readme, identity, dataSources, freshness, limitations, support, quickstart, reviewer, gemini, skill, authentication, tools, scanners, privacy] = await Promise.all([
     readFile(path.join(PACKAGE_ROOT, 'README.md'), 'utf8'),
     readFile(path.join(PACKAGE_ROOT, 'docs/CONTRACT-IDENTITY.md'), 'utf8'),
     readFile(path.join(PACKAGE_ROOT, 'docs/DATA-SOURCES.md'), 'utf8'),
     readFile(path.join(PACKAGE_ROOT, 'docs/FRESHNESS.md'), 'utf8'),
     readFile(path.join(PACKAGE_ROOT, 'docs/LIMITATIONS.md'), 'utf8'),
     readFile(path.join(PACKAGE_ROOT, 'SUPPORT.md'), 'utf8'),
-    readFile(path.join(PACKAGE_ROOT, 'docs/QUICKSTART.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/quickstart.md'), 'utf8'),
     readFile(path.join(PACKAGE_ROOT, 'docs/REVIEWER-GUIDE.md'), 'utf8'),
     readFile(path.join(PACKAGE_ROOT, 'GEMINI.md'), 'utf8'),
     readFile(path.join(PACKAGE_ROOT, 'skills/wet-research/SKILL.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/authentication.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/tools.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'docs/scanners.md'), 'utf8'),
+    readFile(path.join(PACKAGE_ROOT, 'PRIVACY.md'), 'utf8'),
   ]);
 
   assert(identity.includes('Human-confirmed same-question identity'), 'identity guide must name the canonical confirmation tier');
@@ -526,22 +806,257 @@ await check('distribution doctrine, health, routing, and rights copy stay aligne
   }
 
   const dataRow = readme.split(/\r?\n/u).find((line) => line.includes('| W.E.T. Data |')) ?? '';
-  assert(/Normalized current venue API and higher throughput/iu.test(dataRow), 'W.E.T. Data row must describe the live entitlement');
-  assert(!/history|commercial/iu.test(dataRow), 'W.E.T. Data entitlement row must not sell history or commercial rights');
+  assert(/outside this MCP phase-one gate/iu.test(dataRow), 'W.E.T. Data row must disclose the separate rights boundary');
+  assert(
+    /makes no source-rights, history, SLA, or redistribution claim/iu.test(dataRow),
+    'W.E.T. Data entitlement row must not sell uncleared history, SLA, or redistribution rights',
+  );
+  const scannerRow = readme.split(/\r?\n/u).find((line) => line.includes('| W.E.T. Scanners |')) ?? '';
+  assert(
+    /preview, create\/resume\/run, and delivery are held/iu.test(scannerRow) && /Pause and two-step deletion/iu.test(scannerRow),
+    'W.E.T. Scanners row must distinguish held data actions from rights-safe stop controls',
+  );
   assert(
     /commercial-use and redistribution[\s\S]*planned[\s\S]*not currently purchasable[\s\S]*no entitlement/iu.test(readme),
     'README must state that commercial and redistribution rights are planned and create no entitlement',
   );
 
+  for (const [label, source, requireToolNames] of [
+    ['README.md', readme, false],
+    ['docs/DATA-SOURCES.md', dataSources, true],
+    ['docs/quickstart.md', quickstart, true],
+    ['docs/REVIEWER-GUIDE.md', reviewer, false],
+    ['GEMINI.md', gemini, true],
+    ['skills/wet-research/SKILL.md', skill, true],
+    ['docs/authentication.md', authentication, false],
+    ['docs/tools.md', tools, true],
+  ]) {
+    assertSourceRightsRecord(source, label, { requireToolNames });
+  }
+  for (const [label, source] of [
+    ['README.md', readme],
+    ['docs/DATA-SOURCES.md', dataSources],
+    ['GEMINI.md', gemini],
+    ['skills/wet-research/SKILL.md', skill],
+    ['docs/authentication.md', authentication],
+    ['docs/tools.md', tools],
+  ]) {
+    assert(source.includes(SOURCE_RIGHTS_FILTERING), `${label} must disclose coarse phase-1 filtering`);
+    assert(/mixed-source filtering is not implemented/iu.test(source), `${label} must disclose unavailable mixed-source filtering`);
+  }
+  assert(/sole public (?:exception|tool)|only `wet_resolve` remains usable/iu.test(skill + gemini), 'agent entry points must identify wet_resolve as the sole public exception');
+  assert(/protocol-safe[\s\S]{0,120}not a useful sourced result/iu.test(skill), 'skill must distinguish safe protocol behavior from useful sourced output');
+  for (const [label, source] of [
+    ['docs/quickstart.md', quickstart],
+    ['docs/REVIEWER-GUIDE.md', reviewer],
+    ['docs/authentication.md', authentication],
+    ['docs/tools.md', tools],
+  ]) {
+    assert(source.includes(ACCOUNT_OUTPUT_CONTRACT_REFUSAL), `${label} must name the independent account-output-contract refusal`);
+    assert(source.includes(SOURCE_RIGHTS_REFUSAL), `${label} must name the separate public source-rights refusal`);
+    assert(/headline-source rights|headline rights|publisher\/feed headline rights/iu.test(source), `${label} must disclose the scanner headline-rights chain`);
+    assert(/pause[\s\S]{0,240}two-step(?: scanner)? delet/iu.test(source), `${label} must preserve rights-safe scanner stop controls`);
+  }
+  assert(/current candidate safety review/iu.test(reviewer), 'reviewer guide must separate the current candidate safety review');
+  assert(/post-clearance full lifecycle review/iu.test(reviewer), 'reviewer guide must label the full lifecycle review post-clearance');
+  assert(/resume (?:is|remains) held/iu.test(reviewer + tools + authentication), 'account guides must keep scanner resume held');
+  assert(!/complete per-run log/iu.test(reviewer), 'reviewer guide must not describe status receipts as the complete run log');
+  assert(tools.includes('wet_run_scanner') && /post-clearance behavior|current exception/iu.test(tools), 'tool reference must document persisted runs without implying current execution');
+  assert(scanners.includes(SOURCE_RIGHTS_POLICY) && /default-deny/iu.test(scanners), 'scanner guide must disclose the current default-deny source-rights policy');
+  assert(/(?:API keys|OAuth credentials)[\s\S]{0,100}cannot bypass (?:either|the) hold/iu.test(scanners), 'scanner guide must reject credential bypass');
+  for (const marker of ['0032_scanner_lifecycle', 'schema_pending', 'wet_run_scanner', 'expectedRevision', 'idempotencyKey', 'two-step', 'durable outbox']) {
+    assert(scanners.includes(marker), `scanner guide is missing lifecycle boundary: ${marker}`);
+  }
   assert(
-    /event id[\s\S]{0,180}(?:venue supports drill-down|supported (?:venue )?drill-down adapter)[\s\S]{0,180}typed refusal/iu.test(quickstart) &&
-      /supported venue drill-down adapter[\s\S]{0,180}typed refusal/iu.test(gemini),
-    'client guidance must qualify event-id live reads by adapter support and preserve refusals',
+    /Rights-safe stop controls[\s\S]{0,180}pause[\s\S]{0,180}two-step deletion[\s\S]{0,180}Resume is held/iu.test(scanners),
+    'scanner guide must keep pause/delete rights-safe while resume remains held',
   );
   assert(
-    /^1\. .*`wet_benchmark_value` first/mu.test(skill),
-    'the packaged research workflow must begin with the governed benchmark tool when applicable',
+    !privacy.includes('argument key names/count') &&
+      privacy.includes('Caller-defined argument key names') &&
+      privacy.includes('are not stored') &&
+      /does not measure cross-day keyless retention/iu.test(privacy),
+    'package privacy summary must match minimized MCP telemetry',
   );
+  assert(
+    /four citation-readiness booleans/iu.test(privacy) &&
+      /do not copy the URL, venue, timestamp, market title, source text, or value/iu.test(privacy),
+    'package privacy summary must disclose citation-presence flags without implying copied citation values',
+  );
+  assert(
+    /non-runnable tombstone[\s\S]{0,240}account erasure/iu.test(privacy) &&
+      /durable outbox stores no recipient email address/iu.test(privacy),
+    'package privacy summary must disclose scanner retention and address-free outbox behavior',
+  );
+});
+
+await check('literal compatibility paths delegate to canonical records without claiming proof', async () => {
+  const aliases = [
+    ['DATA-SOURCES.md', 'docs/DATA-SOURCES.md'],
+    ['LIMITATIONS.md', 'docs/LIMITATIONS.md'],
+    ['docs/refusal-contract.md', 'REFUSALS.md'],
+    ['docs/identity-methodology.md', 'CONTRACT-IDENTITY.md'],
+    ['docs/freshness-and-quotes.md', 'FRESHNESS.md'],
+  ];
+  for (const [name, canonical] of aliases) {
+    const source = await readFile(path.join(PACKAGE_ROOT, name), 'utf8');
+    assert(source.includes(canonical), `${name} must delegate to ${canonical}`);
+    assert(/maintained|canonical/iu.test(source), `${name} must identify its maintained canonical record`);
+  }
+
+  for (const name of ['DATA-SOURCES.md', 'LIMITATIONS.md']) {
+    const source = await readFile(path.join(PACKAGE_ROOT, name), 'utf8');
+    assertSourceRightsRecord(source, name, { requireToolNames: false });
+  }
+
+  const coverage = await readFile(path.join(PACKAGE_ROOT, 'docs/coverage.md'), 'utf8');
+  for (const marker of [
+    'Coverage is runtime state',
+    'https://www.worldeventtrading.com/coverage',
+    'https://www.worldeventtrading.com/coverage.json',
+    'https://www.worldeventtrading.com/api/wet/v1/health',
+    '../DATA-SOURCES.md',
+    '../LIMITATIONS.md',
+    'FRESHNESS.md',
+  ]) {
+    assert(coverage.includes(marker), `docs/coverage.md is missing ${marker}`);
+  }
+
+  const screenshotsDirectory = path.join(PACKAGE_ROOT, 'assets/screenshots');
+  const screenshotEntries = (await readdir(screenshotsDirectory, { withFileTypes: true }))
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name);
+  assertSameMembers(screenshotEntries, ['README.md'], 'release-candidate screenshot evidence files');
+  const screenshotReadme = await readFile(path.join(screenshotsDirectory, 'README.md'), 'utf8');
+  for (const marker of ['No screenshot is included', 'reachable deployment', 'written public-output and brand-use clearance', 'redaction']) {
+    assert(screenshotReadme.includes(marker), `assets/screenshots/README.md is missing gate: ${marker}`);
+  }
+
+  const evidence = await readFile(
+    path.join(PACKAGE_ROOT, 'evidence/2026-09-05-release-candidate-offline-conformance.md'),
+    'utf8',
+  );
+  const currentEvidenceRows = [
+    '| MCP contract | `npm run mcp:verify` | 283/283 passed |',
+    '| Source-rights contract | `npm run mcp:source-rights:verify` | 101/101 passed |',
+    '| MCP route | `npm run mcp:route:check` | 97/97 passed |',
+    '| OAuth | `npm run oauth:verify` | 72/72 passed |',
+    '| Account API | `npm run account:verify` | 90/90 passed |',
+    '| Account deletion | `npm run account:delete:verify` | 44/44 passed |',
+    '| Alerts | `npm run alerts:verify` | 84/84 passed |',
+    '| Scanner contract | `npm run scanners:verify` | 312/312 passed |',
+    '| Scanner lifecycle (static) | `npm run scanners:lifecycle:verify` | 201/201 passed |',
+    '| Scanner lifecycle (fresh isolated PostgreSQL) | `npm run scanners:lifecycle:db:verify` | 65/65 passed |',
+    '| Public proof surfaces | `npm run mcp:public-proof:verify` | 24/24 passed |',
+    '| Playbook gaps | `npm run mcp:playbook:gaps:verify` | 11/11 passed |',
+    '| Output schemas | `npm run mcp:outputschema:verify` | 77/77 passed |',
+    '| Public surface | `npm run public:surface:verify` | 194/194 passed |',
+    '| Health semantics | `npm run health:semantics:verify` | 38/38 passed |',
+    '| Distribution snapshot | `npm run distribution:snapshot:verify` | 38/38 passed |',
+    '| Doctrine | `npm run doctrine:verify` | 112/112 passed |',
+    '| Market-volume semantics | `npm run market:volume:verify` | 72/72 passed |',
+    '| Prediction generator self-check | `npm run predictions:generate -- --self-check` | 17/17 passed |',
+    '| Prediction matchup | `npm run predictions:matchup:verify` | 10/10 passed |',
+    '| API semantics | `npm run api:semantics:verify` | 160/160 passed |',
+    '| Migration runner self-check | `node scripts/apply-migrations.mjs --self-check` | 8/8 passed |',
+  ];
+  for (const row of currentEvidenceRows) {
+    assert(evidence.includes(row), `offline conformance evidence is missing current result: ${row}`);
+  }
+  assert(
+    /not production evidence[\s\S]*not.*clean-client[\s\S]*not.*independent audit/iu.test(evidence) ||
+      /not production evidence[\s\S]*clean-client run[\s\S]*independent audit/iu.test(evidence),
+    'offline conformance evidence must disclaim production, clean-client, and independent proof',
+  );
+  assert(
+    /Local browser and MCP Inspector[^\r\n]*zero schema warnings[^\r\n]*six[^\r\n]*source_rights_pending[^\r\n]*wet_resolve[^\r\n]*caller-supplied/iu.test(evidence),
+    'offline conformance evidence must record the bounded local browser and Inspector result',
+  );
+  assert(
+    /Local live verifier[^\r\n]*protocol conformant[^\r\n]*not launch ready[^\r\n]*canonical host[^\r\n]*development health[^\r\n]*source-rights/iu.test(evidence),
+    'offline conformance evidence must preserve the local live-verifier launch blockers',
+  );
+  assert(
+    /Eval run template[^\r\n]*not-run[^\r\n]*0\/6 positive[^\r\n]*0\/8 refusal[^\r\n]*release thresholds[^\r\n]*false/iu.test(evidence),
+    'offline conformance evidence must keep the unexecuted eval result explicit',
+  );
+  assert(
+    /Public repository parity[^\r\n]*NOT ESTABLISHED/iu.test(evidence) &&
+      /Deployed endpoint and manifest parity[^\r\n]*NOT ESTABLISHED/iu.test(evidence),
+    'offline conformance evidence must not imply public-repository or deployed parity',
+  );
+  assert(
+    /owner[^\r\n]*legal[^\r\n]*deployment[^\r\n]*remain/iu.test(evidence),
+    'offline conformance evidence must retain owner, legal, and deployment gates',
+  );
+  assert(
+    /## Final-sync refresh[\s\S]*Final-sync status:\s*\*\*NOT COMPLETE\*\*/iu.test(evidence),
+    'offline conformance evidence must keep final sync explicitly incomplete',
+  );
+  assert(
+    /Public package[^\r\n]*`node distribution\/wet-mcp\/scripts\/validate\.mjs`[^\r\n]*\d+\/\d+ passed/iu.test(evidence) &&
+      !/Public package[^\r\n]*35\/35 passed/iu.test(evidence),
+    'offline conformance evidence must record a fresh package-validator observation without the stale 35/35 result',
+  );
+  assert(
+    /validator deliberately does not assert its own pass total/iu.test(evidence),
+    'offline conformance evidence must explain the non-circular package-validator boundary',
+  );
+});
+
+await check('directory worksheet is source-neutral, bounded, and explicitly unsubmitted', async () => {
+  const worksheet = await readFile(
+    path.join(PACKAGE_ROOT, 'docs/DIRECTORY-SUBMISSION-WORKSHEET.md'),
+    'utf8',
+  );
+  assert(
+    /Status: draft only[\s\S]*no submission[\s\S]*is claimed/iu.test(worksheet),
+    'directory worksheet must state that it is an unsubmitted draft',
+  );
+  assert(
+    /rights-cleared under the active policy[\s\S]*source-aware filtering[\s\S]*lineage purge\/rebuild[\s\S]*adapter toggle alone/iu.test(worksheet),
+    'directory worksheet must keep the grant-or-proven-source-removal release gate explicit',
+  );
+  assertSourceRightsRecord(worksheet, 'directory worksheet', { requireToolNames: false });
+  for (const marker of [
+    '| Product name |',
+    '| Package identifier |',
+    '| Release version |',
+    '| Transport |',
+    '| MCP endpoint |',
+    '| Repository |',
+    '| Access |',
+    '| Optional authorization |',
+    '| Execution boundary |',
+    '| License |',
+    '| Cline icon |',
+    '## Submission-specific mapping',
+    '## Evidence placeholders',
+    '## Submission log',
+  ]) {
+    assert(worksheet.includes(marker), `directory worksheet is missing field or section: ${marker}`);
+  }
+  assert(worksheet.includes(ENDPOINT), 'directory worksheet endpoint mismatch');
+  assert(
+    !/(?:\b(?:Kalshi|Polymarket|ForecastEx|Limitless|Myriad|Futuur|Manifold|Rain)\b|\bGemini\b(?![-_\s]CLI\b))/iu.test(worksheet),
+    'directory worksheet must not name an unapproved venue or ambiguous venue brand',
+  );
+  assert(
+    !/world(?:'s|’s)\s+first|\b(?:best|market-leading|real-time)\b|every (?:regulated )?venue|all venues|officially (?:approved|listed)|approved by|guaranteed/iu.test(worksheet),
+    'directory worksheet contains an unapproved or unverified listing claim',
+  );
+
+  const variants = [...worksheet.matchAll(/^\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*([^|\r\n]+?)\s*\|\s*$/gmu)].map((match) => ({
+    ceiling: Number(match[1]),
+    displayed: Number(match[2]),
+    copy: match[3].trim(),
+  }));
+  assertSameMembers(variants.map((entry) => entry.ceiling), [50, 60, 80, 120, 160, 250], 'listing-copy ceilings');
+  for (const variant of variants) {
+    const actual = [...variant.copy].length;
+    assert(actual === variant.displayed, `${variant.ceiling}-character variant count says ${variant.displayed}, actual ${actual}`);
+    assert(actual <= variant.ceiling, `${variant.ceiling}-character variant contains ${actual} characters`);
+  }
 });
 
 await check('truthful demo storyboards and clean-client proof are wired', async () => {
@@ -583,7 +1098,114 @@ await check('truthful demo storyboards and clean-client proof are wired', async 
   assert(proof.includes('resultSha256'), 'clean-client proof does not emit result hashes');
   assert(proof.includes('durationMs'), 'clean-client proof does not emit timings');
   assert(proof.includes('WET_MCP_ENDPOINT'), 'clean-client proof lacks configurable endpoint support');
+  for (const marker of [
+    SOURCE_RIGHTS_POLICY,
+    SOURCE_RIGHTS_REFUSAL,
+    SOURCE_RIGHTS_FILTERING,
+    '--candidate-allow-source-rights-pending',
+    'protocolConformant',
+    'usefulSourcedResult',
+    'sourceRightsPendingTools',
+    'launchReady',
+    'verificationPassed',
+    'PREFLIGHT_SURFACES',
+    'MAX_PREFLIGHT_JSON_BYTES',
+    'MAX_RPC_JSON_BYTES',
+    'mcp-status-get',
+    'cors-trusted-origin',
+    'cors-untrusted-origin',
+    'oauth-protected-challenge',
+    'oauth-resource-discovery-root',
+    'oauth-resource-discovery-scoped',
+    'oauth-authorization-discovery',
+    'service-feed-health',
+    'preflightConformant',
+    'gate4LaunchReady',
+    'healthLaunchReady',
+    'excludedSourceCount',
+    'exclusionReasonCounts',
+  ]) {
+    assert(proof.includes(marker), `clean-client proof is missing source-rights/readiness marker: ${marker}`);
+  }
+  assert(
+    /verificationPassed\s*=\s*options\.candidateAllowSourceRightsPending\s*\?\s*candidateProtocolPassed\s*:\s*launchReady/iu.test(proof),
+    'clean-client proof default outcome must be launch readiness, with only explicit candidate opt-in',
+  );
+  assert(
+    /listWithinBudget\s*=\s*typeof listed\.responseBytes[\s\S]{0,160}listed\.responseBytes\s*<=\s*30\s*\*\s*1024/iu.test(proof) &&
+      /listOk\s*=[^;]*listWithinBudget/iu.test(proof) &&
+      /stage:\s*'tools\/list'[\s\S]{0,260}responseBytes:/iu.test(proof),
+    'clean-client proof must enforce and report the 30 KiB anonymous tools/list budget',
+  );
+  assert(
+    /readBoundedText\(response, MAX_RPC_JSON_BYTES\)/u.test(proof) &&
+      /readBoundedText\(response, maximumBytes = MAX_PREFLIGHT_JSON_BYTES\)/u.test(proof),
+    'clean-client proof must bound both MCP and preflight JSON response bodies',
+  );
+  assert(
+    /const launchReady\s*=\s*protocolConformant\s*&&\s*gate4LaunchReady/iu.test(proof) &&
+      /const candidateProtocolPassed\s*=\s*protocolConformant\s*&&\s*preflightConformant/iu.test(proof),
+    'Gate 4 must block default launch readiness while candidate mode still requires structural preflight',
+  );
+  assert(
+    /healthLaunchReady\s*=\s*healthShapeOk[\s\S]{0,180}healthRightsAligned[\s\S]{0,80}healthCheckedAtFresh/iu.test(proof),
+    'Gate 4 health must require shape, current freshness, healthy sources, and rights-count alignment',
+  );
+  for (const pathname of [
+    '/mcp',
+    '/mcp.md',
+    '/mcp/llms.txt',
+    '/llms.txt',
+    '/.well-known/mcp/server-card.json',
+    '/.well-known/security.txt',
+    '/mcp/authentication',
+    '/security',
+    '/privacy',
+    '/terms',
+    '/support',
+    '/changelog',
+    '/coverage',
+    '/coverage.json',
+    '/data-sources',
+    '/limitations',
+    '/methodology',
+    '/governance',
+    '/methodology/contract-identity',
+    '/methodology/refusals',
+    '/status',
+    '/mcp/evals',
+    '/mcp/evals.json',
+    '/mcp/claude',
+    '/mcp/chatgpt',
+    '/mcp/cursor',
+    '/mcp/vscode',
+    '/mcp/cline',
+    '/mcp/windsurf',
+    '/mcp/gemini-cli',
+    '/mcp/goose',
+    '/mcp/mcp-inspector',
+    '/api/wet/v1/health',
+    '/.well-known/oauth-protected-resource',
+    '/.well-known/oauth-protected-resource/api/mcp',
+    '/.well-known/oauth-authorization-server',
+  ]) {
+    assert(proof.includes(`'${pathname}'`), `clean-client Gate 4 preflight is missing ${pathname}`);
+  }
+  assert(
+    !/sourceRights\?\.(?:protectedSources|configuredSources|approvedSources|excludedSources)|sourceRights\.(?:protectedSources|configuredSources|approvedSources|excludedSources)/u.test(proof) &&
+      !proof.includes('{ source: structured.source }'),
+    'clean-client proof must not emit protected source names',
+  );
+  assert(/sourceRightsPendingTools[\s\S]*launchBlockers/iu.test(proof), 'clean-client proof must make held sourced tools launch blockers');
   assert(!/["'](?:authorization|cookie|x-wet-api-key)["']\s*:/iu.test(proof), 'clean-client proof must not send credentials or cookies');
+  for (const [label, source] of [
+    ['assets/demo/README.md', demoReadme],
+    ['assets/demo/positive-55s-storyboard.md', positive],
+    ['assets/demo/negative-refusal-storyboard.md', negative],
+  ]) {
+    assert(source.includes(SOURCE_RIGHTS_REFUSAL), `${label} must disclose the current source-rights hold`);
+    assert(/protocol-safe[\s\S]{0,120}not (?:a )?useful sourced/iu.test(source), `${label} must distinguish protocol safety from useful sourced evidence`);
+  }
 });
 
 await check('relative Markdown links resolve inside the package', async () => {
@@ -610,13 +1232,24 @@ await check('relative Markdown links resolve inside the package', async () => {
   }
 });
 
-await check('512px PNG brand asset', async () => {
-  const icon = await readFile(path.join(PACKAGE_ROOT, 'assets/icon.png'));
+await check('PNG brand assets retain required dimensions and canonical source bytes', async () => {
   const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  assert(icon.length >= 24, 'assets/icon.png is truncated');
-  assert(icon.subarray(0, 8).equals(pngSignature), 'assets/icon.png is not a PNG');
-  assert(icon.toString('ascii', 12, 16) === 'IHDR', 'assets/icon.png has no PNG IHDR chunk');
-  assert(icon.readUInt32BE(16) === 512 && icon.readUInt32BE(20) === 512, 'assets/icon.png must be exactly 512x512');
+  async function readPng(name, width, height) {
+    const asset = await readFile(path.join(PACKAGE_ROOT, name));
+    assert(asset.length >= 24, `${name} is truncated`);
+    assert(asset.subarray(0, 8).equals(pngSignature), `${name} is not a PNG`);
+    assert(asset.toString('ascii', 12, 16) === 'IHDR', `${name} has no PNG IHDR chunk`);
+    assert(
+      asset.readUInt32BE(16) === width && asset.readUInt32BE(20) === height,
+      `${name} must be exactly ${width}x${height}`,
+    );
+    return asset;
+  }
+
+  const icon = await readPng('assets/icon.png', 512, 512);
+  const compatibilityIcon = await readPng('assets/icon-512.png', 512, 512);
+  await readPng('assets/cline-icon-400.png', 400, 400);
+  assert(compatibilityIcon.equals(icon), 'assets/icon-512.png must be byte-identical to assets/icon.png');
 });
 
 await check('proprietary package license boundary', async () => {
@@ -650,6 +1283,7 @@ await check('Docker MCP Catalog submission artifacts', async () => {
     [new RegExp(`^\\s{2}url:\\s*${ENDPOINT.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}\\s*$`, 'mu'), 'endpoint'],
   ];
   for (const [pattern, label] of requiredPatterns) assert(pattern.test(yaml), `Docker server.yaml is missing ${label}`);
+  assertSourceRightsDescription(yaml, 'Docker server description');
   assert(/^\s{2}icon:\s*https:\/\//mu.test(yaml), 'Docker icon must be an HTTPS URL');
   assert(!/^(?:oauth|config|image|source):/mu.test(yaml), 'Docker entry must not imply required credentials or a local image/source');
 });
@@ -672,7 +1306,14 @@ if (args.has('--live')) {
       'MCP discovery',
     );
     assert(discovery.status === 'ok', `unexpected discovery status ${discovery.status}`);
-    assert(discovery.endpoint === liveEndpoint, `live discovery endpoint mismatch: ${discovery.endpoint}`);
+    const advertisedEndpoint = assertUrl(discovery.endpoint, 'live discovery endpoint', {
+      https: !/^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?\//iu.test(discovery.endpoint),
+    }).toString();
+    const permittedAdvertisedEndpoints = new Set([liveEndpoint, new URL(ENDPOINT).toString()]);
+    assert(
+      permittedAdvertisedEndpoints.has(advertisedEndpoint),
+      `live discovery endpoint mismatch: ${discovery.endpoint}; expected requested preview or canonical production endpoint`,
+    );
     assert(discovery.server?.version === packageVersion, `live server version ${discovery.server?.version ?? 'missing'} does not match package ${packageVersion}`);
     const names = Array.isArray(discovery.tools) ? discovery.tools.map((tool) => tool?.name) : [];
     assert(names.every((name) => typeof name === 'string'), 'live discovery contains an unnamed tool');

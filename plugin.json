@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "wet-prediction-market-research",
   "version": "0.5.0",
-  "description": "Agent-safe prediction-market research with governed indexes, confirmed identity, live books, and typed refusals.",
+  "description": "Phase-1: six W.E.T.-sourced/derived tools return typed source_rights_pending under a default-deny hold; wet_resolve remains usable on caller-supplied text. Credentials cannot bypass the hold.",
   "author": {
     "name": "World Event Trading",
     "email": "hello@wet.news",

@@ -3,6 +3,7 @@
 **Target runtime:** 35–45 seconds.
 **Recording state:** storyboard only; not evidence of a completed live run.
 **Value policy:** the demo contains no prewritten market values. Any displayed row must come from the recorded take.
+**Current gate:** six sourced/derived tools return `source_rights_pending` under policy `mcp-source-rights/2026-09-05.phase1`; use only observed hold behavior and caller-supplied `wet_resolve` input until rights clearance.
 
 ## Unsafe prompt
 
@@ -16,7 +17,7 @@
 | 00:08–00:18 | Highlight the event-grouping and venue fields. | State that grouping is not contract identity and does not establish aligned settlement terms. |
 | 00:18–00:29 | Call `wet_cross_venue` instead of calculating from search rows. | Publish a gap only if this tool returns a human-confirmed same-question identity; retain its basis and settlement caution. |
 | 00:29–00:37 | Call `wet_resolve` on clearly labelled caller-supplied lookalikes while omitting settlement time. | Preserve the observed typed refusal and withhold identity; do not replace it with null, zero, or a guess. |
-| 00:37–00:42 | End on the refusal and “not arbitrage” language. | A safe refusal is a useful result, not a tool failure. |
+| 00:37–00:42 | End on the refusal and “not arbitrage” language. | A refusal can be protocol-safe but is not a useful sourced result. |
 
 ## Read-aloud transcript
 
