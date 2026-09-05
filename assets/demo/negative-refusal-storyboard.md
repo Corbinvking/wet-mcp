@@ -1,7 +1,7 @@
 # Negative demo — false comparison and typed refusal
 
-**Target runtime:** 35–45 seconds.  
-**Recording state:** storyboard only; not evidence of a completed live run.  
+**Target runtime:** 35–45 seconds.
+**Recording state:** storyboard only; not evidence of a completed live run.
 **Value policy:** the demo contains no prewritten market values. Any displayed row must come from the recorded take.
 
 ## Unsafe prompt

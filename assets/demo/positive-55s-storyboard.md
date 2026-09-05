@@ -1,7 +1,7 @@
 # Positive demo — 55-second storyboard and transcript
 
-**Target runtime:** 55 seconds at a clear conversational pace.  
-**Recording state:** storyboard only; not evidence of a completed live run.  
+**Target runtime:** 55 seconds at a clear conversational pace.
+**Recording state:** storyboard only; not evidence of a completed live run.
 **Value policy:** show only values, timestamps, source labels, and refusals returned during the recorded take.
 
 ## Storyboard
