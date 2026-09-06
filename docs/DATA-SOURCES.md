@@ -1,8 +1,8 @@
 # Data sources and coverage terms
 
-## Current default-deny hold
+## Candidate default-deny hold and current production containment
 
-Policy `mcp-source-rights/2026-09-05.phase1` holds every W.E.T.-sourced/derived public result. `wet_benchmark_value`, `wet_search_events`, `wet_screen_markets`, `wet_event_markets`, `wet_cross_venue`, and `wet_event_headlines` return typed `source_rights_pending` with policy and exclusion metadata and no market or index value fields. `wet_resolve` remains usable because it parses caller-supplied listing text and reads no W.E.T. board, corpus, ledger, or venue source.
+Production currently returns route-wide HTTP `503`/`mcp_release_held` before discovery or calls. In a controlled candidate environment, policy `mcp-source-rights/2026-09-05.phase1` holds every W.E.T.-sourced/derived public result. `wet_benchmark_value`, `wet_search_events`, `wet_screen_markets`, `wet_event_markets`, `wet_cross_venue`, and `wet_event_headlines` return typed `source_rights_pending` with policy and exclusion metadata and no market or index value fields. `wet_resolve` is the candidate exception because it parses caller-supplied listing text and reads no W.E.T. board, corpus, ledger, or venue source.
 
 The hold is coarse `coarse-all-rights-protected-sources`; mixed-source filtering is not implemented and partial approval cannot emit a partial sourced answer. Disabled audited sources remain rights-protected because historical derived material may persist. An API key, OAuth grant, paid tier, adapter state, or environment setting cannot approve rights or bypass the hold; environment controls may only disable sources.
 

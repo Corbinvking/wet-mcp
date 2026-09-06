@@ -2,7 +2,7 @@
 
 [`cases.json`](cases.json) is the single authoritative evaluation fixture. Its two top-level arrays have literal compatibility exports that the package validator requires to remain exact:
 
-Current default-deny policy `mcp-source-rights/2026-09-05.phase1` holds the six sourced/derived tools with typed `source_rights_pending`; `wet_resolve` remains usable for caller-supplied text. These views describe release targets and refusal invariants, not achieved sourced results.
+Production currently returns route-wide HTTP `503`/`mcp_release_held`. In a controlled candidate environment, default-deny policy `mcp-source-rights/2026-09-05.phase1` holds the six sourced/derived tools with typed `source_rights_pending`, while `wet_resolve` is the caller-supplied-text exception. These views describe release targets and refusal invariants, not achieved sourced results.
 
 - [Positive view](positive-cases.json): exact array view of `cases.json#/positive`
 - [Negative/refusal view](refusal-cases.json): exact array view of `cases.json#/negative`

@@ -70,13 +70,13 @@ jobs:
       - name: Validate with the Official MCP Registry publisher
         run: ./mcp-publisher validate
 
-      - name: Authenticate the worldeventtrading.com namespace
+      - name: Authenticate the worldeventtrading.com namespace by apex DNS proof
         env:
           MCP_REGISTRY_PRIVATE_KEY: ${{ secrets.MCP_REGISTRY_PRIVATE_KEY }}
         run: |
           set -euo pipefail
           test -n "$MCP_REGISTRY_PRIVATE_KEY"
-          ./mcp-publisher login http \
+          ./mcp-publisher login dns \
             --domain worldeventtrading.com \
             --private-key "$MCP_REGISTRY_PRIVATE_KEY"
 

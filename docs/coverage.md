@@ -2,7 +2,7 @@
 
 Coverage is runtime state, not a static package claim. This document intentionally does not freeze a source list into a release artifact.
 
-Current public-output policy is also not inferred from coverage. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return `source_rights_pending`; `wet_resolve` alone remains usable for caller-supplied text. Health, enablement, authentication, or paid access cannot bypass the hold.
+Current public-output policy is also not inferred from coverage. Production returns route-wide HTTP `503`/`mcp_release_held` before discovery or calls. In a controlled candidate environment, default-deny policy `mcp-source-rights/2026-09-05.phase1` makes six W.E.T.-sourced/derived tools return `source_rights_pending`; `wet_resolve` alone is the caller-supplied-text exception. Health, enablement, authentication, or paid access cannot bypass either hold.
 
 Use these public records together:
 

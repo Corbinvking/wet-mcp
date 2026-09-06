@@ -1,12 +1,15 @@
 # Tool reference
 
-The live MCP `tools/list` response is canonical. This document is a concise map, not a substitute for the schemas returned by the server.
+Production currently returns HTTP `503`/`mcp_release_held` before `tools/list`, so it exposes no
+tool inventory. After a future authorized release, the live MCP `tools/list` response is canonical.
+This document is a candidate map, not a claim of current availability or a substitute for schemas
+returned by an enabled server.
 
 ## W.E.T. Research — anonymous, keyless, read-only
 
-Policy `mcp-source-rights/2026-09-05.phase1` applies a default-deny hold to all W.E.T.-sourced/derived public output. Six tools therefore return typed `source_rights_pending` with policy and exclusion metadata and zero market or index value fields:
+In a controlled candidate environment, policy `mcp-source-rights/2026-09-05.phase1` applies a default-deny hold to all W.E.T.-sourced/derived public output. Six tools therefore return typed `source_rights_pending` with policy and exclusion metadata and zero market or index value fields:
 
-| Tool | Current phase-1 behavior | Do not claim |
+| Tool | Candidate phase-1 behavior | Do not claim |
 |---|---|---|
 | `wet_benchmark_value` | Typed `source_rights_pending` | A benchmark value, constituents, or attribution were returned |
 | `wet_search_events` | Typed `source_rights_pending` | Tracked-event discovery or coverage was returned |
@@ -16,7 +19,7 @@ Policy `mcp-source-rights/2026-09-05.phase1` applies a default-deny hold to all 
 | `wet_event_headlines` | Typed `source_rights_pending` | Matched news or causal evidence was returned |
 | `wet_resolve` | Usable structural parsing of caller-supplied listing text | Structural grouping proves exact settlement equivalence |
 
-All seven declare read-only, non-destructive annotations. `wet_resolve` is the sole public exception to the hold because it reads no W.E.T. board, corpus, ledger, or venue source. Phase 1 uses coarse `coarse-all-rights-protected-sources` enforcement: mixed-source filtering is not implemented, partial approval cannot emit a partial answer, and disabled audited sources remain protected because historical derived material may persist.
+All seven declare read-only, non-destructive annotations. This is a candidate commitment, not a current production inventory. `wet_resolve` is the candidate's sole tool-level exception because it reads no W.E.T. board, corpus, ledger, or venue source. The production route-wide hold supersedes every candidate tool. Phase 1 uses coarse `coarse-all-rights-protected-sources` enforcement: mixed-source filtering is not implemented, partial approval cannot emit a partial answer, and disabled audited sources remain protected because historical derived material may persist.
 
 An API key, OAuth grant, paid tier, readable or enabled adapter, or environment setting cannot approve rights or bypass the hold. Environment controls may only disable sources.
 

@@ -7,9 +7,15 @@ description: Use W.E.T.'s caller-supplied listing resolver and correctly preserv
 
 Use the W.E.T. MCP server as an independent index, event-navigation, and research layer. It is not an exchange and exposes no order flow.
 
-## Current source-rights hold
+## Current production and source-rights holds
 
-Policy `mcp-source-rights/2026-09-05.phase1` is default-deny. These six W.E.T.-sourced/derived tools currently return typed `source_rights_pending` results with policy and exclusion metadata and zero market or index value fields:
+Production currently returns HTTP `503`/`mcp_release_held` before discovery or tool dispatch, so no
+hosted tool is currently usable. Do not retry with credentials or represent the public package or its
+auto-indexed Gemini listing as an authorized release.
+
+In a controlled candidate environment, policy `mcp-source-rights/2026-09-05.phase1` is default-deny.
+These six W.E.T.-sourced/derived tools return typed `source_rights_pending` results with policy and
+exclusion metadata and zero market or index value fields:
 
 - `wet_benchmark_value`
 - `wet_search_events`
@@ -24,9 +30,9 @@ No API key, OAuth grant, paid tier, readable or enabled adapter, or environment 
 
 ## Workflow
 
-1. Use `wet_resolve` only for caller-supplied listing text. It is the sole public exception because it reads no W.E.T. board, corpus, ledger, or venue source.
+1. Only after a future authorized release, use `wet_resolve` for caller-supplied listing text. It is the candidate's sole public tool-level exception because it reads no W.E.T. board, corpus, ledger, or venue source.
 2. Treat its structural result as a parsing aid, not proof of exact settlement or contract equivalence.
-3. If one of the six sourced tools is called, preserve its `source_rights_pending` code, policy, exclusions, and zero-value boundary exactly.
+3. In a controlled candidate test, preserve a sourced tool's `source_rights_pending` code, policy, exclusions, and zero-value boundary exactly. In production while the route hold is active, preserve `mcp_release_held` instead.
 4. Do not retry with credentials, another tier, adapter changes, or environment changes to seek a sourced answer.
 5. Do not describe protocol conformance, local fixtures, or a typed hold as live-data, coverage, freshness, reliability, or source-rights evidence.
 

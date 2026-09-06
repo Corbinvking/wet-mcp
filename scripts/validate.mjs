@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { spawnSync } from 'node:child_process';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -14,6 +15,66 @@ const SOURCE_RIGHTS_POLICY = 'mcp-source-rights/2026-09-05.phase1';
 const SOURCE_RIGHTS_REFUSAL = 'source_rights_pending';
 const ACCOUNT_OUTPUT_CONTRACT_REFUSAL = 'account_output_contract_pending';
 const SOURCE_RIGHTS_FILTERING = 'coarse-all-rights-protected-sources';
+const MCP_REGISTRY_DESCRIPTION_MAX_LENGTH = 100;
+const MCP_REGISTRY_MANIFEST_CORE_SCHEMA = {
+  type: 'object',
+  required: ['name', 'description', 'version'],
+  properties: {
+    $schema: { type: 'string', format: 'uri' },
+    _meta: { type: 'object' },
+    name: {
+      type: 'string',
+      minLength: 3,
+      maxLength: 200,
+      pattern: '^[a-zA-Z0-9.-]+/[a-zA-Z0-9._-]+$',
+    },
+    title: { type: 'string', minLength: 1, maxLength: 100 },
+    description: { type: 'string', minLength: 1, maxLength: MCP_REGISTRY_DESCRIPTION_MAX_LENGTH },
+    version: { type: 'string', maxLength: 255 },
+    websiteUrl: { type: 'string', format: 'uri' },
+    repository: {
+      type: 'object',
+      required: ['url', 'source'],
+      properties: {
+        id: { type: 'string' },
+        source: { type: 'string' },
+        subfolder: { type: 'string' },
+        url: { type: 'string', format: 'uri' },
+      },
+    },
+    icons: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['src'],
+        properties: {
+          mimeType: {
+            type: 'string',
+            enum: ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'],
+          },
+          sizes: {
+            type: 'array',
+            items: { type: 'string', pattern: '^(\\d+x\\d+|any)$' },
+          },
+          src: { type: 'string', format: 'uri', maxLength: 255 },
+          theme: { type: 'string', enum: ['light', 'dark'] },
+        },
+      },
+    },
+    remotes: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['type', 'url'],
+        properties: {
+          type: { type: 'string', enum: ['streamable-http', 'sse'] },
+          url: { type: 'string', pattern: '^https?://[^\\s]+$' },
+          variables: { type: 'object' },
+        },
+      },
+    },
+  },
+};
 const SOURCE_RIGHTS_GATED_TOOLS = [
   'wet_benchmark_value',
   'wet_search_events',
@@ -174,10 +235,14 @@ function assertString(value, label) {
 
 function assertSourceRightsDescription(value, label) {
   assertString(value, label);
+  const normalized = value.toLowerCase();
   for (const marker of ['six', SOURCE_RIGHTS_REFUSAL, 'default-deny', 'wet_resolve']) {
-    assert(value.includes(marker), `${label} must disclose ${marker}`);
+    assert(normalized.includes(marker.toLowerCase()), `${label} must disclose ${marker}`);
   }
-  assert(/credentials? cannot bypass the hold/iu.test(value), `${label} must reject credential bypass`);
+  assert(
+    /(?:credentials? cannot bypass (?:the )?hold|no credential bypass)/iu.test(value),
+    `${label} must reject credential bypass`,
+  );
 }
 
 function assertSourceRightsRecord(value, label, { requireToolNames = true } = {}) {
@@ -306,6 +371,13 @@ function validateWithLocalSchema(value, definition, rootSchema, location = '$') 
     if (schema.format === 'date-time' && !Number.isFinite(Date.parse(value))) {
       errors.push(`${location} is not a valid date-time`);
     }
+    if (schema.format === 'uri') {
+      try {
+        new URL(value);
+      } catch {
+        errors.push(`${location} is not a valid absolute URI`);
+      }
+    }
     if (schema.format === 'uri-reference') {
       try {
         new URL(value, 'https://package.invalid/');
@@ -406,6 +478,15 @@ let packageVersion = null;
 
 await check('MCP Registry server manifest', async () => {
   const manifest = packageJson('server.json');
+  const schemaErrors = validateWithLocalSchema(
+    manifest,
+    MCP_REGISTRY_MANIFEST_CORE_SCHEMA,
+    MCP_REGISTRY_MANIFEST_CORE_SCHEMA,
+  );
+  assert(
+    schemaErrors.length === 0,
+    `server.json violates the official MCP Registry core schema constraints:\n${schemaErrors.join('\n')}`,
+  );
   assert(manifest.$schema === 'https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json', 'unexpected MCP Registry schema');
   assert(manifest.name === SERVER_NAME, `unexpected server name ${manifest.name}`);
   assertString(manifest.title, 'server title');
@@ -575,8 +656,10 @@ await check('official registry publishing is pinned and domain-authenticated', a
     'official publisher must validate server.json before registry authentication',
   );
   assert(
-    workflow.includes('login http') && workflow.includes('--domain worldeventtrading.com'),
-    'publisher must authenticate the domain namespace over HTTPS',
+    workflow.includes('login dns') &&
+      workflow.includes('--domain worldeventtrading.com') &&
+      !workflow.includes('login http'),
+    'publisher must authenticate the domain namespace with apex DNS proof, not redirect-sensitive HTTP proof',
   );
   assert(
     workflow.includes('secrets.MCP_REGISTRY_PRIVATE_KEY'),
@@ -593,7 +676,7 @@ await check('official registry publishing is pinned and domain-authenticated', a
     'node evals/score-run.mjs evals/latest-release-run.json',
     'run: node scripts/verify-live.mjs --expected-deployment-sha "$WET_EVALUATED_DEPLOYMENT_SHA"',
     './mcp-publisher validate',
-    './mcp-publisher login http',
+    './mcp-publisher login dns',
     './mcp-publisher publish',
     'registry.modelcontextprotocol.io/v0.1/servers',
   ].map((marker) => workflow.indexOf(marker));
@@ -718,7 +801,7 @@ await check('evaluation cases conform to evals/schema.json', async () => {
         principle.includes('post-clearance targets') &&
         principle.includes('wet_resolve'),
     ),
-    'eval principles must distinguish held sourced cases from the currently usable resolver case',
+    'eval principles must distinguish the production release hold from candidate source-rights behavior and the future resolver exception',
   );
   assert(Array.isArray(positiveView), 'evals/positive-cases.json must be an array');
   assert(Array.isArray(refusalView), 'evals/refusal-cases.json must be an array');
@@ -1054,7 +1137,7 @@ await check('literal compatibility paths delegate to canonical records without c
   assert(
     evidence.includes('e9dc1bc194783102b7ea88969d124f62c4cce8a6') &&
       evidence.includes('2026-09-05T12:40:52.679Z') &&
-      evidence.includes('1c74c3aaa67014631f9c354b7614bbee609a6a3d7c07bf3fc005c233aba55455'),
+      evidence.includes('ce36522bf240b89617e2db7ec3af991730efd3f90208716ac9bc9af895c5ac38'),
     'offline conformance evidence must bind the local code freeze, UTC observation, and public-output contract',
   );
   assert(
@@ -1214,6 +1297,20 @@ await check('truthful demo storyboards and clean-client proof are wired', async 
   assert(
     /healthLaunchReady\s*=\s*healthShapeOk[\s\S]{0,180}healthRightsAligned[\s\S]{0,80}healthCheckedAtFresh/iu.test(proof),
     'Gate 4 health must require shape, current freshness, healthy sources, and rights-count alignment',
+  );
+  const healthNormalizationFixtures = spawnSync(
+    process.execPath,
+    [path.join(PACKAGE_ROOT, 'scripts/verify-live.mjs'), '--self-test-health-normalization'],
+    { encoding: 'utf8' },
+  );
+  assert(
+    healthNormalizationFixtures.status === 0,
+    `health response envelope fixtures failed: ${healthNormalizationFixtures.stderr || healthNormalizationFixtures.stdout}`,
+  );
+  assert(
+    healthNormalizationFixtures.stdout.includes('"wet-v1-envelope"') &&
+      healthNormalizationFixtures.stdout.includes('"legacy-bare-health"'),
+    'health response envelope fixtures must cover the WET v1 envelope and the legacy bare shape',
   );
   for (const pathname of [
     '/mcp',

@@ -1,6 +1,7 @@
 # Limitations
 
-- Six W.E.T.-sourced/derived public tools currently return typed `source_rights_pending` under default-deny policy `mcp-source-rights/2026-09-05.phase1`, with zero market or index value fields. Only caller-supplied-text parsing through `wet_resolve` remains usable.
+- Production currently returns route-wide HTTP `503`/`mcp_release_held` before discovery or calls; no tool is currently usable from the hosted endpoint.
+- In a controlled candidate environment, six W.E.T.-sourced/derived public tools return typed `source_rights_pending` under default-deny policy `mcp-source-rights/2026-09-05.phase1`, with zero market or index value fields. Only caller-supplied-text parsing through `wet_resolve` is the candidate exception.
 - Phase 1 is coarse `coarse-all-rights-protected-sources` enforcement. Mixed-source filtering is not implemented; partial approval cannot produce a partial answer, and credentials or environment settings cannot bypass the hold.
 - Coverage is bounded to enabled feeds and tracked events. The wider venue registry is not ingestion coverage.
 - Source APIs can be delayed, stale, rate-limited, incomplete, corrected, or unavailable.

@@ -158,7 +158,10 @@ may exit zero for protocol conformance while still reporting launchReady:false;
 health and rights failures remain launch blockers. It is not source-rights,
 live-data, coverage, freshness, reliability, or production proof. Exit 1 means
 the selected verification mode failed; exit 2 means invalid command-line
-configuration.`;
+configuration.
+
+--self-test-health-normalization runs local envelope fixtures without making
+network requests. It is used by the offline package validator.`;
 }
 
 function parseArguments(argv) {
@@ -167,6 +170,7 @@ function parseArguments(argv) {
     timeoutMs: Number(process.env.WET_MCP_TIMEOUT_MS || 30_000),
     expectedDeploymentSha: process.env.WET_MCP_EXPECTED_DEPLOYMENT_SHA || null,
     candidateAllowSourceRightsPending: false,
+    selfTestHealthNormalization: false,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -174,6 +178,10 @@ function parseArguments(argv) {
     if (arg === '--help' || arg === '-h') return { help: true };
     if (arg === '--candidate-allow-source-rights-pending') {
       parsed.candidateAllowSourceRightsPending = true;
+      continue;
+    }
+    if (arg === '--self-test-health-normalization') {
+      parsed.selfTestHealthNormalization = true;
       continue;
     }
     if (arg === '--endpoint') {
@@ -219,6 +227,11 @@ try {
 
 if (options.help) {
   console.log(usage());
+  process.exit(0);
+}
+
+if (options.selfTestHealthNormalization) {
+  runHealthNormalizationSelfTest();
   process.exit(0);
 }
 
@@ -279,6 +292,60 @@ function emit(type, fields = {}) {
 
 function isRecord(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizeHealthPayload(payload) {
+  if (!isRecord(payload)) return { health: null, envelope: 'invalid' };
+  if (isRecord(payload.data) && isRecord(payload.meta)) {
+    return { health: payload.data, envelope: 'wet-v1' };
+  }
+  return { health: payload, envelope: 'legacy-bare' };
+}
+
+function runHealthNormalizationSelfTest() {
+  const healthFixture = {
+    ok: false,
+    status: 'degraded',
+    checkedAt: '2026-09-06T12:00:00.000Z',
+    sources: [
+      {
+        source: 'kalshi',
+        status: 'stale',
+        lastMessageAt: '2026-09-06T11:55:00.000Z',
+        ageMs: 300_000,
+        details: { liveRest: { ok: true } },
+      },
+    ],
+  };
+  const fixtures = [
+    {
+      name: 'wet-v1-envelope',
+      payload: {
+        data: healthFixture,
+        meta: { version: 'v1', servedAt: '2026-09-06T12:00:01.000Z' },
+      },
+      expectedEnvelope: 'wet-v1',
+    },
+    {
+      name: 'legacy-bare-health',
+      payload: healthFixture,
+      expectedEnvelope: 'legacy-bare',
+    },
+  ];
+
+  for (const fixture of fixtures) {
+    const normalized = normalizeHealthPayload(fixture.payload);
+    if (normalized.envelope !== fixture.expectedEnvelope || JSON.stringify(normalized.health) !== JSON.stringify(healthFixture)) {
+      throw new Error(`health normalization fixture failed: ${fixture.name}`);
+    }
+  }
+
+  const invalid = normalizeHealthPayload(null);
+  if (invalid.health !== null || invalid.envelope !== 'invalid') {
+    throw new Error('health normalization fixture failed: invalid payload');
+  }
+
+  process.stdout.write(`${JSON.stringify({ ok: true, fixtures: fixtures.map((fixture) => fixture.name) })}\n`);
 }
 
 function roundMs(value) {
@@ -1121,7 +1188,8 @@ async function runGate4Preflight() {
     { headers: { accept: 'application/json', 'user-agent': `wet-clean-client-proof/${PACKAGE_VERSION}` } },
     { json: true },
   );
-  const health = isRecord(healthProbe.payload) ? healthProbe.payload : null;
+  const normalizedHealth = normalizeHealthPayload(healthProbe.payload);
+  const health = normalizedHealth.health;
   const healthSources = Array.isArray(health?.sources) ? health.sources : [];
   const freshnessStates = new Set(['fresh', 'stale', 'empty', 'unknown']);
   const healthRowsValid =
@@ -1178,6 +1246,7 @@ async function runGate4Preflight() {
       checkedAtCurrent: healthCheckedAtFresh,
       sourceCount: healthSources.length,
       sourceStateCounts: stateCounts,
+      responseEnvelope: normalizedHealth.envelope,
       configuredCountMatches,
       rightsApprovedCountCoversAdvertisedFeeds: healthRightsAligned,
       healthLaunchReady,

@@ -1,12 +1,14 @@
 # Directory submission worksheet
 
-**Status: draft only — no submission, acceptance, approval, or successful client setup is claimed.** Reconfirm every field against the deployed release and the directory's current form immediately before submission.
+**Status: draft only — no submission by W.E.T. is claimed.** No acceptance, approval, or successful client setup is claimed either. A Gemini CLI gallery crawler auto-indexed the public repository without an intentional submission. Its cached listing still appeared after the repository discovery topic was removed and must be rechecked after `2026-09-07T05:15:00Z`. The official MCP Registry has zero W.E.T. records. Production is route-wide held at HTTP `503`/`mcp_release_held`; do not submit any draft below. Reconfirm every field against a future authorized deployment and the directory's then-current form immediately before submission.
 
 This worksheet is deliberately source-neutral. Do not add a third-party feed, venue, logo, screenshot, price, market title, or coverage claim unless its public distribution rights and brand use are documented for that exact use.
 
 ## Release gate
 
 - [ ] The owner has approved the publisher identity, canonical repository, public license posture, support contact, and final copy.
+- [ ] Emergency containment has been explicitly cleared and production no longer returns route-wide `mcp_release_held`.
+- [ ] Official MCP Registry publication workflow `350715290` has a protected environment, required reviewer, and environment-scoped publishing key before it is re-enabled.
 - [ ] Every publicly exposed source is rights-cleared under the active policy. If a source is
       disabled, source-aware filtering and a lineage purge/rebuild prove that none of its current or
       historical derived material survives; an adapter toggle alone does not pass this item.
@@ -26,10 +28,10 @@ Unchecked boxes are blockers, not optional notes.
 | Release version | `0.5.0` | Reconfirm against the deployed endpoint, tag, and manifests. |
 | Category | Analytics / research | Confirm the directory's allowed taxonomy. |
 | Transport | Streamable HTTP | [`server.json`](../server.json) |
-| MCP endpoint | `https://www.worldeventtrading.com/api/mcp` | Test from a clean client before submission. |
+| MCP endpoint | `https://www.worldeventtrading.com/api/mcp` | Currently route-wide held at HTTP `503`/`mcp_release_held`; test from a clean client only after authorization. |
 | Product website | `https://www.worldeventtrading.com/mcp` | Confirm public response. |
 | Repository | `https://github.com/Corbinvking/wet-mcp` | Owner must confirm this remains canonical. |
-| Access | Seven tools are keyless and read-only; six sourced/derived tools are held and `wet_resolve` is usable. | Confirm deployed anonymous inventory, annotations, and policy metadata. |
+| Access | Candidate proposes seven keyless, read-only tools; six sourced/derived tools are held and `wet_resolve` is the candidate exception. | Not deployed as an enabled contract; production currently refuses before discovery. |
 | Optional authorization | OAuth is optional for account-scoped W.E.T. scanner and alert features. | Confirm discovery and least-scope behavior. |
 | Execution boundary | No order placement, routing, cancellation, custody, wallet access, or personalized trading advice. | Confirm tool inventory, terms, and refusal evals. |
 | License | `LicenseRef-WET-Integration-1.0`; proprietary package license. | [`LICENSE`](../LICENSE); owner must confirm directory compatibility. |
@@ -48,7 +50,7 @@ Unchecked boxes are blockers, not optional notes.
 
 ## Character-limited copy variants
 
-Counts use Unicode code points and include spaces and punctuation. Use the shortest variant that fits the directory field; do not truncate a longer variant automatically.
+Counts use Unicode code points and include spaces and punctuation. These are post-clearance candidate drafts, not current production descriptions. Do not publish them while the route-wide release hold is active. Use the shortest variant that fits a future directory field; do not truncate a longer variant automatically.
 
 | Ceiling | Characters | Copy |
 |---:|---:|---|
@@ -61,13 +63,13 @@ Counts use Unicode code points and include spaces and punctuation. Use the short
 
 ## Copy-ready long fields
 
-**What it does**
+**What it does — post-clearance draft**
 
-W.E.T. exposes a seven-tool, keyless, read-only research contract. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed `source_rights_pending` with policy and exclusion metadata and no market or index values. `wet_resolve` remains usable for structural parsing of caller-supplied listing text.
+The v0.5.0 candidate proposes a seven-tool, keyless, read-only research contract. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed `source_rights_pending` with policy and exclusion metadata and no market or index values. `wet_resolve` is the candidate's structural parser for caller-supplied listing text. Production currently returns route-wide `mcp_release_held` before any of those tools are discovered or called.
 
 **Why it is useful**
 
-Agents can safely parse caller-supplied listing text with `wet_resolve` and verify that held sourced calls fail closed without leaking values. The server makes important boundaries explicit: structural grouping is not equivalence, typed hold results are not useful sourced answers, and withheld values are not guessed.
+After a future authorized release, agents could safely parse caller-supplied listing text with `wet_resolve` and verify that held sourced calls fail closed without leaking values. While emergency containment is active, the hosted endpoint instead fails closed at the route boundary. The candidate makes important boundaries explicit: structural grouping is not equivalence, typed hold results are not useful sourced answers, and withheld values are not guessed.
 
 **Safety and permissions**
 
@@ -95,7 +97,7 @@ Explain why local fixtures, protocol checks, and a source_rights_pending result 
 | Cline marketplace issue | Repository URL, [`400×400 PNG`](../assets/cline-icon-400.png), the “Why it is useful” copy, and a dated clean-setup evidence link. | Successful setup until a clean Cline run is recorded. |
 | Docker catalog pull request | Copy [`docker/servers/world-event-trading/`](../docker/servers/world-event-trading/) and attach upstream task-test evidence. | Catalog acceptance, review, or availability. |
 | Plugin marketplace | Product name, compatible character variant, endpoint, repository, permissions, trust URLs, and license. | Compatibility with marketplace licensing until the owner confirms it. |
-| CLI extension gallery | Extension manifest, repository, install evidence, safety boundary, and support URL. | Gallery acceptance or successful install until recorded. |
+| CLI extension gallery | Do not submit. The Gemini CLI gallery auto-indexed the public repository; monitor removal after its next daily crawl. | Do not call the crawler-created cached entry an intentional submission, approval, or successful install. |
 | Community directory | Product name, repository, product URL, 120-character variant, category, keywords, and a dated verification link. | Endorsement, ranking, exhaustive coverage, or directory acceptance. |
 
 ## Channel-specific owned landing links
@@ -132,6 +134,8 @@ two streams with an IP address or claim an install from a page view.
 
 | Destination | Publisher | Submitted UTC | URL | Status / next review |
 |---|---|---|---|---|
-| _Not submitted_ | _Pending owner approval_ | — | — | Release gate remains open. |
+| Gemini CLI gallery | Automated crawler; no intentional W.E.T. submission | — | `https://geminicli.com/extensions/` | Cached auto-indexed entry persisted after discovery-topic removal; recheck after `2026-09-07T05:15:00Z`. |
+| Official MCP Registry | _Not submitted_ | — | `https://registry.modelcontextprotocol.io/` | Zero W.E.T. records observed. Publication workflow `350715290` is `disabled_manually` with zero historical runs; keep it disabled until the protected-environment and release gates pass. |
+| All other destinations | _Not submitted_ | — | — | Release, owner, source-rights, and clean-client gates remain open. |
 
-Never convert a completed worksheet into a claim of directory acceptance. Record acceptance only after the directory exposes a verifiable public listing.
+An unsolicited crawler listing is a public listing fact, not proof of intentional submission, review, approval, compatibility, or successful installation. Never convert a completed worksheet into a claim of directory acceptance. Record directory acceptance only after the directory provides verifiable evidence of its own review or acceptance process.

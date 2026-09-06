@@ -10,7 +10,7 @@ Prediction-market titles that look alike can settle differently. W.E.T. therefor
 
 `wet_resolve` returns structural candidates or a typed refusal. Its `crossVenue` compatibility field and `numericComparisonEligible` remain false for caller-supplied listings.
 
-`wet_resolve` is the sole currently usable public tool because it reads no W.E.T. board, corpus, ledger, or venue source. Its caller-supplied structural grouping never proves equivalence.
+Production currently returns route-wide HTTP `503`/`mcp_release_held`, so no hosted tool is usable. In a controlled candidate environment, `wet_resolve` is the sole tool-level exception because it reads no W.E.T. board, corpus, ledger, or venue source. Its caller-supplied structural grouping never proves equivalence.
 
 Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, `wet_cross_venue` and the other five W.E.T.-sourced/derived tools return typed `source_rights_pending` with no market or index values. If a future rights-cleared `wet_cross_venue` publishes a gap, it is still not automatically executable: fees, bid/ask, depth, position limits, settlement timing, jurisdiction, and operational risk remain outside a midpoint difference.
 

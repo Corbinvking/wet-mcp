@@ -2,7 +2,7 @@
 
 The `assertions` attached to each entry in [`cases.json`](cases.json) are the normative expected invariants. The literal [`positive-cases.json`](positive-cases.json) and [`refusal-cases.json`](refusal-cases.json) files are exact, validator-enforced array views of that canonical corpus.
 
-The positive sourced cases remain future release targets while default-deny policy `mcp-source-rights/2026-09-05.phase1` makes six sourced/derived tools return `source_rights_pending`. `wet_resolve` is the only currently usable public tool and reads caller-supplied text only. Do not score a typed source-rights hold as useful sourced completion.
+The positive sourced cases remain future release targets. Production currently returns route-wide HTTP `503`/`mcp_release_held`. In a controlled candidate environment, default-deny policy `mcp-source-rights/2026-09-05.phase1` makes six sourced/derived tools return `source_rights_pending`, and `wet_resolve` is the caller-supplied-text exception. Do not score either hold as useful sourced completion.
 
 ## Cross-case invariants
 

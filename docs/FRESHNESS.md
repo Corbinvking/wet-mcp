@@ -1,6 +1,6 @@
 # Freshness and quote semantics
 
-The six W.E.T.-sourced/derived public tools currently return typed `source_rights_pending` under default-deny policy `mcp-source-rights/2026-09-05.phase1`; they provide no market or index values to label current, live, dated, or stale. The definitions below govern future rights-cleared output and should not be read as a claim of current sourced availability.
+Production currently returns route-wide HTTP `503`/`mcp_release_held` before discovery or calls. In a controlled candidate environment, six W.E.T.-sourced/derived public tools return typed `source_rights_pending` under default-deny policy `mcp-source-rights/2026-09-05.phase1`; they provide no market or index values to label current, live, dated, or stale. The definitions below govern future rights-cleared output and should not be read as a claim of current sourced availability.
 
 Every numerical statement should say what clock it uses.
 

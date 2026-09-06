@@ -1,10 +1,10 @@
 # Authentication and authorization
 
-The anonymous seven-tool W.E.T. Research inventory is keyless. Authentication is requested only for optional account-scoped scanner and alert actions.
+The candidate anonymous seven-tool W.E.T. Research inventory is keyless. Production currently returns route-wide HTTP `503`/`mcp_release_held` before discovery or authorization; no hosted inventory or OAuth flow is currently available. After a future authorized release, authentication is requested only for optional account-scoped scanner and alert actions.
 
 ## Source rights are not credentials
 
-Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived public tools return typed `source_rights_pending`; only `wet_resolve` remains usable for caller-supplied listing text. An API key, OAuth grant, paid tier, readable or enabled adapter, or environment setting cannot approve source rights or bypass the hold. Environment controls may only disable sources.
+In a controlled candidate environment, default-deny policy `mcp-source-rights/2026-09-05.phase1` makes six W.E.T.-sourced/derived public tools return typed `source_rights_pending`; only `wet_resolve` is the caller-supplied-text exception. An API key, OAuth grant, paid tier, readable or enabled adapter, or environment setting cannot approve source rights or bypass either hold. Environment controls may only disable sources.
 
 Phase 1 uses coarse `coarse-all-rights-protected-sources` enforcement. Mixed-source filtering is not implemented, partial approval cannot emit a partial answer, and disabled audited sources remain protected because historical derived material may persist.
 

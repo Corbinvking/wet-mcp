@@ -8,7 +8,13 @@ Before reporting an integration issue, check:
 4. [Coverage](https://www.worldeventtrading.com/coverage) and [limitations](https://www.worldeventtrading.com/limitations) before treating an omitted venue or refusal as a defect.
 5. [`docs/quickstart.md`](docs/quickstart.md) and the client example in [`clients/`](clients/).
 
-The current source-rights hold is policy `mcp-source-rights/2026-09-05.phase1`. Six sourced/derived public tools return typed `source_rights_pending`; credentials cannot bypass the hold. Report a different response as a policy-contract issue, not as a request for credential troubleshooting.
+Emergency containment currently makes every production MCP GET and POST return HTTP
+`503`/`mcp_release_held` before discovery or tool dispatch. This is the expected hosted response;
+do not retry with credentials. In an enabled candidate environment, source-rights policy
+`mcp-source-rights/2026-09-05.phase1` instead makes six sourced/derived public tools return typed
+`source_rights_pending`, and credentials cannot bypass that hold. Report any production response
+that exposes discovery or sourced results while emergency containment remains active as a
+policy-contract issue.
 
 For a reproducible problem, open a GitHub issue without credentials or email **support@worldeventtrading.com**. Include the client and version, MCP protocol version, tool name, UTC time, request id if returned, expected behavior, actual behavior, and minimal reproduction.
 

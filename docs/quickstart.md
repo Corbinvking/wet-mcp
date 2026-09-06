@@ -6,11 +6,15 @@ W.E.T. Research is a hosted, keyless Streamable HTTP server. Connect to:
 https://www.worldeventtrading.com/api/mcp
 ```
 
-The anonymous seven-tool inventory needs no package, venue credential, wallet, or API key. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools currently return typed `source_rights_pending`; `wet_resolve` remains usable for caller-supplied listing text.
+**Current status:** production is deliberately unavailable and returns HTTP
+`503`/`mcp_release_held` before discovery or calls. Do not configure a client yet. This quickstart is
+retained for a future authorized release of the held v0.5.0 candidate.
+
+The candidate anonymous seven-tool inventory needs no package, venue credential, wallet, or API key. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed `source_rights_pending`; `wet_resolve` is the candidate exception for caller-supplied listing text.
 
 ## Verify the endpoint
 
-A normal browser request returns a JSON service description:
+After emergency containment is explicitly cleared, a normal browser request should return a JSON service description:
 
 ```bash
 curl -H "Accept: application/json" https://www.worldeventtrading.com/api/mcp
@@ -22,7 +26,7 @@ For the full release preflight, run `node scripts/verify-live.mjs`. It verifies 
 
 ## First safe call
 
-Call `wet_resolve` with listing text supplied by the user. This is the sole public tool not held because it reads no W.E.T. board, corpus, ledger, or venue source. Treat its result as structural parsing only, never proof of contract equivalence.
+After a future authorized release, call `wet_resolve` with listing text supplied by the user. This is the candidate's sole public tool-level exception because it reads no W.E.T. board, corpus, ledger, or venue source. Treat its result as structural parsing only, never proof of contract equivalence.
 
 Example:
 
@@ -32,7 +36,7 @@ field used, preserve any typed refusal, and do not claim that shared wording
 proves the contracts have identical settlement terms.
 ```
 
-Calls to `wet_benchmark_value`, `wet_search_events`, `wet_screen_markets`, `wet_event_markets`, `wet_cross_venue`, and `wet_event_headlines` currently return `source_rights_pending` with policy and exclusion metadata and no market or index value fields. That response is protocol-safe, but it is not a useful sourced result or evidence of current coverage, freshness, or reliability.
+In the candidate, calls to `wet_benchmark_value`, `wet_search_events`, `wet_screen_markets`, `wet_event_markets`, `wet_cross_venue`, and `wet_event_headlines` return `source_rights_pending` with policy and exclusion metadata and no market or index value fields. That response is protocol-safe, but it is not a useful sourced result or evidence of current coverage, freshness, or reliability. Production currently returns the route-wide `mcp_release_held` response instead.
 
 Phase 1 is coarse `coarse-all-rights-protected-sources` enforcement: mixed-source filtering is not implemented and partial approval cannot emit a partial answer. Disabled audited sources remain rights-protected because historical derived material may persist.
 

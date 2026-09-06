@@ -2,13 +2,21 @@
 
 Use W.E.T. as an independent prediction-market index and research layer, never as an exchange or execution service.
 
+## Production release hold
+
+The hosted endpoint currently returns HTTP `503` with `mcp_release_held` before discovery or tool
+dispatch. Do not retry with credentials, infer that any candidate tool is available, or describe the
+auto-indexed Gemini CLI gallery entry as an approved release. The full v0.5.0 package is an
+unreleased candidate that is not authorized for production; the production release hold supersedes
+the tool-level rules below.
+
 ## Current source-rights hold
 
-Policy `mcp-source-rights/2026-09-05.phase1` is default-deny. The six W.E.T.-sourced/derived tools—`wet_benchmark_value`, `wet_search_events`, `wet_screen_markets`, `wet_event_markets`, `wet_cross_venue`, and `wet_event_headlines`—currently return typed `source_rights_pending` results with policy and exclusion metadata and no market or index value fields.
+In a controlled candidate environment, policy `mcp-source-rights/2026-09-05.phase1` is default-deny. The six W.E.T.-sourced/derived tools—`wet_benchmark_value`, `wet_search_events`, `wet_screen_markets`, `wet_event_markets`, `wet_cross_venue`, and `wet_event_headlines`—return typed `source_rights_pending` results with policy and exclusion metadata and no market or index value fields.
 
 This is a coarse `coarse-all-rights-protected-sources` hold. Mixed-source filtering is not implemented, partial approval cannot emit a partial answer, and a disabled audited source remains rights-protected because historical derived material may persist. An API key, OAuth grant, paid tier, readable or enabled adapter, or environment setting cannot approve rights or bypass the hold; environment controls may only disable sources.
 
-`wet_resolve` is the sole public exception. Use it only to parse listing text supplied by the caller. It reads no W.E.T. board, corpus, ledger, or venue source, and its structural grouping does not prove contract equivalence.
+`wet_resolve` is the candidate's sole tool-level exception. After a future authorized release, use it only to parse listing text supplied by the caller. It reads no W.E.T. board, corpus, ledger, or venue source, and its structural grouping does not prove contract equivalence.
 
 1. Preserve every typed refusal as the answer. Do not replace it with zero, null, inference, a cached value, or a prior value.
 2. Never describe a protocol-safe `source_rights_pending` response as a useful sourced result, current coverage, or live-data proof.

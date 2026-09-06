@@ -69,7 +69,7 @@ unresolved rather than inheriting the local pass totals above.
 |---|---|
 | Rechecked UTC | `2026-09-05T12:40:52.679Z` |
 | Frozen application code commit | `e9dc1bc194783102b7ea88969d124f62c4cce8a6` |
-| Public-output contract | `wet-mcp-public-output/0.5.0`, SHA-256 `1c74c3aaa67014631f9c354b7614bbee609a6a3d7c07bf3fc005c233aba55455` |
+| Public-output contract | `wet-mcp-public-output/0.5.0`, SHA-256 `ce36522bf240b89617e2db7ec3af991730efd3f90208716ac9bc9af895c5ac38` |
 | Public repository parity | NOT ESTABLISHED |
 | Deployed endpoint and manifest parity | NOT ESTABLISHED |
 | Public clean-client evidence | NOT ESTABLISHED |

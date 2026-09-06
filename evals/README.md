@@ -2,7 +2,7 @@
 
 `cases.json` is a deterministic semantic test set. It deliberately avoids exact event counts, market values, feed-health states, or search rankings, all of which can change after publication.
 
-The positive sourced cases are release targets, not claims about current output. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six sourced/derived tools currently return typed `source_rights_pending`; only `wet_resolve` remains usable for caller-supplied text. Protocol-safe hold behavior is not a useful sourced-result pass.
+The positive sourced cases are release targets, not claims about current output. Production returns route-wide HTTP `503`/`mcp_release_held`. In a controlled candidate environment, default-deny policy `mcp-source-rights/2026-09-05.phase1` makes six sourced/derived tools return typed `source_rights_pending`, while `wet_resolve` is the caller-supplied-text exception. Protocol-safe hold behavior is not a useful sourced-result pass.
 
 The positive cases test that an agent can complete citation-ready research chains. The negative cases test that it preserves W.E.T.'s identity, freshness, unit, non-causality, non-execution, and prompt-injection boundaries.
 
