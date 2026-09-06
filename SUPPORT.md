@@ -1,5 +1,9 @@
 # Support
 
+Production MCP access is intentionally unavailable and returns HTTP `503`/`mcp_release_held` before
+discovery or tool dispatch. Do not retry with credentials. Report any listing that presents the held
+candidate as released or installable.
+
 Before reporting an integration issue, check:
 
 1. [Service and feed health JSON](https://www.worldeventtrading.com/api/wet/v1/health) for current liveness, freshness, and source-specific degradation.
@@ -8,7 +12,9 @@ Before reporting an integration issue, check:
 4. [Coverage](https://www.worldeventtrading.com/coverage) and [limitations](https://www.worldeventtrading.com/limitations) before treating an omitted venue or refusal as a defect.
 5. [`docs/QUICKSTART.md`](docs/QUICKSTART.md) and the client example in [`clients/`](clients/).
 
-For a reproducible problem, open a GitHub issue without credentials or email **hello@wet.news**. Include the client and version, MCP protocol version, tool name, UTC time, request id if returned, expected behavior, actual behavior, and minimal reproduction.
+For a reproducible problem, open a GitHub issue without credentials or email
+**support@worldeventtrading.com**. Include the client and version, MCP protocol version, tool name, UTC
+time, request id if returned, expected behavior, actual behavior, and minimal reproduction.
 
 For a data discrepancy, also include the venue, event or market id, source URL, displayed as-of time, and the conflicting source value. Do not include an API key, token, session cookie, one-time code, or personal data.
 

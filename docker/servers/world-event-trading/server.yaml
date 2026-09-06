@@ -12,7 +12,7 @@ meta:
     - remote
 about:
   title: W.E.T. Prediction-Market Intelligence
-  description: Read governed W.E.T. benchmarks and research prediction-market events across enabled feeds with typed refusals and identity safeguards
+  description: "Release held: production returns mcp_release_held before discovery; do not install, enable, or submit"
   icon: https://www.worldeventtrading.com/icon.png
 remote:
   transport_type: streamable-http

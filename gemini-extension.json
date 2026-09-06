@@ -1,7 +1,7 @@
 {
   "name": "wet-prediction-market-research",
   "version": "0.5.0",
-  "description": "Agent-safe prediction-market research with governed indexes, confirmed identity, live books, and typed refusals.",
+  "description": "Release held: production returns mcp_release_held before discovery. Do not install or connect.",
   "mcpServers": {
     "wet": {
       "httpUrl": "https://www.worldeventtrading.com/api/mcp",

@@ -4,6 +4,8 @@ All notable integration-package and hosted MCP contract changes are recorded her
 
 ## 0.5.0 — 2026-09-05
 
+- Release status: held and unreleased. Production returns HTTP `503`/`mcp_release_held` before
+  discovery or tool dispatch; no install, tag, Registry, or directory action is authorized.
 - Added current MCP `server/discover` behavior while retaining supported legacy protocol clients.
 - Added content-negotiated browser discovery at `GET /api/mcp`; protocol/SSE GET remains method-rejected.
 - Added exact-origin browser CORS with `Authorization` support and no cross-origin raw API-key header.
