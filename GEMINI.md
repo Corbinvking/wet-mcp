@@ -5,10 +5,11 @@ Use W.E.T. as an independent prediction-market index and research layer, never a
 ## Production release hold
 
 The hosted endpoint currently returns HTTP `503` with `mcp_release_held` before discovery or tool
-dispatch. Do not retry with credentials, infer that any candidate tool is available, or describe the
-auto-indexed Gemini CLI gallery entry as an approved release. The full v0.5.0 package is an
-unreleased candidate that is not authorized for production; the production release hold supersedes
-the tool-level rules below.
+dispatch. Do not install, configure, connect to, call, or retry the endpoint with credentials. Do not
+infer that any candidate tool is available or describe the auto-indexed Gemini CLI gallery entry as
+an approved release. The full v0.5.0 package is an unreleased candidate pending owner authorization,
+legal review, and source-rights clearance; the production release hold supersedes the tool-level
+rules below.
 
 ## Current source-rights hold
 

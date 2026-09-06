@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.worldeventtrading/prediction-markets",
   "title": "W.E.T. Prediction-Market Intelligence",
-  "description": "Release held: six source_rights_pending/default-deny; wet_resolve candidate; no credential bypass.",
+  "description": "mcp_release_held. Six source_rights_pending/default-deny; wet_resolve; no credential bypass.",
   "version": "0.5.0",
   "websiteUrl": "https://www.worldeventtrading.com/mcp",
   "repository": {
@@ -24,7 +24,7 @@
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
-      "tagline": "Protocol-safe research with explicit source-rights refusals.",
+      "tagline": "Production returns mcp_release_held—do not install, configure, connect, or call until owner, legal, and source-rights clearance.",
       "access": {
         "research": "keyless-read-only",
         "account": "oauth-optional"

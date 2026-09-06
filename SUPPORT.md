@@ -1,5 +1,11 @@
 # Support
 
+Production MCP access is intentionally unavailable and returns HTTP `503`/`mcp_release_held` before
+discovery or tool dispatch. Do not install, configure, connect to, call, or retry the endpoint with
+credentials. Owner authorization, legal review, source-rights clearance, and a final release action
+remain outstanding. Report any listing that presents this candidate as released, installable, or
+available.
+
 Before reporting an integration issue, check:
 
 1. [Service and feed health JSON](https://www.worldeventtrading.com/api/wet/v1/health) for current liveness, freshness, and source-specific degradation.
@@ -9,8 +15,8 @@ Before reporting an integration issue, check:
 5. [`docs/quickstart.md`](docs/quickstart.md) and the client example in [`clients/`](clients/).
 
 Emergency containment currently makes every production MCP GET and POST return HTTP
-`503`/`mcp_release_held` before discovery or tool dispatch. This is the expected hosted response;
-do not retry with credentials. In an enabled candidate environment, source-rights policy
+`503`/`mcp_release_held` before discovery or tool dispatch. This is the expected held response. In a
+controlled candidate environment, source-rights policy
 `mcp-source-rights/2026-09-05.phase1` instead makes six sourced/derived public tools return typed
 `source_rights_pending`, and credentials cannot bypass that hold. Report any production response
 that exposes discovery or sourced results while emergency containment remains active as a

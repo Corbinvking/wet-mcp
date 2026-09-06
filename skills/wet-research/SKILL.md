@@ -1,6 +1,6 @@
 ---
 name: wet-research
-description: Use W.E.T.'s caller-supplied listing resolver and correctly preserve the current default-deny source-rights refusals from its six sourced or derived research tools.
+description: Preserve W.E.T.'s route-wide production hold; do not install, configure, connect, or call until owner, legal, and source-rights gates clear.
 ---
 
 # W.E.T. prediction-market research
@@ -10,8 +10,10 @@ Use the W.E.T. MCP server as an independent index, event-navigation, and researc
 ## Current production and source-rights holds
 
 Production currently returns HTTP `503`/`mcp_release_held` before discovery or tool dispatch, so no
-hosted tool is currently usable. Do not retry with credentials or represent the public package or its
-auto-indexed Gemini listing as an authorized release.
+hosted tool is currently usable. Do not install, configure, connect to, call, or retry the endpoint
+with credentials. Owner authorization, legal review, source-rights clearance, and a final release
+action are still required. Do not represent the public package or its auto-indexed Gemini listing as
+an authorized release.
 
 In a controlled candidate environment, policy `mcp-source-rights/2026-09-05.phase1` is default-deny.
 These six W.E.T.-sourced/derived tools return typed `source_rights_pending` results with policy and

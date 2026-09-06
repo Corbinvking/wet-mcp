@@ -6,8 +6,10 @@
 > emergency containment commit `5eaf5f026491d9ab64ede00234e01a36f6a8ccf9` was deployed at
 > `2026-09-06T05:26:05Z`. The hosted endpoint now fails closed before discovery or tool dispatch:
 > every GET, initialize request, and tool call returns HTTP `503` with `mcp_release_held`,
-> `Cache-Control: no-store`, and `Retry-After: 3600`. The connection commands below are therefore
-> post-clearance examples, not currently usable setup instructions. A Gemini CLI gallery crawler
+> `Cache-Control: no-store`, and `Retry-After: 3600`. Do not install, configure, connect to, or call
+> the endpoint until the owner-authorization, legal-review, and source-rights gates all clear and a
+> final release action is authorized. The connection commands below are post-clearance examples,
+> not currently usable setup instructions. A Gemini CLI gallery crawler
 > auto-indexed the public repository without an intentional submission; the discovery topic was
 > removed, but its cached listing remains pending the next daily crawl (recheck after
 > `2026-09-07T05:15:00Z`). The official MCP Registry has zero W.E.T. records. All launch,
@@ -18,27 +20,44 @@
 
 **Release-candidate prediction-market research with explicit source-rights refusals.**
 
-When the release gate is enabled in a controlled candidate environment, the proposed public contract has seven anonymous, read-only tools. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed `source_rights_pending` with policy and exclusion metadata and no market or index value fields. `wet_resolve` is the candidate's sole usable exception and accepts only caller-supplied listing text; its grouping is not proof of contract equivalence. Production's route-wide `mcp_release_held` response supersedes that tool-level candidate behavior.
+After every release gate clears in an authorized candidate environment, the proposed public contract
+has seven anonymous, read-only tools. Under default-deny policy
+`mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed
+`source_rights_pending` with policy and exclusion metadata and no market or index value fields.
+`wet_resolve` is the candidate's sole proposed tool-level exception and accepts only caller-supplied
+listing text; its grouping is not proof of contract equivalence. Production's route-wide
+`mcp_release_held` response supersedes that candidate behavior.
 
-The hosted public endpoint is:
+The held production endpoint reserved for future post-clearance use is:
 
 ```text
 https://www.worldeventtrading.com/api/mcp
 ```
 
-The seven-tool inventory is keyless and read-only. Optional OAuth adds account-scoped scanner and alert tools that write only to the signed-in user's W.E.T. account. An API key, OAuth grant, paid tier, readable or enabled adapter, or environment setting cannot approve rights or bypass the hold; environment controls may only disable sources. No W.E.T. MCP scope can place, route, cancel, simulate, or custody a trade, and no venue credential or wallet permission is requested.
+The proposed seven-tool inventory is keyless and read-only. After a future authorized release,
+optional OAuth can add account-scoped scanner and alert tools that write only to the signed-in user's
+W.E.T. account. An API key, OAuth grant, paid tier, readable or enabled adapter, or environment
+setting cannot approve rights or bypass the hold; environment controls may only disable sources. No
+W.E.T. MCP scope can place, route, cancel, simulate, or custody a trade, and no venue credential or
+wallet permission is requested.
 
 Phase 1 is coarse `coarse-all-rights-protected-sources` enforcement. Mixed-source filtering is not implemented, partial source approval cannot emit a partial sourced answer, and a disabled audited source remains rights-protected because historical derived material may persist.
 
-## Connect in one minute
+## Post-clearance connection reference — do not run now
 
-Claude Code:
+Only after the owner, legal, and source-rights gates clear and a final release is authorized, the
+future Claude Code setup command is:
 
 ```bash
 claude mcp add --transport http wet https://www.worldeventtrading.com/api/mcp
 ```
 
-Claude Code, Gemini CLI, Goose, Cursor, Cline, Windsurf, and VS Code configuration examples are in [`clients/`](clients/). A repeatable [MCP Inspector CLI check](examples/mcp-inspector.md) is included for reviewers. W.E.T.-owned client guides live at [`worldeventtrading.com/mcp`](https://www.worldeventtrading.com/mcp).
+Claude Code, Gemini CLI, Goose, Cursor, Cline, Windsurf, and VS Code configuration examples are
+retained in [`clients/`](clients/) for post-clearance review. Do not install, copy, configure,
+connect, or call them while the hold remains active. A repeatable
+[MCP Inspector CLI check](examples/mcp-inspector.md) is retained for future authorized reviewers.
+The W.E.T.-owned [`worldeventtrading.com/mcp`](https://www.worldeventtrading.com/mcp) page is the
+current hold notice and will become the supported client guide only after release authorization.
 
 After a future authorized release re-enables the endpoint, use the candidate resolver only with listing text you supply:
 
@@ -48,7 +67,9 @@ candidates. Explain the fields used and do not claim shared wording proves
 identical settlement terms.
 ```
 
-In a controlled candidate environment, calling a held sourced tool is appropriate for checking refusal and protocol behavior, but its `source_rights_pending` response is not a useful research result or live-data evidence. Do not use production for that test while the route-wide release hold is active.
+The held-tool behavior is retained as a protocol contract for future authorized review, but a
+`source_rights_pending` response is not a useful research result or live-data evidence. Do not call
+production or a candidate endpoint while the owner, legal, or source-rights gates remain open.
 
 ## The four W.E.T. surfaces
 
@@ -56,7 +77,7 @@ In a controlled candidate environment, calling a held sourced tool is appropriat
 |---|---|---|
 | W.E.T. Benchmarks | Governed index methodology and future rights-cleared publication contract; values held | Candidate contract; sourced values return `source_rights_pending` only after the route-wide release hold is cleared |
 | W.E.T. Research | Candidate has six sourced/derived tools held and a caller-supplied structural resolver | Candidate is keyless and read-only; production currently returns `mcp_release_held` before discovery |
-| W.E.T. Scanners | Lifecycle contract is built; sourced reads, preview, create/resume/run, and delivery are held. Pause and two-step deletion remain available as stop controls. | OAuth; W.E.T.-account writes only |
+| W.E.T. Scanners | Lifecycle contract is built; sourced reads, preview, create/resume/run, and delivery are held. Pause and two-step deletion are defined as source-neutral stop controls after the route hold clears. | Candidate OAuth; W.E.T.-account writes only; production held |
 | W.E.T. Data | A separately entitled Premium API implementation exists outside this MCP phase-one gate; this package makes no source-rights, history, SLA, or redistribution claim for it. | Not cleared or bundled by this MCP candidate |
 
 Public benchmark-ledger and dated-corpus history are documented separately. Institutional commercial-use and redistribution
@@ -98,7 +119,8 @@ The deterministic evaluation cases in [`evals/cases.json`](evals/cases.json) des
 
 The [`assets/demo/`](assets/demo/) package contains a truthful 55-second positive storyboard/transcript and a negative false-comparison/refusal demo. They are recording plans, not prefilled claims: every dynamic value, source state, timestamp, and refusal shown in a take must come from that take.
 
-For default launch-readiness verification from a clean, anonymous client, run:
+Only after owner authorization plus legal and source-rights clearance, run the default
+launch-readiness verification from a clean, anonymous client:
 
 ```bash
 node scripts/verify-live.mjs > wet-live-proof.ndjson
@@ -110,7 +132,15 @@ Its NDJSON records observed UTC times, durations, HTTP status, bounded semantic 
 
 The endpoint defaults to `server.json`. Use `--endpoint "$PREVIEW_MCP_ENDPOINT"` or `WET_MCP_ENDPOINT` for a preview deployment, and `--timeout-ms 60000` when testing a slower environment. Owned URLs are checked on the selected endpoint origin; canonical production URLs advertised by a preview are accepted only where the runtime contract intentionally permits them. Plain HTTP is accepted only on localhost or loopback.
 
-For release-candidate protocol checks only, `--candidate-allow-source-rights-pending` permits an exit-zero result when the Gate 4 structures and MCP protocol are conformant and the six sourced tools return the expected typed hold. Health, freshness, and rights-count failures remain visible in `gate4LaunchBlockers`, `healthLaunchReady`, and `launchReady: false`; candidate mode never upgrades them into production evidence. A nonzero default exit means a Gate 4 check, version, transport, tool list, annotation, tool call, health/right alignment, or sourced launch-readiness gate failed.
+The `--candidate-allow-source-rights-pending` option is retained to test typed-hold semantics after
+the owner, legal, and source-rights gates clear and an endpoint is expressly authorized for review;
+it is not permission to call the held production route or any unapproved candidate endpoint. If the
+mode observes the legacy typed hold, it permits an exit-zero result only when the Gate 4 structures
+and MCP protocol are conformant and the six sourced tools return the expected refusal. Health,
+freshness, and rights-count failures remain visible in `gate4LaunchBlockers`, `healthLaunchReady`, and
+`launchReady: false`; candidate mode never upgrades them into production evidence. A nonzero default
+exit means a Gate 4 check, version, transport, tool list, annotation, tool call, health/right
+alignment, or sourced launch-readiness gate failed.
 
 ## Validate the package
 
@@ -120,7 +150,7 @@ Node.js 22 is the only requirement. The default command is offline and determini
 node scripts/validate.mjs
 ```
 
-It checks every JSON file, each manifest and client example, evaluation-schema conformance, package version and endpoint consistency, relative Markdown links, demo/proof inventory, the proprietary license boundary, the 512px [`assets/icon.png`](assets/icon.png), and the Docker submission files. To also make read-only discovery, `initialize`, and `tools/list` requests against the deployed endpoint, run:
+It checks every JSON file, each manifest and client example, evaluation-schema conformance, package version and endpoint consistency, relative Markdown links, demo/proof inventory, the proprietary license boundary, the 512px [`assets/icon.png`](assets/icon.png), and the Docker submission files. Only after the owner, legal, and source-rights gates clear, the following command may make read-only discovery, `initialize`, and `tools/list` requests against an authorized deployed endpoint:
 
 ```bash
 node scripts/validate.mjs --live
@@ -130,7 +160,7 @@ The live package check intentionally fails when the deployed server version or a
 
 ## Docker MCP Catalog submission
 
-The copy-ready Docker MCP Catalog entry is in [`docker/servers/world-event-trading/`](docker/servers/world-event-trading/). Copy that directory to `servers/world-event-trading/` in a fork of the [Docker MCP Registry](https://github.com/docker/mcp-registry), then run the upstream review flow:
+The held Docker MCP Catalog entry is retained in [`docker/servers/world-event-trading/`](docker/servers/world-event-trading/) for post-clearance use. Do not copy, install, configure, connect, enable, submit, or run it while any owner, legal, or source-rights gate remains open. After all gates clear and a final release is authorized, copy that directory to `servers/world-event-trading/` in a fork of the [Docker MCP Registry](https://github.com/docker/mcp-registry), then run the upstream review flow:
 
 ```bash
 task catalog -- world-event-trading

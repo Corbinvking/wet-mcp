@@ -11,6 +11,10 @@ endpoint now returns route-wide HTTP `503`/`mcp_release_held` with `Cache-Contro
 `Retry-After: 3600` before discovery or tool dispatch. See the dated
 [containment record](evidence/2026-09-06-production-containment.md).
 
+Do not install, configure, connect to, or call the candidate until owner authorization, legal
+review, and source-rights clearance are complete and a final release action is authorized. No
+current availability is claimed by the candidate contract or by a cached external listing.
+
 The changes below describe the held candidate contract, not currently enabled production behavior:
 
 - Added current MCP `server/discover` behavior while retaining supported legacy protocol clients.
@@ -18,7 +22,7 @@ The changes below describe the held candidate contract, not currently enabled pr
 - Added exact-origin browser CORS with `Authorization` support and no cross-origin raw API-key header.
 - Added OAuth protected-resource and authorization-server discovery, public dynamic client registration, PKCE S256, scoped authorization, refresh rotation, and revocation.
 - Kept seven public W.E.T. Research tools keyless and read-only; OAuth appends only authorized scanner and alert tools and cannot bypass source-rights policy.
-- Added default-deny policy `mcp-source-rights/2026-09-05.phase1`: six W.E.T.-sourced/derived tools return typed `source_rights_pending` with zero market or index values, while `wet_resolve` remains usable for caller-supplied listing text.
+- Added default-deny policy `mcp-source-rights/2026-09-05.phase1`: six W.E.T.-sourced/derived tools return typed `source_rights_pending` with zero market or index values, while `wet_resolve` is the proposed caller-supplied-text exception after a future authorized release.
 - Reduced anonymous `tools/list` payload size while retaining structural input/output schemas and typed-refusal semantics.
 - Added complete tool annotations, including destructive hints for delete actions and open-world hints for live-source tools.
 - Separated service liveness from per-feed readiness; every enabled feed now has a bounded health adapter.
@@ -29,5 +33,7 @@ The changes below describe the held candidate contract, not currently enabled pr
 
 ## 0.4.0 — 2026-09-03
 
-- Published seven keyless research tools and scoped API-key account tools on the hosted endpoint.
-- Added output schemas and expanded identity/refusal semantics.
+- Historical pre-containment record, superseded by the v0.5.0 hold: seven keyless research tools
+  and scoped API-key account tools were previously exposed on the hosted endpoint.
+- Historical pre-containment record: added output schemas and expanded identity/refusal semantics;
+  this does not describe current availability.

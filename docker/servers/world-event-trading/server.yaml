@@ -12,7 +12,7 @@ meta:
     - remote
 about:
   title: W.E.T. Prediction-Market Intelligence
-  description: "Release held: production returns mcp_release_held before discovery. Candidate: six sourced tools return source_rights_pending under default-deny; wet_resolve accepts caller text, and credentials cannot bypass the hold"
+  description: "Release held (production returns mcp_release_held) pending owner/legal/source-rights clearance; do not install, configure, connect, call, enable, or submit. Candidate: six sourced tools return source_rights_pending under default-deny; wet_resolve accepts caller text, and credentials cannot bypass the hold"
   icon: https://www.worldeventtrading.com/icon.png
 remote:
   transport_type: streamable-http

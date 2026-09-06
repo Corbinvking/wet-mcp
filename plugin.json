@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "wet-prediction-market-research",
   "version": "0.5.0",
-  "description": "Release held: production returns mcp_release_held before discovery. Candidate: six sourced tools return source_rights_pending under default-deny; wet_resolve accepts caller text; credentials cannot bypass the hold.",
+  "description": "Release held (production returns mcp_release_held) pending owner/legal/source-rights clearance; do not install, configure, connect, or call. Candidate: six sourced tools return source_rights_pending under default-deny; wet_resolve accepts caller text; credentials cannot bypass the hold.",
   "author": {
     "name": "World Event Trading",
     "email": "hello@worldeventtrading.com",

@@ -1,6 +1,11 @@
 # Client configuration examples
 
-This `examples/` view exists for directories and reviewers that expect client instructions as Markdown. Production currently returns HTTP `503`/`mcp_release_held` before discovery or calls; do not install these held candidate examples yet. After a future authorized release, use the typed files in [`clients/`](../clients/) as authoritative and merge the relevant `wet` object without replacing unrelated client settings.
+This `examples/` view exists for directories and reviewers that expect client instructions as
+Markdown. Production currently returns HTTP `503`/`mcp_release_held` before discovery or calls.
+Do not install, copy, configure, connect to, or call these held candidate examples. Owner authorization,
+legal review, and source-rights clearance must all precede a final release action. After a future
+authorized release, use the typed files in [`clients/`](../clients/) as authoritative and merge the
+relevant `wet` object without replacing unrelated client settings.
 
 | Client | Authoritative configuration | Configuration note |
 |---|---|---|
@@ -13,7 +18,8 @@ This `examples/` view exists for directories and reviewers that expect client in
 | VS Code | [`vscode.json`](../clients/vscode.json) | Use the top-level `servers` object. |
 | Windsurf | [`windsurf.json`](../clients/windsurf.json) | Keep the remote `serverUrl` field. |
 
-All examples connect to the hosted Streamable HTTP endpoint:
+After a future authorized release, the examples are designed to connect to this hosted Streamable
+HTTP endpoint:
 
 ```text
 https://www.worldeventtrading.com/api/mcp
@@ -21,4 +27,8 @@ https://www.worldeventtrading.com/api/mcp
 
 The candidate anonymous seven-tool inventory requires no credential. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed `source_rights_pending`; `wet_resolve` is the caller-supplied-text exception. No API key, OAuth grant, paid tier, adapter state, or environment setting can approve rights or bypass the hold. Do not add an API key, browser cookie, third-party account credential, wallet permission, or automatic write approval to a shared example. After a future authorized release, optional OAuth begins in a compatible client's connection flow only when the user requests account-scoped W.E.T. scanner or alert functionality. It can add authorized inventory, but 14 source-derived watchlist-event, scanner, and alert tools independently return `account_output_contract_pending`; scanner execution also requires venue and headline-source rights. Alert pause and deletion, notification mark-read, scanner pause, and two-step scanner deletion remain source-neutral controls.
 
-Follow [`llms-install.md`](../llms-install.md) for the common install boundary and the maintained [W.E.T. client guides](https://www.worldeventtrading.com/mcp) for current UI steps. A configuration file is not evidence of a successful clean-client test; record that evidence separately with the client version, UTC time, server version, and result.
+Follow [`llms-install.md`](../llms-install.md) for the release hold and future setup boundary. The
+[W.E.T. MCP page](https://www.worldeventtrading.com/mcp) is currently a hold notice, not an active
+installation guide. A configuration file is not evidence of a successful clean-client test; after a
+future authorized release, record that evidence separately with the client version, UTC time, server
+version, and result.
