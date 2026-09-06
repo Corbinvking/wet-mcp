@@ -11,7 +11,7 @@ https://www.worldeventtrading.com/api/mcp
 `503`/`mcp_release_held` before discovery or calls. Do not install, configure, connect to, or call
 the endpoint. Owner authorization, legal review, and source-rights clearance remain required before
 a final release action. This quickstart is retained for a future authorized release of the held
-v0.5.0 candidate.
+v0.7.0 candidate.
 
 The candidate anonymous seven-tool inventory needs no package, venue credential, wallet, or API key. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed `source_rights_pending`; `wet_resolve` is the candidate exception for caller-supplied listing text.
 

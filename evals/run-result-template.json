@@ -12,7 +12,7 @@
     "clientVersion": "",
     "model": "",
     "serverVersion": "",
-    "packageVersion": "0.5.0",
+    "packageVersion": "0.7.0",
     "candidateCommitSha": ""
   },
   "sourceState": {
@@ -35,6 +35,8 @@
         { "text": "Every quoted probability names its outcome and venue.", "status": "not-run", "evidence": null, "scoredBy": "unscored" },
         { "text": "A quote described as live comes from wet_event_markets and retains its observation time and basis.", "status": "not-run", "evidence": null, "scoredBy": "unscored" },
         { "text": "Volume retains its venue-native unit.", "status": "not-run", "evidence": null, "scoredBy": "unscored" },
+        { "text": "Reads coverage.status and means; partial coverage names the degraded, unmeasured, or unfinished venue reads that caused it.", "status": "not-run", "evidence": null, "scoredBy": "unscored" },
+        { "text": "Uses coverage.searchable to size the board searched and coverage.swept to distinguish complete or capped measurements from degraded or unavailable reads.", "status": "not-run", "evidence": null, "scoredBy": "unscored" },
         { "text": "No cross-venue gap is inferred from event grouping.", "status": "not-run", "evidence": null, "scoredBy": "unscored" }
       ]
     },

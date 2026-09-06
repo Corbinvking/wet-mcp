@@ -2,6 +2,28 @@
 
 All notable integration-package and hosted MCP contract changes are recorded here. The hosted [W.E.T. changelog](https://www.worldeventtrading.com/changelog) remains the broader product record.
 
+## 0.7.0 — 2026-09-06
+
+**Release status: held candidate; not authorized, tagged, released, or intentionally submitted.**
+Production remains behind the route-wide HTTP `503`/`mcp_release_held` containment boundary. These
+additive schema changes do not clear source rights, authorize deployment or activation, establish a
+successful sourced result, or permit any registry, directory, tag, or release action.
+
+Two published but not yet enforced coverage revisions advance the unreleased candidate from 0.5.0
+through the intermediate 0.6.0 schema identity to 0.7.0; no 0.6.0 package was released:
+
+- Added `coverage.searchable`, which sizes the post-clustering, post-horizon board actually searched
+  and counts a cross-venue event under every venue filter it can answer.
+- Added optional `coverage.swept`, which records each venue's larger pre-clustering, pre-horizon read,
+  its `complete`, `capped`, `degraded`, or `unavailable` status, and the generation observation time.
+- Made `coverage.status` an actionable health-and-sweep verdict instead of a permanently partial
+  label. `degradedSources` now means measured and cold; `unmeasuredSources` separately names venues
+  covered by neither the health plane nor that generation's sweep; `means` names the cause.
+- Kept `resultsComplete: false` as the distinct bounded-board disclosure. Even a `complete` coverage
+  status means “nothing failed,” not “every listing everywhere was searched.”
+- Advanced the rights-bound public contract to `wet-mcp-public-output/0.7.0`, SHA-256
+  `0ffc504add260ff197cedaca26bff3e11f64f5716293a61f935424892c5fbe82`.
+
 ## 0.5.0 — 2026-09-05
 
 **Release status: held candidate; not authorized, tagged, or released.** Production briefly

@@ -21,8 +21,8 @@ const SOURCE_RIGHTS_POLICY = 'mcp-source-rights/2026-09-05.phase1';
 const SOURCE_RIGHTS_REFUSAL = 'source_rights_pending';
 const ACCOUNT_OUTPUT_CONTRACT_REFUSAL = 'account_output_contract_pending';
 const SOURCE_RIGHTS_FILTERING = 'coarse-all-rights-protected-sources';
-const OUTPUT_CONTRACT_VERSION = 'wet-mcp-public-output/0.5.0';
-const OUTPUT_CONTRACT_SHA256 = 'bf12adf28281632a32dc1c134ba99b1201ce95b2f9803e2b9004ab64b7c0ca2b';
+const OUTPUT_CONTRACT_VERSION = 'wet-mcp-public-output/0.7.0';
+const OUTPUT_CONTRACT_SHA256 = '0ffc504add260ff197cedaca26bff3e11f64f5716293a61f935424892c5fbe82';
 const MCP_REGISTRY_DESCRIPTION_MAX_LENGTH = 100;
 const MCP_REGISTRY_MANIFEST_CORE_SCHEMA = {
   type: 'object',

@@ -47,7 +47,7 @@ function digest(seed) {
 
 function liveFixture({
   date,
-  packageVersion = '0.5.0',
+  packageVersion = '0.7.0',
   deploymentSha = 'a'.repeat(40),
   aggregateStatus = 'healthy',
   aggregateOk = true,

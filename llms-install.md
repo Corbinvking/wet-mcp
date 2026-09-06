@@ -9,7 +9,7 @@ https://www.worldeventtrading.com/api/mcp
 ```
 
 **Current status:** production returns HTTP `503`/`mcp_release_held` before discovery or calls, and
-the full v0.5.0 candidate is not authorized or shipped. Owner authorization, legal review, and
+the full v0.7.0 candidate is not authorized or shipped. Owner authorization, legal review, and
 source-rights clearance remain required before any setup or call. The examples below are retained
 for a future post-clearance release only.
 

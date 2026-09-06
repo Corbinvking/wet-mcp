@@ -1,6 +1,6 @@
 {
   "name": "wet-prediction-market-research",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "description": "Release held (production returns mcp_release_held) pending owner/legal/source-rights clearance; do not install, configure, connect, or call. Candidate: six sourced tools return source_rights_pending under default-deny; wet_resolve accepts caller text; credentials cannot bypass the hold.",
   "mcpServers": {
     "wet": {

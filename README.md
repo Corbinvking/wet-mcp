@@ -1,6 +1,6 @@
 # W.E.T. MCP
 
-> **Incident containment and launch hold — release candidate only.** The full W.E.T. MCP v0.5.0
+> **Incident containment and launch hold — release candidate only.** The full W.E.T. MCP v0.7.0
 > candidate has not been authorized, tagged, released, or intentionally submitted to a registry or
 > directory. Production briefly advertised v0.5.0 and exposed source-derived results before
 > emergency containment commit `5eaf5f026491d9ab64ede00234e01a36f6a8ccf9` was deployed at

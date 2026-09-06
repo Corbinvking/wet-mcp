@@ -7,6 +7,8 @@
       "Every quoted probability names its outcome and venue.",
       "A quote described as live comes from wet_event_markets and retains its observation time and basis.",
       "Volume retains its venue-native unit.",
+      "Reads coverage.status and means; partial coverage names the degraded, unmeasured, or unfinished venue reads that caused it.",
+      "Uses coverage.searchable to size the board searched and coverage.swept to distinguish complete or capped measurements from degraded or unavailable reads.",
       "No cross-venue gap is inferred from event grouping."
     ]
   },

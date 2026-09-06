@@ -3,7 +3,7 @@
   "name": "com.worldeventtrading/prediction-markets",
   "title": "W.E.T. Prediction-Market Intelligence",
   "description": "mcp_release_held. Six source_rights_pending/default-deny; wet_resolve; no credential bypass.",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "websiteUrl": "https://www.worldeventtrading.com/mcp",
   "repository": {
     "url": "https://github.com/Corbinvking/wet-mcp",
@@ -39,8 +39,8 @@
       "sourceRights": {
         "rightsState": "pending",
         "policyVersion": "mcp-source-rights/2026-09-05.phase1",
-        "outputContractVersion": "wet-mcp-public-output/0.5.0",
-        "outputContractSha256": "bf12adf28281632a32dc1c134ba99b1201ce95b2f9803e2b9004ab64b7c0ca2b",
+        "outputContractVersion": "wet-mcp-public-output/0.7.0",
+        "outputContractSha256": "0ffc504add260ff197cedaca26bff3e11f64f5716293a61f935424892c5fbe82",
         "grantSetSha256": null,
         "enforcement": "default-deny",
         "filtering": "coarse-all-rights-protected-sources",

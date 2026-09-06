@@ -10,7 +10,7 @@ below resume only after the owner and source-rights gates authorize an exact can
 ## Public review
 
 1. After release authorization and containment clearance, connect `https://www.worldeventtrading.com/api/mcp` as Streamable HTTP.
-2. Confirm the server identifies as version `0.5.0` and lists seven anonymous tools.
+2. Confirm the server identifies as version `0.7.0` and lists seven anonymous tools.
 3. From the repository root, run `node scripts/verify-live.mjs > wet-live-proof.ndjson`. It must preflight `GET /api/mcp`, trusted and rejected CORS, the protected OAuth challenge and three discovery documents, every owned trust/client/eval URL and content type, service/feed health, and the 30 KiB anonymous `tools/list` ceiling before completing the seven public tool calls. Default launch readiness must fail if Gate 4 fails, health is not current and rights-aligned, or any required sourced tool returns `source_rights_pending` or otherwise lacks a useful sourced result.
 4. If reviewing release-candidate protocol safety before rights clearance, run `node scripts/verify-live.mjs --candidate-allow-source-rights-pending > wet-candidate-proof.ndjson`. Confirm `preflightConformant: true` and `protocolConformant: true` are reported separately from `gate4LaunchReady`, `healthLaunchReady`, and `launchReady: false`; do not publish it as live-data, health, rights, or production evidence.
 5. Run one positive research chain only after source rights are cleared and the relevant tool returns a useful sourced result. Use the [`../assets/demo/positive-55s-storyboard.md`](../assets/demo/positive-55s-storyboard.md) truth guards if recording it.
@@ -35,7 +35,7 @@ After public venue and headline-source rights clear, the separate account-output
 
 Expected boundaries:
 
-- In an enabled candidate environment, public inventory remains callable after account authorization; six sourced public tools remain held by `source_rights_pending`, while 14 source-derived account tools remain independently held by `account_output_contract_pending` for v0.5.0. Production currently exposes neither inventory.
+- In an enabled candidate environment, public inventory remains callable after account authorization; six sourced public tools remain held by `source_rights_pending`, while 14 source-derived account tools remain independently held by `account_output_contract_pending` for v0.7.0. Production currently exposes neither inventory.
 - A protected call without authorization returns `401` with protected-resource metadata.
 - An insufficient scope returns `403` without executing the tool.
 - No tool or scope can access a venue account, wallet, or order flow.

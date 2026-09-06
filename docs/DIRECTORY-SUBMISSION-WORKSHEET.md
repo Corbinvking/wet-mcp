@@ -25,7 +25,7 @@ Unchecked boxes are blockers, not optional notes.
 |---|---|---|
 | Product name | W.E.T. Prediction-Market Intelligence | [`server.json`](../server.json) |
 | Package identifier | `com.worldeventtrading/prediction-markets` | [`server.json`](../server.json) |
-| Release version | `0.5.0` | Reconfirm against the deployed endpoint, tag, and manifests. |
+| Release version | `0.7.0` | Reconfirm against the deployed endpoint, tag, and manifests. |
 | Category | Analytics / research | Confirm the directory's allowed taxonomy. |
 | Transport | Streamable HTTP | [`server.json`](../server.json) |
 | MCP endpoint | `https://www.worldeventtrading.com/api/mcp` | Currently route-wide held at HTTP `503`/`mcp_release_held`; test from a clean client only after authorization. |
@@ -65,7 +65,7 @@ Counts use Unicode code points and include spaces and punctuation. These are pos
 
 **What it does — post-clearance draft**
 
-The v0.5.0 candidate proposes a seven-tool, keyless, read-only research contract. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed `source_rights_pending` with policy and exclusion metadata and no market or index values. `wet_resolve` is the candidate's structural parser for caller-supplied listing text. Production currently returns route-wide `mcp_release_held` before any of those tools are discovered or called.
+The v0.7.0 candidate proposes a seven-tool, keyless, read-only research contract. Under default-deny policy `mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed `source_rights_pending` with policy and exclusion metadata and no market or index values. `wet_resolve` is the candidate's structural parser for caller-supplied listing text. Production currently returns route-wide `mcp_release_held` before any of those tools are discovered or called.
 
 **Why it is useful**
 
