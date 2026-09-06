@@ -3,10 +3,10 @@
   "name": "wet-prediction-market-research",
   "displayName": "W.E.T. Prediction-Market Research",
   "version": "0.5.0",
-  "description": "Research prediction markets with governed indexes, confirmed cross-venue identity, live books, and typed refusals.",
+  "description": "Release held: production returns mcp_release_held before discovery. Do not install or connect.",
   "author": {
     "name": "World Event Trading",
-    "email": "hello@wet.news",
+    "email": "hello@worldeventtrading.com",
     "url": "https://www.worldeventtrading.com"
   },
   "homepage": "https://www.worldeventtrading.com/mcp",

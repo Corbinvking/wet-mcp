@@ -2,10 +2,10 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "wet-prediction-market-research",
   "version": "0.5.0",
-  "description": "Agent-safe prediction-market research with governed indexes, confirmed identity, live books, and typed refusals.",
+  "description": "Release held: production returns mcp_release_held before discovery. Do not install or connect.",
   "author": {
     "name": "World Event Trading",
-    "email": "hello@wet.news",
+    "email": "hello@worldeventtrading.com",
     "url": "https://www.worldeventtrading.com"
   },
   "homepage": "https://www.worldeventtrading.com/mcp",
