@@ -775,9 +775,9 @@ await check('official registry publishing is pinned and domain-authenticated', a
       liveVerifier.includes('deploymentShaMatches'),
     'live verifier must compare the evaluated application SHA with the canonical status document',
   );
-  assert(workflow.includes('MCP_PUBLISHER_VERSION: v1.7.9'), 'publisher release must be pinned');
+  assert(workflow.includes('MCP_PUBLISHER_VERSION: v1.8.1'), 'publisher release must be pinned');
   assert(
-    workflow.includes('ab128162b0616090b47cf245afe0a23f3ef08936fdce19074f5ba0a4469281ac'),
+    workflow.includes('a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc'),
     'publisher archive checksum must be pinned',
   );
   assert(workflow.includes('sha256sum --check --strict'), 'publisher archive checksum must be verified');
