@@ -123,7 +123,7 @@ Only after owner authorization plus legal and source-rights clearance, run the d
 launch-readiness verification from a clean, anonymous client:
 
 ```bash
-node scripts/verify-live.mjs > wet-live-proof.ndjson
+node scripts/verify-live.mjs --expected-deployment-sha "$DEPLOYED_WET_SITE_SHA" > wet-live-proof.ndjson
 ```
 
 The script first runs the complete Gate 4 network preflight: public `GET /api/mcp`, trusted and untrusted CORS preflights, the unauthenticated OAuth challenge and all three discovery documents, every owned trust/client/eval URL and its intended content type, plus the keyless service/feed-health contract. It then initializes a new stateless client, verifies the anonymous seven-tool contract and its 30 KiB `tools/list` ceiling, and calls each public tool exactly once with bounded arguments.
@@ -141,6 +141,22 @@ freshness, and rights-count failures remain visible in `gate4LaunchBlockers`, `h
 `launchReady: false`; candidate mode never upgrades them into production evidence. A nonzero default
 exit means a Gate 4 check, version, transport, tool list, annotation, tool call, health/right
 alignment, or sourced launch-readiness gate failed.
+
+After an authorized production release, reduce one successful, exact-SHA-bound `verify-live` artifact
+per observed UTC day into the fixed, redacted rollout ledger. Do not omit
+`--expected-deployment-sha`, and do not start or backfill this clock before the deployed release is
+truthful and rights-cleared:
+
+```bash
+node scripts/rollout-evidence.mjs record --input wet-live-proof-YYYY-MM-DD.ndjson --ledger wet-rollout.ndjson
+node scripts/rollout-evidence.mjs verify --ledger wet-rollout.ndjson
+```
+
+`record` performs no network calls or scheduling and writes only the UTC date, package version,
+deployment SHA, four evidence hashes, and green health/freshness state. It rejects duplicate or
+nonconsecutive days, a changed SHA or version, degraded/stale feeds, localhost or preview/alternate
+origin evidence, and raw fields in the ledger.
+`verify` passes only after exactly seven consecutive green days on one immutable deployment.
 
 ## Validate the package
 

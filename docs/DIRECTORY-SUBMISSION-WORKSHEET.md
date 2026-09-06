@@ -100,6 +100,250 @@ Explain why local fixtures, protocol checks, and a source_rights_pending result 
 | CLI extension gallery | Do not submit. The Gemini CLI gallery auto-indexed the public repository; monitor removal after its next daily crawl. | Do not call the crawler-created cached entry an intentional submission, approval, or successful install. |
 | Community directory | Product name, repository, product URL, 120-character variant, category, keywords, and a dated verification link. | Endorsement, ranking, exhaustive coverage, or directory acceptance. |
 
+## Destination-specific unsent readiness
+
+These destination records are intentionally inert. `HELD_UNSENT` means preparation is blocked from submission; `BLOCKED_ELIGIBILITY` means only an owner-authorized eligibility preflight may occur; `AUTO_INDEX_MONITOR_ONLY` is observation of an unsolicited crawler result, not a submission path; and `SKIPPED` means no submission is planned. Empty value cells and unchecked boxes are mandatory until the owner separately authorizes action for that exact destination at action time. Completing a global release gate does not authorize any destination action.
+
+### Official MCP Registry
+
+Destination constraint: keep workflow `350715290` disabled until the protected environment, required reviewer, environment-scoped publishing key, release, and separate action-time authorization gates all pass.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### Claude Connector
+
+Destination constraint: the authorized owner must reconfirm the exact connector metadata and current platform terms before any submission action.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### Cline
+
+Destination constraint: require the destination-specific icon, final copy, and a dated clean-client setup record before action-time review.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### Docker
+
+Destination constraint: require the upstream package shape and task-test evidence to be revalidated against the deployed release before action-time review.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### Smithery
+
+Destination constraint: account-bound identity or repository authorization must be completed only by the authorized owner after current terms review.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### Glama
+
+Destination constraint: account-bound identity or repository authorization must be completed only by the authorized owner after current terms review.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### MCP.Directory
+
+Destination constraint: reconfirm the destination's current metadata, ownership, and terms requirements immediately before any separately authorized action.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### MCP Central
+
+Destination constraint: reconfirm the destination's current metadata, ownership, and terms requirements immediately before any separately authorized action.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### MCP.so
+
+Destination constraint: reconfirm the destination's current metadata, ownership, and terms requirements immediately before any separately authorized action.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### PulseMCP
+
+Destination constraint: reconfirm the destination's current metadata, ownership, and terms requirements immediately before any separately authorized action.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### awesome-mcp-servers
+
+Destination constraint: any repository change or pull request requires separate owner authorization and must not be treated as accepted until independently evidenced.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `HELD_UNSENT` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### OpenAI eligibility
+
+Destination constraint: this is an eligibility inquiry only. An affirmative written eligibility answer would not authorize a listing submission or acceptance of terms.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `BLOCKED_ELIGIBILITY` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### Gemini CLI gallery
+
+Destination constraint: monitor the unsolicited crawler-created entry only. Do not submit, claim ownership of the crawler action, or convert monitoring into a submission workflow.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `AUTO_INDEX_MONITOR_ONLY` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### Cursor
+
+Destination constraint: this destination is deliberately skipped. Retaining blank fields prevents a skipped record from being mistaken for readiness or submission evidence.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `SKIPPED` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
+### Claude Plugin
+
+Destination constraint: this destination is deliberately skipped. Retaining blank fields prevents a skipped record from being mistaken for readiness or submission evidence.
+
+| Readiness field | Ready | Value |
+|---|:---:|---|
+| Status | — | `SKIPPED` |
+| Deployment SHA | [ ] | |
+| Release version | [ ] | |
+| Canonical endpoint | [ ] | |
+| Owner / publisher identity | [ ] | |
+| Destination terms | [ ] | |
+| Separate action-time authorization | [ ] | |
+| Submitted UTC | [ ] | |
+| Receipt / evidence | [ ] | |
+
 ## Channel-specific owned landing links
 
 Use the matching URL as the listing's website/docs field. The owned site records these bounded UTM
@@ -134,8 +378,20 @@ two streams with an IP address or claim an install from a page view.
 
 | Destination | Publisher | Submitted UTC | URL | Status / next review |
 |---|---|---|---|---|
-| Gemini CLI gallery | Automated crawler; no intentional W.E.T. submission | — | `https://geminicli.com/extensions/` | Cached auto-indexed entry persisted after discovery-topic removal; recheck after `2026-09-07T05:15:00Z`. |
-| Official MCP Registry | _Not submitted_ | — | `https://registry.modelcontextprotocol.io/` | Zero W.E.T. records observed. Publication workflow `350715290` is `disabled_manually` with zero historical runs; keep it disabled until the protected-environment and release gates pass. |
-| All other destinations | _Not submitted_ | — | — | Release, owner, source-rights, and clean-client gates remain open. |
+| Official MCP Registry | _Not submitted_ | — | — | `HELD_UNSENT`; zero W.E.T. records observed. Workflow `350715290` remains disabled pending all gates. |
+| Claude Connector | _Not submitted_ | — | — | `HELD_UNSENT`; owner identity, current terms, and action-time authorization remain open. |
+| Cline | _Not submitted_ | — | — | `HELD_UNSENT`; release and clean-client gates remain open. |
+| Docker | _Not submitted_ | — | — | `HELD_UNSENT`; release and upstream task-test gates remain open. |
+| Smithery | _Not submitted_ | — | — | `HELD_UNSENT`; owner identity, current terms, and action-time authorization remain open. |
+| Glama | _Not submitted_ | — | — | `HELD_UNSENT`; owner identity, current terms, and action-time authorization remain open. |
+| MCP.Directory | _Not submitted_ | — | — | `HELD_UNSENT`; destination requirements and all action gates remain open. |
+| MCP Central | _Not submitted_ | — | — | `HELD_UNSENT`; destination requirements and all action gates remain open. |
+| MCP.so | _Not submitted_ | — | — | `HELD_UNSENT`; destination requirements and all action gates remain open. |
+| PulseMCP | _Not submitted_ | — | — | `HELD_UNSENT`; destination requirements and all action gates remain open. |
+| awesome-mcp-servers | _Not submitted_ | — | — | `HELD_UNSENT`; no repository change or pull request is authorized. |
+| OpenAI eligibility | _Not submitted_ | — | — | `BLOCKED_ELIGIBILITY`; no eligibility inquiry or listing submission is authorized. |
+| Gemini CLI gallery | Automated crawler; no intentional W.E.T. submission | — | — | `AUTO_INDEX_MONITOR_ONLY`; recheck the cached crawler result after `2026-09-07T05:15:00Z`. |
+| Cursor | _Not submitted_ | — | — | `SKIPPED`; no submission is planned. |
+| Claude Plugin | _Not submitted_ | — | — | `SKIPPED`; no submission is planned. |
 
 An unsolicited crawler listing is a public listing fact, not proof of intentional submission, review, approval, compatibility, or successful installation. Never convert a completed worksheet into a claim of directory acceptance. Record directory acceptance only after the directory provides verifiable evidence of its own review or acceptance process.

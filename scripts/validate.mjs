@@ -164,6 +164,8 @@ const REQUIRED_FILES = [
   'mcp.json',
   'plugin.json',
   'scripts/validate.mjs',
+  'scripts/rollout-evidence.mjs',
+  'scripts/rollout-evidence-verify.mjs',
   'scripts/verify-live.mjs',
   'server.json',
   'skills/wet-research/SKILL.md',
@@ -563,6 +565,9 @@ await check('standalone CI runs offline validation with opt-in live checks', asy
   const workflow = await readFile(path.join(PACKAGE_ROOT, '.github/workflows/validate.yml'), 'utf8');
   assert(/node-version:\s*22\s*$/mu.test(workflow), 'standalone CI must use Node.js 22');
   assert(workflow.includes('node --check scripts/verify-live.mjs'), 'standalone CI must syntax-check the clean-client proof');
+  assert(workflow.includes('node --check scripts/rollout-evidence.mjs'), 'standalone CI must syntax-check the rollout reducer');
+  assert(workflow.includes('node --check scripts/rollout-evidence-verify.mjs'), 'standalone CI must syntax-check rollout fixtures');
+  assert(workflow.includes('node scripts/rollout-evidence-verify.mjs'), 'standalone CI must run the offline rollout fixtures');
   assert(workflow.includes('node scripts/validate.mjs'), 'standalone CI must run the offline validator');
   assert(workflow.includes('node scripts/validate.mjs --live'), 'standalone CI must expose the live validator');
   assert(workflow.includes('node scripts/verify-live.mjs'), 'standalone CI must expose the seven-tool clean-client proof');
@@ -581,6 +586,9 @@ await check('standalone CI runs offline validation with opt-in live checks', asy
   for (const marker of [
     'node-version: 22',
     'node --check scripts/verify-live.mjs',
+    'node --check scripts/rollout-evidence.mjs',
+    'node --check scripts/rollout-evidence-verify.mjs',
+    'node scripts/rollout-evidence-verify.mjs',
     'node scripts/validate.mjs',
     'node scripts/validate.mjs --live',
     'node scripts/verify-live.mjs',
@@ -1178,6 +1186,7 @@ await check('directory worksheet is source-neutral, bounded, and explicitly unsu
     '| License |',
     '| Cline icon |',
     '## Submission-specific mapping',
+    '## Destination-specific unsent readiness',
     '## Evidence placeholders',
     '## Submission log',
   ]) {
@@ -1191,6 +1200,86 @@ await check('directory worksheet is source-neutral, bounded, and explicitly unsu
   assert(
     !/world(?:'s|’s)\s+first|\b(?:best|market-leading|real-time)\b|every (?:regulated )?venue|all venues|officially (?:approved|listed)|approved by|guaranteed/iu.test(worksheet),
     'directory worksheet contains an unapproved or unverified listing claim',
+  );
+
+  const readinessStart = worksheet.indexOf('## Destination-specific unsent readiness');
+  const readinessEnd = worksheet.indexOf('## Channel-specific owned landing links', readinessStart);
+  assert(readinessStart >= 0 && readinessEnd > readinessStart, 'directory worksheet readiness section is malformed');
+  const readiness = worksheet.slice(readinessStart, readinessEnd);
+  const expectedDestinations = new Map([
+    ['Official MCP Registry', 'HELD_UNSENT'],
+    ['Claude Connector', 'HELD_UNSENT'],
+    ['Cline', 'HELD_UNSENT'],
+    ['Docker', 'HELD_UNSENT'],
+    ['Smithery', 'HELD_UNSENT'],
+    ['Glama', 'HELD_UNSENT'],
+    ['MCP.Directory', 'HELD_UNSENT'],
+    ['MCP Central', 'HELD_UNSENT'],
+    ['MCP.so', 'HELD_UNSENT'],
+    ['PulseMCP', 'HELD_UNSENT'],
+    ['awesome-mcp-servers', 'HELD_UNSENT'],
+    ['OpenAI eligibility', 'BLOCKED_ELIGIBILITY'],
+    ['Gemini CLI gallery', 'AUTO_INDEX_MONITOR_ONLY'],
+    ['Cursor', 'SKIPPED'],
+    ['Claude Plugin', 'SKIPPED'],
+  ]);
+  const headings = [...readiness.matchAll(/^### ([^\r\n]+)$/gmu)];
+  assertSameMembers(
+    headings.map((match) => match[1]),
+    [...expectedDestinations.keys()],
+    'directory readiness destinations',
+  );
+  const blankReadinessFields = [
+    'Deployment SHA',
+    'Release version',
+    'Canonical endpoint',
+    'Owner / publisher identity',
+    'Destination terms',
+    'Separate action-time authorization',
+    'Submitted UTC',
+    'Receipt / evidence',
+  ];
+  for (const [index, heading] of headings.entries()) {
+    const destination = heading[1];
+    const sectionEnd = headings[index + 1]?.index ?? readiness.length;
+    const section = readiness.slice(heading.index, sectionEnd);
+    const sectionLines = section.split(/\r?\n/u);
+    const expectedStatus = expectedDestinations.get(destination);
+    const statusRows = sectionLines.filter((line) => line.startsWith('| Status |'));
+    assert(
+      statusRows.length === 1 && statusRows[0] === `| Status | — | \`${expectedStatus}\` |`,
+      `${destination} readiness status must remain ${expectedStatus}`,
+    );
+    for (const field of blankReadinessFields) {
+      const fieldRows = sectionLines.filter((line) => line.startsWith(`| ${field} |`));
+      assert(
+        fieldRows.length === 1 && fieldRows[0] === `| ${field} | [ ] | |`,
+        `${destination} readiness field must remain unchecked and blank: ${field}`,
+      );
+    }
+  }
+  assert(!/\[[xX]\]/u.test(readiness), 'directory readiness must not contain a checked box');
+  assert(
+    /Completing a global release gate does not authorize any destination action/iu.test(readiness),
+    'directory readiness must preserve separate destination action-time authorization',
+  );
+
+  const submissionLog = worksheet.slice(worksheet.indexOf('## Submission log'));
+  for (const [destination, status] of expectedDestinations) {
+    const logLine = submissionLog
+      .split(/\r?\n/u)
+      .find((line) => line.startsWith(`| ${destination} |`));
+    assert(logLine, `directory submission log is missing destination: ${destination}`);
+    const logCells = logLine.split('|').slice(1, -1).map((cell) => cell.trim());
+    assert(
+      logCells.length === 5 && logCells[2] === '—' && logCells[3] === '—',
+      `${destination} submission timestamp and receipt must remain blank`,
+    );
+    assert(logLine.includes(`\`${status}\``), `${destination} submission log must remain ${status}`);
+  }
+  assert(
+    !submissionLog.includes('| All other destinations |'),
+    'directory submission log must not collapse destination-specific readiness into a catch-all row',
   );
 
   const variants = [...worksheet.matchAll(/^\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*([^|\r\n]+?)\s*\|\s*$/gmu)].map((match) => ({
@@ -1218,6 +1307,10 @@ await check('truthful demo storyboards and clean-client proof are wired', async 
   }
   assert(packageReadme.includes('assets/demo/'), 'README.md does not advertise the demo package');
   assert(packageReadme.includes('node scripts/verify-live.mjs'), 'README.md does not document the clean-client proof command');
+  assert(
+    /node scripts\/verify-live\.mjs --expected-deployment-sha [^\r\n]+ > wet-live-proof\.ndjson/u.test(packageReadme),
+    'README.md clean-client proof must bind rollout evidence to the expected deployment SHA',
+  );
 
   const positiveWindows = [...positive.matchAll(/\|\s*(\d{2}):(\d{2})[–-](\d{2}):(\d{2})\s*\|/gu)].map((match) => ({
     start: Number(match[1]) * 60 + Number(match[2]),
@@ -1367,6 +1460,43 @@ await check('truthful demo storyboards and clean-client proof are wired', async 
     assert(source.includes(SOURCE_RIGHTS_REFUSAL), `${label} must disclose the current source-rights hold`);
     assert(/protocol-safe[\s\S]{0,120}not (?:a )?useful sourced/iu.test(source), `${label} must distinguish protocol safety from useful sourced evidence`);
   }
+});
+
+await check('seven-day rollout evidence reducer is fixture-verified and offline', async () => {
+  const reducer = await readFile(path.join(PACKAGE_ROOT, 'scripts/rollout-evidence.mjs'), 'utf8');
+  const fixtures = await readFile(path.join(PACKAGE_ROOT, 'scripts/rollout-evidence-verify.mjs'), 'utf8');
+  for (const forbidden of ['fetch(', 'setInterval(', 'setTimeout(', 'WET_MCP_ENDPOINT']) {
+    assert(!reducer.includes(forbidden), `rollout evidence reducer must remain offline: ${forbidden}`);
+  }
+  for (const required of [
+    'exactly seven consecutive green daily records are required',
+    'canonical production origin',
+    'deployment SHA changed during the seven-day rollout watch',
+    'package version changed during the seven-day rollout watch',
+    'contains forbidden field names',
+  ]) {
+    assert(reducer.includes(required), `rollout evidence reducer is missing gate: ${required}`);
+  }
+  for (const fixture of [
+    'duplicate UTC date',
+    'stale feed evidence',
+    'degraded aggregate health',
+    'without an expected deployment SHA',
+    'localhost evidence',
+    'preview or alternate-origin evidence',
+    'raw endpoint field',
+  ]) {
+    assert(fixtures.includes(fixture), `rollout evidence fixtures are missing: ${fixture}`);
+  }
+  const verification = spawnSync(
+    process.execPath,
+    [path.join(PACKAGE_ROOT, 'scripts/rollout-evidence-verify.mjs')],
+    { encoding: 'utf8' },
+  );
+  assert(
+    verification.status === 0 && verification.stdout.includes('17 passed, 0 failed'),
+    `rollout evidence fixtures failed: ${verification.stderr || verification.stdout}`,
+  );
 });
 
 await check('relative Markdown links resolve inside the package', async () => {

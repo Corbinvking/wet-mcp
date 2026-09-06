@@ -37,6 +37,9 @@ jobs:
           node-version: 22
       - run: |
           node --check scripts/verify-live.mjs
+          node --check scripts/rollout-evidence.mjs
+          node --check scripts/rollout-evidence-verify.mjs
+          node scripts/rollout-evidence-verify.mjs
           node --check evals/score-run.mjs
           node scripts/validate.mjs
           node evals/score-run.mjs evals/run-result-template.json --allow-incomplete
