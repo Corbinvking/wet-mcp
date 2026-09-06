@@ -23,6 +23,27 @@ All seven declare read-only, non-destructive annotations. This is a candidate co
 
 An API key, OAuth grant, paid tier, readable or enabled adapter, or environment setting cannot approve rights or bypass the hold. Environment controls may only disable sources.
 
+### Successful-response detail
+
+Every anonymous research tool accepts the optional `responseDetail` argument with exactly two
+values: `summary` or `full`. Omit it for the default `summary`. A successful summary carries
+`responseDetail: "summary"`, a compact `summarySemantics` guard, and `detailOmitted` whenever
+optional paths were removed. Pass `responseDetail: "full"` to restore the complete successful
+payload. An unsupported value is rejected rather than ignored.
+
+Summary projection is subtractive: it never invents or rewrites a price, identity, source URL,
+timestamp, unit, or refusal. Benchmark summaries retain the latest value/refusal state, dates,
+unit, methodology, licence, attribution, and row/constituent counts while omitting ledger and
+constituent rows. Event-book summaries retain every outcome, probability/result, source URL,
+observation time, volume unit, and quote basis/quality while omitting book levels, movement, and
+settlement-rule prose. Headline summaries retain the citation URL, publisher, publication time,
+best event identity, attachment count, and match score while omitting secondary attachment rows.
+Other tools remove only enumerated optional prose or echoed detail.
+
+Typed refusals are never projected, shortened, or supplemented with a reading. The production
+`mcp_release_held` response and candidate `source_rights_pending` gate run outside this control, so
+neither `summary` nor `full` can expose held data or bypass owner/legal/source-rights clearance.
+
 ## W.E.T. Scanners and alerts — OAuth, W.E.T.-account scoped
 
 The authenticated tool list is deterministic for the authorized scopes, but inventory does not mean executable. Fourteen source-derived watchlist-event, scanner, and alert reads, previews, tests, create/update/resume/run actions independently return `account_output_contract_pending`, even if the public `source_rights_pending` policy later clears. Scanner execution and delivery also require the venue and headline-source rights chains. Credentials cannot bypass either hold. Alert pause and deletion, notification mark-read, scanner pause, and server-enforced two-step scanner deletion remain source-neutral controls; scanner resume remains held because it reactivates sourced evaluation.

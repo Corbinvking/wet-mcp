@@ -24,12 +24,14 @@ The changes below describe the held candidate contract, not currently enabled pr
 - Kept seven public W.E.T. Research tools keyless and read-only; OAuth appends only authorized scanner and alert tools and cannot bypass source-rights policy.
 - Added default-deny policy `mcp-source-rights/2026-09-05.phase1`: six W.E.T.-sourced/derived tools return typed `source_rights_pending` with zero market or index values, while `wet_resolve` is the proposed caller-supplied-text exception after a future authorized release.
 - Reduced anonymous `tools/list` payload size while retaining structural input/output schemas and typed-refusal semantics.
+- Added optional `responseDetail: "summary" | "full"` to all seven anonymous research tools. Successful calls default to a materially smaller, omission-enumerated summary; full preserves the complete payload, and refusals/source-rights holds are never projected or bypassed.
 - Added complete tool annotations, including destructive hints for delete actions and open-world hints for live-source tools.
 - Separated service liveness from per-feed readiness; every enabled feed now has a bounded health adapter.
 - Added public security, terms, support, coverage, limitations, data-source, methodology, history-API, and client-install records.
 - Prepared the canonical registry, Agent Plugins, Claude plugin, Gemini extension, Docker Catalog, client-config, and evaluation artifacts for a future authorized publication. A Gemini CLI crawler auto-indexed the public repository without an intentional submission; its cached entry is a discovery fact, not approval or release evidence. The official MCP Registry has zero W.E.T. records, and all publication actions remain held.
 - Added a dependency-free package validator, offline CI, opt-in live endpoint checks, a Goose client example, and a 512px package icon.
 - Added positive and negative demo storyboards plus a dependency-free clean-client verifier that separates protocol-safe responses from useful sourced results and does not pass default launch readiness while required sourced tools are held.
+- Added non-authorizing release-readiness CI plus a fail-closed v3 release-evidence verifier that binds canonical listing copy, source-rights policy/output-contract/grant-set digests, reviewer identity and ordered UTC validity windows, and production-eval report/raw artifacts. Raw artifacts are size-bounded, secret/PII-scanned, explicitly redacted/public-approved, and mechanically re-derived; PNG proof is CRC/decode validated and MP4 proof requires a populated video track and sample tables. Registry publication freshly refetches the remote version tag after protected-environment approval.
 
 ## 0.4.0 — 2026-09-03
 

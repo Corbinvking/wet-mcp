@@ -157,6 +157,8 @@ for (const expectedCase of canonicalCases) {
       return call?.tool === tool && call.protocolSafe === true && call.usefulResult === true && call.sourceRightsPending === false;
     }));
   const usefulResultPass = expectedCase.view === 'positive' ? expectedCallProof : true;
+  const protocolSafetyPass = toolCalls.every((candidate) => record(candidate)?.protocolSafe === true);
+  const sourceRightsClearPass = toolCalls.every((candidate) => record(candidate)?.sourceRightsPending === false);
   const assertionsPass = assertionResults.length === expectedCase.assertions.length && assertionResults.every((value) => {
     const assertion = record(value);
     return assertion?.status === 'pass' &&
@@ -167,12 +169,15 @@ for (const expectedCase of canonicalCases) {
   caseScores.push({
     id: expectedCase.id,
     view: expectedCase.view,
-    pass: report.status === 'completed' && toolSequencePass && citationPass && refusalCodePass && usefulResultPass && assertionsPass,
+    pass: report.status === 'completed' && toolSequencePass && citationPass && refusalCodePass && usefulResultPass &&
+      protocolSafetyPass && sourceRightsClearPass && assertionsPass,
     checks: {
       toolSequence: toolSequencePass,
       requiredCitationFields: citationPass,
       requiredRefusalCodes: refusalCodePass,
       usefulToolResults: usefulResultPass,
+      protocolSafeToolResults: protocolSafetyPass,
+      sourceRightsClearToolResults: sourceRightsClearPass,
       qualitativeAssertions: assertionsPass,
     },
   });

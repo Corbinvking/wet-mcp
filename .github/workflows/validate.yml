@@ -6,6 +6,11 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      release_readiness:
+        description: Run non-authorizing active-release readiness validation; actual evidence also selects matching validation semantics
+        required: false
+        default: false
+        type: boolean
       live:
         description: Also validate the deployed endpoint
         required: false
@@ -39,10 +44,19 @@ jobs:
           node --check scripts/verify-live.mjs
           node --check scripts/rollout-evidence.mjs
           node --check scripts/rollout-evidence-verify.mjs
+          node --check scripts/release-package-verify.mjs
           node scripts/rollout-evidence-verify.mjs
           node --check evals/score-run.mjs
-          node scripts/validate.mjs
-          node evals/score-run.mjs evals/run-result-template.json --allow-incomplete
+          validation_args=()
+          if [[ "${{ github.event_name == 'workflow_dispatch' && inputs.release_readiness }}" == "true" || -f assets/release-evidence.json ]]; then
+            validation_args+=(--release)
+          fi
+          node scripts/validate.mjs "${validation_args[@]}"
+          if [[ -f assets/release-evidence.json ]]; then
+            node evals/score-run.mjs evals/latest-release-run.json
+          else
+            node evals/score-run.mjs evals/run-result-template.json --allow-incomplete
+          fi
 
   live:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.live }}
@@ -55,7 +69,12 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
-      - run: node scripts/validate.mjs --live
+      - run: |
+          validation_args=(--live)
+          if [[ "${{ github.event_name == 'workflow_dispatch' && inputs.release_readiness }}" == "true" || -f assets/release-evidence.json ]]; then
+            validation_args+=(--release)
+          fi
+          node scripts/validate.mjs "${validation_args[@]}"
         env:
           WET_MCP_ENDPOINT: ${{ inputs.endpoint }}
       - name: Gate 4 launch-readiness proof

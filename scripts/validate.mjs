@@ -9,12 +9,20 @@ import { fileURLToPath } from 'node:url';
 const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENDPOINT = 'https://www.worldeventtrading.com/api/mcp';
 const SERVER_NAME = 'com.worldeventtrading/prediction-markets';
+const RELEASE_TITLE = 'World Event Trading (W.E.T.) — Prediction Market Intelligence';
+const RELEASE_DESCRIPTION = 'Agent-safe prediction-market research with live books, verified identity, refusals and benchmarks.';
+const RELEASE_TAGLINE = 'Prediction-market intelligence your agent can quote safely.';
+const WEBSITE_URL = 'https://www.worldeventtrading.com/mcp';
+const REPOSITORY_URL = 'https://github.com/Corbinvking/wet-mcp';
+const ICON_URL = 'https://www.worldeventtrading.com/icon.png';
 const PACKAGE_LICENSE = 'LicenseRef-WET-Integration-1.0';
 const LEGACY_PROTOCOL_VERSION = '2025-06-18';
 const SOURCE_RIGHTS_POLICY = 'mcp-source-rights/2026-09-05.phase1';
 const SOURCE_RIGHTS_REFUSAL = 'source_rights_pending';
 const ACCOUNT_OUTPUT_CONTRACT_REFUSAL = 'account_output_contract_pending';
 const SOURCE_RIGHTS_FILTERING = 'coarse-all-rights-protected-sources';
+const OUTPUT_CONTRACT_VERSION = 'wet-mcp-public-output/0.5.0';
+const OUTPUT_CONTRACT_SHA256 = 'bf12adf28281632a32dc1c134ba99b1201ce95b2f9803e2b9004ab64b7c0ca2b';
 const MCP_REGISTRY_DESCRIPTION_MAX_LENGTH = 100;
 const MCP_REGISTRY_MANIFEST_CORE_SCHEMA = {
   type: 'object',
@@ -117,6 +125,7 @@ const REQUIRED_FILES = [
   'assets/demo/positive-55s-storyboard.md',
   'assets/icon-512.png',
   'assets/icon.png',
+  'assets/release-evidence.template.json',
   'assets/screenshots/README.md',
   'clients/README.md',
   'clients/claude-code.json',
@@ -166,20 +175,21 @@ const REQUIRED_FILES = [
   'scripts/validate.mjs',
   'scripts/rollout-evidence.mjs',
   'scripts/rollout-evidence-verify.mjs',
+  'scripts/release-package-verify.mjs',
   'scripts/verify-live.mjs',
   'server.json',
   'skills/wet-research/SKILL.md',
 ];
 
 const args = new Set(process.argv.slice(2));
+const releaseMode = args.has('--release');
 if (args.has('--help') || args.has('-h')) {
-  console.log(`Usage: node scripts/validate.mjs [--live]
+  console.log(`Usage: node scripts/validate.mjs [--release] [--live]
 
-Without flags, validates the package offline: inventory, every JSON file,
-manifests, evaluation cases, versions, endpoint references, client examples,
-compatibility entry points, listing copy, demo/proof assets, local icons,
-Docker MCP Catalog submission files, proprietary licensing, and relative
-Markdown links.
+Without flags, validates the intentionally held package offline and fails closed
+if active-release evidence is present. --release runs the same shared structural
+and package checks with active semantics, requires actual release evidence, and
+invokes scripts/release-package-verify.mjs.
 
 --live  Also makes read-only requests to the configured hosted MCP endpoint and
         verifies its discovery document, version, anonymous tool list, and
@@ -188,7 +198,7 @@ Markdown links.
 }
 
 for (const arg of args) {
-  if (arg !== '--live') {
+  if (arg !== '--live' && arg !== '--release') {
     console.error(`Unknown option: ${arg}`);
     console.error('Run with --help for usage.');
     process.exit(2);
@@ -235,8 +245,16 @@ function assertString(value, label) {
   assert(typeof value === 'string' && value.trim().length > 0, `${label} must be a non-empty string`);
 }
 
+function isValidSha256(value) {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value) && !/^0{64}$/u.test(value);
+}
+
 function assertSourceRightsDescription(value, label) {
   assertString(value, label);
+  if (releaseMode) {
+    assert(!/\bmcp_release_held\b|\brelease (?:is )?held\b|\bdo not (?:install|configure|connect(?: to)?|call)\b/iu.test(value), `${label} must be active release copy`);
+    return;
+  }
   const normalized = value.toLowerCase();
   for (const marker of ['six', SOURCE_RIGHTS_REFUSAL, 'default-deny', 'wet_resolve']) {
     assert(normalized.includes(marker.toLowerCase()), `${label} must disclose ${marker}`);
@@ -248,11 +266,14 @@ function assertSourceRightsDescription(value, label) {
 }
 
 function assertSourceRightsRecord(value, label, { requireToolNames = true } = {}) {
-  for (const marker of [SOURCE_RIGHTS_POLICY, SOURCE_RIGHTS_REFUSAL, 'default-deny', 'wet_resolve']) {
+  const requiredMarkers = releaseMode
+    ? [SOURCE_RIGHTS_POLICY, SOURCE_RIGHTS_REFUSAL, 'default-deny']
+    : [SOURCE_RIGHTS_POLICY, SOURCE_RIGHTS_REFUSAL, 'default-deny', 'wet_resolve'];
+  for (const marker of requiredMarkers) {
     assert(value.includes(marker), `${label} must disclose ${marker}`);
   }
   assert(/(?:credential|API key|OAuth)/iu.test(value) && /bypass/iu.test(value), `${label} must reject credential bypass`);
-  if (requireToolNames) {
+  if (requireToolNames && !releaseMode) {
     for (const tool of SOURCE_RIGHTS_GATED_TOOLS) assert(value.includes(tool), `${label} must name held tool ${tool}`);
   }
 }
@@ -450,6 +471,14 @@ await check('required package, client, CI, Docker, and asset inventory', async (
   const present = new Set(files.map(relative));
   const missing = REQUIRED_FILES.filter((file) => !present.has(file));
   assert(missing.length === 0, `missing: ${missing.join(', ')}`);
+  if (releaseMode) {
+    assert(present.has('assets/release-evidence.json'), 'release validation requires contemporaneous assets/release-evidence.json');
+  } else {
+    assert(
+      !present.has('assets/release-evidence.json'),
+      'held-package validation must reject an actual release-evidence record; use only the explicit template until contemporaneous evidence exists',
+    );
+  }
   const caseGroups = new Map();
   for (const name of present) {
     const key = name.toLowerCase();
@@ -493,7 +522,7 @@ await check('MCP Registry server manifest', async () => {
   assert(manifest.name === SERVER_NAME, `unexpected server name ${manifest.name}`);
   assertString(manifest.title, 'server title');
   assertString(manifest.description, 'server description');
-  assert(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(manifest.version), 'server version is not semantic versioning');
+  assert(/^\d+\.\d+\.\d+$/.test(manifest.version), 'server version must be stable semantic versioning; Registry publication forbids prereleases');
   packageVersion = manifest.version;
   assertUrl(manifest.websiteUrl, 'server websiteUrl');
   assert(manifest.repository?.source === 'github', 'server repository source must be github');
@@ -512,11 +541,33 @@ await check('MCP Registry server manifest', async () => {
   assert(access?.account === 'oauth-optional', 'account access must remain oauth-optional');
   const sourceRights = publisherMeta?.sourceRights;
   assert(sourceRights?.policyVersion === SOURCE_RIGHTS_POLICY, 'server source-rights policy mismatch');
+  assert(sourceRights?.outputContractVersion === OUTPUT_CONTRACT_VERSION, 'server source-rights output-contract version mismatch');
+  assert(sourceRights?.outputContractSha256 === OUTPUT_CONTRACT_SHA256, 'server source-rights output-contract digest mismatch');
   assert(sourceRights?.enforcement === 'default-deny', 'server source-rights enforcement must be default-deny');
   assert(sourceRights?.filtering === SOURCE_RIGHTS_FILTERING, 'server source-rights filtering mismatch');
   assert(sourceRights?.mixedSourceFiltering === false, 'server must disclose that mixed-source filtering is unavailable');
-  assertSameMembers(sourceRights?.heldTools ?? [], SOURCE_RIGHTS_GATED_TOOLS, 'server held source-rights tools');
-  assertSameMembers(sourceRights?.usableTools ?? [], ['wet_resolve'], 'server source-rights exceptions');
+  if (releaseMode) {
+    assert(manifest.title === RELEASE_TITLE, `release server title must be exactly ${RELEASE_TITLE}`);
+    assert(manifest.description === RELEASE_DESCRIPTION, 'release server description must match the approved canonical copy exactly');
+    assert(manifest.websiteUrl === WEBSITE_URL, `release server websiteUrl must be ${WEBSITE_URL}`);
+    assert(manifest.repository?.source === 'github' && manifest.repository?.url === REPOSITORY_URL, `release repository must be ${REPOSITORY_URL}`);
+    assert(manifest.icons[0]?.src === ICON_URL, `release server icon must be ${ICON_URL}`);
+    assert(publisherMeta?.tagline === RELEASE_TAGLINE, 'release publisher tagline must match the approved canonical copy exactly');
+    assert(publisherMeta?.releaseState === 'active', 'server releaseState must be active in release mode');
+    assert(sourceRights?.rightsState === 'cleared', 'server source-rights state must be cleared in release mode');
+    assert(isValidSha256(sourceRights?.grantSetSha256), 'server source-rights grant-set digest must be a nonzero lowercase SHA-256 in release mode');
+    assertSameMembers(sourceRights?.heldTools ?? [], [], 'server held source-rights tools');
+    assertSameMembers(sourceRights?.usableTools ?? [], PUBLIC_TOOLS, 'server release-usable public tools');
+  } else {
+    assert(manifest.title !== RELEASE_TITLE, 'held package must not use the approved active-release title');
+    assert(manifest.description !== RELEASE_DESCRIPTION, 'held package must not use the approved active-release description');
+    assert(publisherMeta?.tagline !== RELEASE_TAGLINE, 'held package must not use the approved active-release tagline');
+    assert(publisherMeta?.releaseState === 'held', 'held package must declare exact releaseState: held');
+    assert(sourceRights?.rightsState === 'pending', 'held package must declare exact source-rights state: pending');
+    assert(sourceRights?.grantSetSha256 === null, 'held package must not claim a reviewed source-rights grant-set digest');
+    assertSameMembers(sourceRights?.heldTools ?? [], SOURCE_RIGHTS_GATED_TOOLS, 'server held source-rights tools');
+    assertSameMembers(sourceRights?.usableTools ?? [], ['wet_resolve'], 'server source-rights exceptions');
+  }
   assert(sourceRights?.refusalCode === SOURCE_RIGHTS_REFUSAL, 'server source-rights refusal code mismatch');
   assert(sourceRights?.credentialBypass === false, 'server must forbid credential bypass');
 });
@@ -567,9 +618,20 @@ await check('standalone CI runs offline validation with opt-in live checks', asy
   assert(workflow.includes('node --check scripts/verify-live.mjs'), 'standalone CI must syntax-check the clean-client proof');
   assert(workflow.includes('node --check scripts/rollout-evidence.mjs'), 'standalone CI must syntax-check the rollout reducer');
   assert(workflow.includes('node --check scripts/rollout-evidence-verify.mjs'), 'standalone CI must syntax-check rollout fixtures');
+  assert(workflow.includes('node --check scripts/release-package-verify.mjs'), 'standalone CI must syntax-check the release verifier');
   assert(workflow.includes('node scripts/rollout-evidence-verify.mjs'), 'standalone CI must run the offline rollout fixtures');
-  assert(workflow.includes('node scripts/validate.mjs'), 'standalone CI must run the offline validator');
-  assert(workflow.includes('node scripts/validate.mjs --live'), 'standalone CI must expose the live validator');
+  assert(workflow.includes('node scripts/validate.mjs "${validation_args[@]}"'), 'standalone CI must run the mode-selected validator');
+  assert(workflow.includes('validation_args=(--live)'), 'standalone CI must expose the live validator');
+  assert(/workflow_dispatch:[\s\S]*?release_readiness:[\s\S]*?type:\s*boolean/mu.test(workflow), 'non-authorizing release-readiness validation must be an explicit boolean workflow-dispatch input');
+  assert(workflow.includes('Run non-authorizing active-release readiness validation'), 'release-readiness input must state that it cannot authorize publication');
+  assert(/-f assets\/release-evidence\.json[\s\S]*validation_args\+=\(--release\)/u.test(workflow), 'active release evidence must select matching validation semantics on push and pull request');
+  assert(/permissions:\s*\r?\n\s{2}contents:\s*read\s*$/mu.test(workflow), 'validation CI must retain read-only repository permissions');
+  assert(workflow.includes('persist-credentials: false'), 'validation CI checkout must not persist GitHub credentials');
+  assert(!/mcp-publisher publish|id-token:\s*write|contents:\s*write|packages:\s*write|secrets\./u.test(workflow), 'validation CI must have no publication command, write permission, or secret access');
+  assert(
+    /-f assets\/release-evidence\.json[\s\S]*node evals\/score-run\.mjs evals\/latest-release-run\.json[\s\S]*else[\s\S]*node evals\/score-run\.mjs evals\/run-result-template\.json --allow-incomplete/u.test(workflow),
+    'standalone CI must fully score release evidence while keeping the held template explicitly incomplete',
+  );
   assert(workflow.includes('node scripts/verify-live.mjs'), 'standalone CI must expose the seven-tool clean-client proof');
   assert(/workflow_dispatch:[\s\S]*?live:[\s\S]*?type:\s*boolean/mu.test(workflow), 'live validation must be an explicit boolean workflow-dispatch input');
   assert(/workflow_dispatch:[\s\S]*?endpoint:[\s\S]*?type:\s*string/mu.test(workflow), 'clean-client CI must accept a preview endpoint');
@@ -588,12 +650,18 @@ await check('standalone CI runs offline validation with opt-in live checks', asy
     'node --check scripts/verify-live.mjs',
     'node --check scripts/rollout-evidence.mjs',
     'node --check scripts/rollout-evidence-verify.mjs',
+    'node --check scripts/release-package-verify.mjs',
     'node scripts/rollout-evidence-verify.mjs',
-    'node scripts/validate.mjs',
-    'node scripts/validate.mjs --live',
+    'node scripts/validate.mjs "${validation_args[@]}"',
+    'validation_args=(--live)',
     'node scripts/verify-live.mjs',
     'node scripts/verify-live.mjs --candidate-allow-source-rights-pending',
+    'release_readiness:',
     'candidate_protocol_only:',
+    '-f assets/release-evidence.json',
+    'validation_args+=(--release)',
+    'node evals/score-run.mjs evals/latest-release-run.json',
+    'node evals/score-run.mjs evals/run-result-template.json --allow-incomplete',
     'WET_MCP_ENDPOINT: ${{ inputs.endpoint }}',
   ]) {
     assert(compatibilityWorkflow.includes(marker), `validate-mcp.yml is missing ${marker}`);
@@ -605,6 +673,17 @@ await check('standalone CI runs offline validation with opt-in live checks', asy
   assert(
     /workflow_dispatch:[\s\S]*?candidate_protocol_only:[\s\S]*?type:\s*boolean/mu.test(compatibilityWorkflow),
     'validate-mcp.yml must retain the explicit candidate-only gate',
+  );
+  assert(
+    /workflow_dispatch:[\s\S]*?release_readiness:[\s\S]*?type:\s*boolean/mu.test(compatibilityWorkflow),
+    'validate-mcp.yml must retain the explicit non-authorizing release-readiness gate',
+  );
+  assert(
+    compatibilityWorkflow.includes('Run non-authorizing active-release readiness validation') &&
+      /permissions:\s*\r?\n\s{2}contents:\s*read\s*$/mu.test(compatibilityWorkflow) &&
+      compatibilityWorkflow.includes('persist-credentials: false') &&
+      !/mcp-publisher publish|id-token:\s*write|contents:\s*write|packages:\s*write|secrets\./u.test(compatibilityWorkflow),
+    'validate-mcp.yml release-readiness mode must be explicitly non-authorizing, read-only, credential-free, and unable to publish',
   );
   assert(
     !/^\s*(?:push|pull_request):/mu.test(compatibilityWorkflow),
@@ -628,11 +707,54 @@ await check('official registry publishing is pinned and domain-authenticated', a
     'registry publishing must use the owner-protected production environment',
   );
   assert(
-    workflow.includes('test "$GITHUB_REF_TYPE" = "tag"') &&
-      workflow.includes('test "$GITHUB_REF" = "refs/tags/v${manifest_version}"') &&
-      workflow.includes('test "$GITHUB_REF_NAME" = "v${manifest_version}"') &&
-      !workflow.includes("if: github.event_name == 'push'"),
-    'every registry invocation, including workflow_dispatch, must require the exact manifest version tag',
+    /on:\s*\r?\n\s{2}workflow_dispatch:/u.test(workflow) &&
+      !/^\s*push:/mu.test(workflow) &&
+      /confirmation:[\s\S]*required:\s*true[\s\S]*type:\s*string/u.test(workflow) &&
+      workflow.includes('expected_confirmation="PUBLISH ${manifest_name}@${release_tag}"') &&
+      workflow.includes('test "$PUBLISH_CONFIRMATION" = "$expected_confirmation"'),
+    'Registry publication must be manual-only and require the exact manifest-bound confirmation phrase',
+  );
+  assert(
+    workflow.includes('test "$GITHUB_EVENT_NAME" = "workflow_dispatch"') &&
+      workflow.includes('test "$GITHUB_REF" = "refs/heads/main"') &&
+      workflow.includes('process.env.GITHUB_ACTOR.toLowerCase() !== owner') &&
+      workflow.includes('process.env.GITHUB_TRIGGERING_ACTOR.toLowerCase() !== owner') &&
+      workflow.includes('${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/branches/main') &&
+      workflow.includes('branch.protected !== true') &&
+      workflow.includes('${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/environments/mcp-registry-production') &&
+      workflow.includes("rule?.type === 'required_reviewers'") &&
+      workflow.includes('environment.deployment_branch_policy?.protected_branches !== true') &&
+      workflow.includes('needs: preflight'),
+    'a secret-free preflight must bind owner, main, branch protection, required environment review, and the publish job',
+  );
+  assert(
+    workflow.includes('group: mcp-registry-publish') &&
+      !workflow.includes('group: mcp-registry-publish-${{ github.ref }}'),
+    'Registry publication must be serialized across every version and rerun',
+  );
+  assert(
+    workflow.includes('test "$(git rev-parse "refs/tags/${release_tag}^{commit}")" = "$GITHUB_SHA"') &&
+      workflow.includes('Recheck exact main and tag after environment approval') &&
+      workflow.includes('remote_tag_ref="refs/registry-verified-tags/${RELEASE_TAG}"') &&
+      workflow.includes('git update-ref -d "$remote_tag_ref" || true') &&
+      workflow.includes('git fetch --no-tags origin "+refs/tags/${RELEASE_TAG}:${remote_tag_ref}"') &&
+      workflow.includes('test "$(git rev-parse "${remote_tag_ref}^{commit}")" = "$GITHUB_SHA"'),
+    'the exact version tag must peel to the dispatched main SHA initially and be freshly fetched from origin after environment approval',
+  );
+  assert(
+    workflow.includes('${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}') &&
+      workflow.includes('release.tag_name !== expectedTag') &&
+      workflow.includes('release.draft !== false') &&
+      workflow.includes('release.prerelease !== false') &&
+      workflow.includes('Date.parse(release.published_at)') &&
+      workflow.includes('Recheck the published GitHub Release after environment approval'),
+    'Registry publishing must require and recheck a published, non-draft, non-prerelease GitHub Release for the exact tag',
+  );
+  assert(
+    workflow.includes('run: node scripts/validate.mjs --release') &&
+      workflow.includes('run: node scripts/release-package-verify.mjs') &&
+      !/^\s*run:\s*node scripts\/validate\.mjs\s*$/mu.test(workflow),
+    'registry publishing must use release-mode package validation and retain the explicit active-release verifier',
   );
   assert(
     workflow.includes('test -f evals/latest-release-run.json') &&
@@ -670,8 +792,9 @@ await check('official registry publishing is pinned and domain-authenticated', a
     'publisher must authenticate the domain namespace with apex DNS proof, not redirect-sensitive HTTP proof',
   );
   assert(
-    workflow.includes('secrets.MCP_REGISTRY_PRIVATE_KEY'),
-    'publisher must obtain its private key from a GitHub Actions secret',
+    workflow.includes('secrets.MCP_REGISTRY_ENV_PRIVATE_KEY') &&
+      !workflow.includes('secrets.MCP_REGISTRY_PRIVATE_KEY'),
+    'publisher must use the environment-only key name and cannot fall back to the repository-level secret name',
   );
   assert(workflow.includes('./mcp-publisher publish'), 'publisher workflow must publish server.json');
   assert(
@@ -679,8 +802,13 @@ await check('official registry publishing is pinned and domain-authenticated', a
     'publisher workflow must verify the resulting registry record',
   );
   const orderedGates = [
-    'node scripts/validate.mjs',
-    'test "$GITHUB_REF_TYPE" = "tag"',
+    'Require owner dispatch, protected main, and a protected release environment',
+    'Validate the active-release integration package before approval',
+    'Require a published GitHub Release for the exact tagged commit',
+    'Recheck exact main and tag after environment approval',
+    'Recheck the published GitHub Release after environment approval',
+    'Revalidate release closure after environment approval',
+    'run: node scripts/release-package-verify.mjs',
     'node evals/score-run.mjs evals/latest-release-run.json',
     'run: node scripts/verify-live.mjs --expected-deployment-sha "$WET_EVALUATED_DEPLOYMENT_SHA"',
     './mcp-publisher validate',
@@ -691,8 +819,129 @@ await check('official registry publishing is pinned and domain-authenticated', a
   assert(
     orderedGates.every((position) => position >= 0) &&
       orderedGates.every((position, index) => index === 0 || position > orderedGates[index - 1]),
-    'registry validation, tag, eval, live, authentication, publish, and verification gates must stay ordered',
+    'Registry authorization, release closure, tag/Release recheck, eval, live, authentication, publish, and verification gates must stay ordered',
   );
+});
+
+await check('active-release verifier is fail-closed and its evidence template is non-evidentiary', async () => {
+  const verifier = await readFile(path.join(PACKAGE_ROOT, 'scripts/release-package-verify.mjs'), 'utf8');
+  const template = packageJson('assets/release-evidence.template.json');
+  assert(RELEASE_TITLE.length <= 100, 'approved release title exceeds the official Registry limit');
+  assert(RELEASE_DESCRIPTION.length <= MCP_REGISTRY_DESCRIPTION_MAX_LENGTH, 'approved release description exceeds the official Registry limit');
+  assert(template.templateOnly === true, 'release-evidence template must remain explicitly template-only');
+  assert(template.schemaVersion === 'wet.release-evidence/v3', 'release-evidence template schema version mismatch');
+  assert(template.serverName === SERVER_NAME, 'release-evidence template server name mismatch');
+  assert(template.releaseTitle === RELEASE_TITLE, 'release-evidence template title mismatch');
+  assert(template.releaseDescription === RELEASE_DESCRIPTION, 'release-evidence template description mismatch');
+  assert(template.releaseTagline === RELEASE_TAGLINE, 'release-evidence template tagline mismatch');
+  assert(template.websiteUrl === WEBSITE_URL, 'release-evidence template website URL mismatch');
+  assert(template.repositoryUrl === REPOSITORY_URL, 'release-evidence template repository URL mismatch');
+  assert(template.iconUrl === ICON_URL, 'release-evidence template icon URL mismatch');
+  assert(template.preparedAt === 'REPLACE_WITH_UTC_TIMESTAMP', 'release-evidence template preparedAt must remain a replacement sentinel');
+  assert(template.sourceRights?.policyVersion === SOURCE_RIGHTS_POLICY, 'release-evidence template rights policy mismatch');
+  assert(template.sourceRights?.outputContractVersion === OUTPUT_CONTRACT_VERSION, 'release-evidence template output-contract version mismatch');
+  assert(template.sourceRights?.outputContractSha256 === OUTPUT_CONTRACT_SHA256, 'release-evidence template output-contract digest mismatch');
+  assert(template.sourceRights?.grantSetSha256 === 'REPLACE_WITH_LOWERCASE_SHA256', 'release-evidence template grant-set digest must remain a replacement sentinel');
+  assert(template.sourceRights?.reviewedByRole === 'REPLACE_WITH_REVIEWER_ROLE', 'release-evidence template source-rights role must remain a replacement sentinel');
+  assert(template.sourceRights?.reviewedByLogin === 'REPLACE_WITH_GITHUB_LOGIN', 'release-evidence template source-rights login must remain a replacement sentinel');
+  for (const field of ['reviewedAt', 'effectiveAt']) {
+    assert(template.sourceRights?.[field] === 'REPLACE_WITH_UTC_TIMESTAMP', `release-evidence template sourceRights.${field} must remain a replacement sentinel`);
+  }
+  assert(template.sourceRights?.expiresAt === null, 'release-evidence template sourceRights.expiresAt must default to null for no expiry');
+  assert(template.sourceRights?.evidenceRef === 'REPLACE_WITH_DURABLE_EVIDENCE_REF', 'release-evidence template rights reference must remain a replacement sentinel');
+  assert(template.evaluation?.reportPath === 'evals/latest-release-run.json', 'release-evidence template eval path mismatch');
+  assert(template.evaluation?.reportSha256 === 'REPLACE_WITH_LOWERCASE_SHA256', 'release-evidence template eval digest must remain a replacement sentinel');
+  assert(template.evaluation?.artifactSchemaVersion === 'wet.eval-raw-artifacts/v2', 'release-evidence template raw-eval schema mismatch');
+  assert(template.evaluation?.artifactDirectory === 'evals/release-artifacts', 'release-evidence template raw-eval directory mismatch');
+  assert(Array.isArray(template.evaluation?.artifacts) && template.evaluation.artifacts.length === 0, 'release-evidence template raw-eval artifact list must remain empty and non-evidentiary');
+  assert(template.review?.status === 'not-approved', 'release-evidence template must remain not approved');
+  assert(template.review?.reviewedByRole === 'owner', 'release-evidence template final reviewer must remain the owner');
+  assert(template.review?.reviewedByLogin === 'REPLACE_WITH_GITHUB_LOGIN', 'release-evidence template owner login must remain a replacement sentinel');
+  assert(template.review?.reviewedAt === 'REPLACE_WITH_UTC_TIMESTAMP', 'release-evidence template owner timestamp must remain a replacement sentinel');
+  assertSameMembers(
+    template.demos?.map((entry) => entry.kind),
+    ['positive-index-workflow', 'typed-refusal'],
+    'release-evidence template demo kinds',
+  );
+  assertSameMembers(
+    template.screenshots?.map((entry) => entry.kind),
+    ['anonymous-tools-list', 'positive-index-workflow', 'typed-refusal'],
+    'release-evidence template screenshot kinds',
+  );
+  for (const entry of [...(template.demos ?? []), ...(template.screenshots ?? [])]) {
+    assert(entry.publicDisplayApproved === false && entry.redacted === false, `${entry.kind} template flags must remain false`);
+    assert(/^REPLACE_WITH_/u.test(entry.sha256), `${entry.kind} template digest must remain a replacement sentinel`);
+  }
+  assert(
+    verifier.includes("const RELEASE_EVIDENCE = 'assets/release-evidence.json'") &&
+      verifier.includes("publisher.releaseState !== 'active'") &&
+      verifier.includes("rights.rightsState !== 'cleared'") &&
+      verifier.includes('rights.outputContractSha256 !== OUTPUT_CONTRACT_SHA256') &&
+      verifier.includes('validSha256(rights.grantSetSha256)') &&
+      verifier.includes('rights.heldTools.length !== 0') &&
+      verifier.includes('sameMembers(rights.usableTools, PUBLIC_TOOLS)') &&
+      verifier.includes("evaluation.status !== 'completed'") &&
+      verifier.includes("'evals/score-run.mjs'") &&
+      verifier.includes('releaseEvidence.evaluation?.reportSha256 !== evaluationSha256') &&
+      verifier.includes('inspectEvaluationArtifacts') &&
+      verifier.includes('digest !== expectedArtifact.reportSha256') &&
+      verifier.includes('callValue.evidenceRef !== toolPath') &&
+      verifier.includes('deriveToolResultClaims') &&
+      verifier.includes('toolClaimsMatchReport') &&
+      verifier.includes('evaluation-derived-claims') &&
+      verifier.includes('MAX_EVAL_TOOL_RESULT_BYTES') &&
+      verifier.includes('sensitiveArtifactFinding') &&
+      verifier.includes('artifact.redacted !== true || artifact.publicDisplayApproved !== true') &&
+      verifier.includes('validatePngBytes(bytes)') &&
+      verifier.includes('inflateSync(Buffer.concat(idatParts)') &&
+      verifier.includes('const actualCrc = crc32(') &&
+      verifier.includes('validateMp4Bytes(bytes, entry.durationSeconds)') &&
+      verifier.includes('validateVideoTrack(bytes, trak, mdats)') &&
+      verifier.includes("!== 'vide'") &&
+      verifier.includes('sampleIndex !== sampleCount') &&
+      verifier.includes('inspectEvidenceDirectoryInventory') &&
+      verifier.includes('REPOSITORY_OWNER_LOGIN.toLowerCase()') &&
+      verifier.includes("releaseEvidence.review?.status !== 'approved'"),
+    'release verifier must bind canonical listing copy, active metadata, current rights/eval digests, all seven usable tools, structured approved captures, and owner approval',
+  );
+
+  const activeAttempt = spawnSync(
+    process.execPath,
+    [path.join(PACKAGE_ROOT, 'scripts/release-package-verify.mjs')],
+    { encoding: 'utf8' },
+  );
+  if (releaseMode) {
+    assert(
+      activeAttempt.status === 0 && activeAttempt.stdout.includes('Release-package verification passed'),
+      `active release verifier failed: ${activeAttempt.stderr || activeAttempt.stdout}`,
+    );
+  } else {
+    const selfTest = spawnSync(
+      process.execPath,
+      [path.join(PACKAGE_ROOT, 'scripts/release-package-verify.mjs'), '--self-test'],
+      { encoding: 'utf8' },
+    );
+    assert(
+      selfTest.status === 0 && selfTest.stdout.includes('SELF-TEST PASS'),
+      `release verifier self-test failed: ${selfTest.stderr || selfTest.stdout}`,
+    );
+    const activeOutput = `${activeAttempt.stdout}\n${activeAttempt.stderr}`;
+    for (const code of [
+      'release-listing',
+      'release-tagline',
+      'release-state',
+      'source-rights-evidence',
+      'manifest-held-tools',
+      'listing-hold-copy',
+      'current-hold-copy',
+      'evaluation-evidence',
+      'evaluation-artifacts',
+      'capture-evidence-missing',
+    ]) {
+      assert(activeOutput.includes(`[${code}]`), `held release-verifier result is missing blocker code: ${code}`);
+    }
+    assert(activeAttempt.status !== 0, 'default active-release verification must fail against the held candidate');
+  }
 });
 
 await check('client configurations use the canonical endpoint', async () => {
@@ -806,10 +1055,12 @@ await check('evaluation cases conform to evals/schema.json', async () => {
       (principle) =>
         principle.includes(SOURCE_RIGHTS_POLICY) &&
         principle.includes(SOURCE_RIGHTS_REFUSAL) &&
-        principle.includes('post-clearance targets') &&
-        principle.includes('wet_resolve'),
+        principle.includes('wet_resolve') &&
+        (releaseMode || principle.includes('post-clearance targets')),
     ),
-    'eval principles must distinguish the production release hold from candidate source-rights behavior and the future resolver exception',
+    releaseMode
+      ? 'eval principles must retain the active source-rights and resolver boundaries'
+      : 'eval principles must distinguish the production release hold from candidate source-rights behavior and the future resolver exception',
   );
   assert(Array.isArray(positiveView), 'evals/positive-cases.json must be an array');
   assert(Array.isArray(refusalView), 'evals/refusal-cases.json must be an array');
@@ -911,7 +1162,11 @@ await check('public tool contract remains seven keyless read-only tools', async 
   assert(publicSection.includes('All seven declare read-only, non-destructive annotations.'), 'public annotation commitment is missing');
   assertSourceRightsRecord(publicSection, 'docs/tools.md');
   assert(publicSection.includes(SOURCE_RIGHTS_FILTERING), 'tool reference must disclose coarse source-rights filtering');
-  assert(/zero market or index value fields/iu.test(publicSection), 'tool reference must disclose the zero-value hold boundary');
+  if (releaseMode) {
+    assert(!/zero market or index value fields|sole public (?:exception|tool)|only `wet_resolve` remains usable/iu.test(publicSection), 'release tool reference must not describe the held six-tool boundary');
+  } else {
+    assert(/zero market or index value fields/iu.test(publicSection), 'tool reference must disclose the zero-value hold boundary');
+  }
 });
 
 await check('distribution doctrine, health, routing, and rights copy stay aligned', async () => {
@@ -986,8 +1241,12 @@ await check('distribution doctrine, health, routing, and rights copy stay aligne
     assert(source.includes(SOURCE_RIGHTS_FILTERING), `${label} must disclose coarse phase-1 filtering`);
     assert(/mixed-source filtering is not implemented/iu.test(source), `${label} must disclose unavailable mixed-source filtering`);
   }
-  assert(/sole public (?:exception|tool)|only `wet_resolve` remains usable/iu.test(skill + gemini), 'agent entry points must identify wet_resolve as the sole public exception');
-  assert(/protocol-safe[\s\S]{0,120}not a useful sourced result/iu.test(skill), 'skill must distinguish safe protocol behavior from useful sourced output');
+  if (releaseMode) {
+    assert(!/sole public (?:exception|tool)|only `wet_resolve` remains usable/iu.test(skill + gemini), 'active agent entry points must not identify wet_resolve as the sole public exception');
+  } else {
+    assert(/sole public (?:exception|tool)|only `wet_resolve` remains usable/iu.test(skill + gemini), 'agent entry points must identify wet_resolve as the sole public exception');
+    assert(/protocol-safe[\s\S]{0,120}not a useful sourced result/iu.test(skill), 'skill must distinguish safe protocol behavior from useful sourced output');
+  }
   for (const [label, source] of [
     ['docs/quickstart.md', quickstart],
     ['docs/REVIEWER-GUIDE.md', reviewer],
@@ -1071,10 +1330,14 @@ await check('literal compatibility paths delegate to canonical records without c
   const screenshotEntries = (await readdir(screenshotsDirectory, { withFileTypes: true }))
     .filter((entry) => entry.isFile())
     .map((entry) => entry.name);
-  assertSameMembers(screenshotEntries, ['README.md'], 'release-candidate screenshot evidence files');
   const screenshotReadme = await readFile(path.join(screenshotsDirectory, 'README.md'), 'utf8');
-  for (const marker of ['No screenshot is included', 'reachable deployment', 'written public-output and brand-use clearance', 'redaction']) {
-    assert(screenshotReadme.includes(marker), `assets/screenshots/README.md is missing gate: ${marker}`);
+  if (releaseMode) {
+    assert(screenshotEntries.includes('README.md'), 'release screenshot evidence must retain its handling guidance');
+  } else {
+    assertSameMembers(screenshotEntries, ['README.md'], 'release-candidate screenshot evidence files');
+    for (const marker of ['No screenshot is included', 'reachable deployment', 'written public-output and brand-use clearance', 'redaction']) {
+      assert(screenshotReadme.includes(marker), `assets/screenshots/README.md is missing gate: ${marker}`);
+    }
   }
 
   const evidence = await readFile(
@@ -1263,6 +1526,54 @@ await check('directory worksheet is source-neutral, bounded, and explicitly unsu
     /Completing a global release gate does not authorize any destination action/iu.test(readiness),
     'directory readiness must preserve separate destination action-time authorization',
   );
+
+  const landingStart = worksheet.indexOf('## Channel-specific owned landing links');
+  const landingEnd = worksheet.indexOf('## Evidence placeholders', landingStart);
+  assert(landingStart >= 0 && landingEnd > landingStart, 'directory landing-link section is malformed');
+  const landingLines = worksheet
+    .slice(landingStart, landingEnd)
+    .split(/\r?\n/u)
+    .filter((line) => /^\| (?!Destination\b)[^|]+ \| `https:\/\//u.test(line));
+  const landingRecords = landingLines.map((line) => {
+    const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
+    return { destination: cells[0], value: cells[1].replace(/^`|`$/gu, '') };
+  });
+  const expectedLandingSources = new Map([
+    ['Official MCP Registry', ['mcp_registry', 'registry']],
+    ['Claude', ['claude', 'directory']],
+    ['Cursor', ['cursor', 'directory']],
+    ['Cline', ['cline', 'directory']],
+    ['Docker catalog', ['docker', 'directory']],
+    ['CLI extension gallery', ['gemini_cli', 'directory']],
+    ['Smithery', ['smithery', 'directory']],
+    ['Glama', ['glama', 'directory']],
+    ['MCP.Directory', ['mcp_directory', 'directory']],
+    ['MCP Central', ['mcp_central', 'directory']],
+    ['MCP.so', ['mcp_so', 'directory']],
+    ['PulseMCP', ['pulsemcp', 'directory']],
+    ['awesome-mcp-servers', ['awesome_mcp_servers', 'repository']],
+    ['OpenAI eligibility/submission', ['openai', 'directory']],
+    ['GitHub repository/community', ['github', 'repository']],
+  ]);
+  assertSameMembers(
+    landingRecords.map((record) => record.destination),
+    [...expectedLandingSources.keys()],
+    'directory landing-link destinations',
+  );
+  assert(
+    new Set(landingRecords.map((record) => record.value)).size === landingRecords.length,
+    'every directory landing link must be unique',
+  );
+  for (const record of landingRecords) {
+    const expected = expectedLandingSources.get(record.destination);
+    assert(expected, `unexpected directory landing-link destination: ${record.destination}`);
+    const parsed = new URL(record.value);
+    assert(parsed.origin === 'https://www.worldeventtrading.com', `${record.destination} landing link must use the owned HTTPS origin`);
+    assert(parsed.searchParams.get('utm_source') === expected[0], `${record.destination} landing link has the wrong utm_source`);
+    assert(parsed.searchParams.get('utm_medium') === expected[1], `${record.destination} landing link has the wrong utm_medium`);
+    assert(parsed.searchParams.get('utm_campaign') === 'mcp_launch', `${record.destination} landing link has the wrong utm_campaign`);
+    assert([...parsed.searchParams.keys()].length === 3, `${record.destination} landing link must contain only the three reviewed UTM keys`);
+  }
 
   const submissionLog = worksheet.slice(worksheet.indexOf('## Submission log'));
   for (const [destination, status] of expectedDestinations) {
@@ -1664,5 +1975,6 @@ if (failCount > 0) {
   console.error(`\nValidation failed: ${failCount} of ${total} checks failed.`);
   process.exitCode = 1;
 } else {
-  console.log(`\nValidation passed: ${passCount} checks${args.has('--live') ? ' (including live endpoint checks)' : ''}.`);
+  const mode = releaseMode ? 'release' : 'held';
+  console.log(`\nValidation passed: ${passCount} checks (${mode} mode${args.has('--live') ? ', including live endpoint checks' : ''}).`);
 }

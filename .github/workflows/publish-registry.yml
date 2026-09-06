@@ -1,16 +1,20 @@
 name: Publish Official MCP Registry metadata
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type the exact PUBLISH name@version phrase shown in the runbook'
+        required: true
+        type: string
 
 permissions:
+  actions: read
   contents: read
 
+# Registry publication is globally serialized, including reruns, so two versions cannot race.
 concurrency:
-  group: mcp-registry-publish-${{ github.ref }}
+  group: mcp-registry-publish
   cancel-in-progress: false
 
 env:
@@ -18,31 +22,178 @@ env:
   MCP_PUBLISHER_LINUX_AMD64_SHA256: ab128162b0616090b47cf245afe0a23f3ef08936fdce19074f5ba0a4469281ac
 
 jobs:
-  publish:
+  preflight:
     runs-on: ubuntu-latest
-    # Configure this environment with required reviewers before release. The tag, eval, and live
-    # gates below remain mandatory even if repository environment protection is misconfigured.
+    outputs:
+      release_tag: ${{ steps.authorization.outputs.release_tag }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: main
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Require owner dispatch, protected main, and a protected release environment
+        id: authorization
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLISH_CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          test "$GITHUB_REF_TYPE" = "branch"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin main
+          test "$(git rev-parse origin/main)" = "$GITHUB_SHA"
+          test -n "$GH_TOKEN"
+
+          manifest_name="$(node -p "require('./server.json').name")"
+          manifest_version="$(node -p "require('./server.json').version")"
+          release_tag="v${manifest_version}"
+          expected_confirmation="PUBLISH ${manifest_name}@${release_tag}"
+          test "$PUBLISH_CONFIRMATION" = "$expected_confirmation"
+
+          node - <<'NODE'
+          const owner = process.env.GITHUB_REPOSITORY_OWNER.toLowerCase();
+          if (process.env.GITHUB_ACTOR.toLowerCase() !== owner) {
+            throw new Error('Only the repository owner may dispatch Registry publication.');
+          }
+          if (process.env.GITHUB_TRIGGERING_ACTOR.toLowerCase() !== owner) {
+            throw new Error('Only the repository owner may trigger or rerun Registry publication.');
+          }
+          NODE
+
+          curl --fail-with-body --location --silent --show-error \
+            --header 'Accept: application/vnd.github+json' \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/branches/main" \
+            --output main-branch.json
+          curl --fail-with-body --location --silent --show-error \
+            --header 'Accept: application/vnd.github+json' \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/environments/mcp-registry-production" \
+            --output registry-environment.json
+
+          node - <<'NODE'
+          const branch = require('./main-branch.json');
+          const environment = require('./registry-environment.json');
+          const owner = process.env.GITHUB_REPOSITORY_OWNER.toLowerCase();
+          if (branch.name !== 'main' || branch.protected !== true) {
+            throw new Error('main must be protected before Registry publication.');
+          }
+          const rules = Array.isArray(environment.protection_rules) ? environment.protection_rules : [];
+          const reviewers = rules.find((rule) => rule?.type === 'required_reviewers')?.reviewers;
+          if (!Array.isArray(reviewers) || reviewers.length < 1) {
+            throw new Error('mcp-registry-production must have at least one required reviewer.');
+          }
+          if (!reviewers.some((entry) => entry?.type === 'User' && entry?.reviewer?.login?.toLowerCase() === owner)) {
+            throw new Error('The repository owner must be a required mcp-registry-production reviewer.');
+          }
+          if (environment.deployment_branch_policy?.protected_branches !== true) {
+            throw new Error('mcp-registry-production must accept protected branches only.');
+          }
+          NODE
+
+          test "$(git rev-parse "refs/tags/${release_tag}^{commit}")" = "$GITHUB_SHA"
+          printf 'release_tag=%s\n' "$release_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Validate the active-release integration package before approval
+        run: node scripts/validate.mjs --release
+
+      - name: Require a published GitHub Release for the exact tagged commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.authorization.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse "refs/tags/${RELEASE_TAG}^{commit}")" = "$GITHUB_SHA"
+          curl --fail-with-body --location --silent --show-error \
+            --header 'Accept: application/vnd.github+json' \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" \
+            --output github-release.json
+          node - <<'NODE'
+          const release = require('./github-release.json');
+          const manifest = require('./server.json');
+          const expectedTag = `v${manifest.version}`;
+          if (release.tag_name !== expectedTag || release.tag_name !== process.env.RELEASE_TAG) {
+            throw new Error(`GitHub Release tag ${release.tag_name ?? '(missing)'} does not match ${expectedTag}.`);
+          }
+          if (release.draft !== false) throw new Error('GitHub Release must not be a draft.');
+          if (release.prerelease !== false) throw new Error('GitHub Release must not be a prerelease.');
+          if (typeof release.published_at !== 'string' || !Number.isFinite(Date.parse(release.published_at))) {
+            throw new Error('GitHub Release must have a valid published_at timestamp.');
+          }
+          NODE
+
+  publish:
+    needs: preflight
+    runs-on: ubuntu-latest
+    # This environment must already exist with the repository owner as a required reviewer and
+    # protected-branch-only deployment policy. The preflight fails on a missing/open environment.
     environment: mcp-registry-production
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
           fetch-depth: 0
+          ref: main
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
 
-      - name: Validate the integration package
-        run: node scripts/validate.mjs
-
-      - name: Require an immutable matching version tag
+      - name: Recheck exact main and tag after environment approval
+        env:
+          RELEASE_TAG: ${{ needs.preflight.outputs.release_tag }}
         run: |
           set -euo pipefail
-          manifest_version="$(node -p "require('./server.json').version")"
-          test "$GITHUB_REF_TYPE" = "tag"
-          test "$GITHUB_REF" = "refs/tags/v${manifest_version}"
-          test "$GITHUB_REF_NAME" = "v${manifest_version}"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin main
+          test "$(git rev-parse origin/main)" = "$GITHUB_SHA"
+          remote_tag_ref="refs/registry-verified-tags/${RELEASE_TAG}"
+          git update-ref -d "$remote_tag_ref" || true
+          git fetch --no-tags origin "+refs/tags/${RELEASE_TAG}:${remote_tag_ref}"
+          test "$(git rev-parse "${remote_tag_ref}^{commit}")" = "$GITHUB_SHA"
+
+      - name: Recheck the published GitHub Release after environment approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.preflight.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --location --silent --show-error \
+            --header 'Accept: application/vnd.github+json' \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" \
+            --output github-release-recheck.json
+          node - <<'NODE'
+          const release = require('./github-release-recheck.json');
+          const manifest = require('./server.json');
+          const expectedTag = `v${manifest.version}`;
+          if (release.tag_name !== expectedTag || release.tag_name !== process.env.RELEASE_TAG || release.draft || release.prerelease) {
+            throw new Error('The exact published GitHub Release changed or became ineligible during approval.');
+          }
+          if (typeof release.published_at !== 'string' || !Number.isFinite(Date.parse(release.published_at))) {
+            throw new Error('GitHub Release must retain a valid published_at timestamp.');
+          }
+          NODE
+
+      - name: Revalidate release closure after environment approval
+        run: node scripts/validate.mjs --release
+
+      - name: Require release-mode package closure independently
+        run: node scripts/release-package-verify.mjs
 
       - name: Require completed evaluation evidence for the deployed application
         run: |
@@ -72,13 +223,13 @@ jobs:
 
       - name: Authenticate the worldeventtrading.com namespace by apex DNS proof
         env:
-          MCP_REGISTRY_PRIVATE_KEY: ${{ secrets.MCP_REGISTRY_PRIVATE_KEY }}
+          MCP_REGISTRY_ENV_PRIVATE_KEY: ${{ secrets.MCP_REGISTRY_ENV_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          test -n "$MCP_REGISTRY_PRIVATE_KEY"
+          test -n "$MCP_REGISTRY_ENV_PRIVATE_KEY"
           ./mcp-publisher login dns \
             --domain worldeventtrading.com \
-            --private-key "$MCP_REGISTRY_PRIVATE_KEY"
+            --private-key "$MCP_REGISTRY_ENV_PRIVATE_KEY"
 
       - name: Publish com.worldeventtrading/prediction-markets
         run: ./mcp-publisher publish

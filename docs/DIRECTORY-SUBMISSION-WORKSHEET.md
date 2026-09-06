@@ -8,7 +8,7 @@ This worksheet is deliberately source-neutral. Do not add a third-party feed, ve
 
 - [ ] The owner has approved the publisher identity, canonical repository, public license posture, support contact, and final copy.
 - [ ] Emergency containment has been explicitly cleared and production no longer returns route-wide `mcp_release_held`.
-- [ ] Official MCP Registry publication workflow `350715290` has a protected environment, required reviewer, and environment-scoped publishing key before it is re-enabled.
+- [ ] Official MCP Registry publication workflow `350715290` remains manual-only and has protected `main`, a protected environment, a required owner reviewer, and `MCP_REGISTRY_ENV_PRIVATE_KEY` stored only in that environment before it is re-enabled.
 - [ ] Every publicly exposed source is rights-cleared under the active policy. If a source is
       disabled, source-aware filtering and a lineage purge/rebuild prove that none of its current or
       historical derived material survives; an adapter toggle alone does not pass this item.
@@ -360,6 +360,11 @@ two streams with an IP address or claim an install from a page view.
 | CLI extension gallery | `https://www.worldeventtrading.com/mcp/gemini-cli?utm_source=gemini_cli&utm_medium=directory&utm_campaign=mcp_launch` |
 | Smithery | `https://www.worldeventtrading.com/mcp?utm_source=smithery&utm_medium=directory&utm_campaign=mcp_launch` |
 | Glama | `https://www.worldeventtrading.com/mcp?utm_source=glama&utm_medium=directory&utm_campaign=mcp_launch` |
+| MCP.Directory | `https://www.worldeventtrading.com/mcp?utm_source=mcp_directory&utm_medium=directory&utm_campaign=mcp_launch` |
+| MCP Central | `https://www.worldeventtrading.com/mcp?utm_source=mcp_central&utm_medium=directory&utm_campaign=mcp_launch` |
+| MCP.so | `https://www.worldeventtrading.com/mcp?utm_source=mcp_so&utm_medium=directory&utm_campaign=mcp_launch` |
+| PulseMCP | `https://www.worldeventtrading.com/mcp?utm_source=pulsemcp&utm_medium=directory&utm_campaign=mcp_launch` |
+| awesome-mcp-servers | `https://www.worldeventtrading.com/mcp?utm_source=awesome_mcp_servers&utm_medium=repository&utm_campaign=mcp_launch` |
 | OpenAI eligibility/submission | `https://www.worldeventtrading.com/mcp/chatgpt?utm_source=openai&utm_medium=directory&utm_campaign=mcp_launch` |
 | GitHub repository/community | `https://www.worldeventtrading.com/mcp?utm_source=github&utm_medium=repository&utm_campaign=mcp_launch` |
 

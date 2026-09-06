@@ -166,7 +166,80 @@ Node.js 22 is the only requirement. The default command is offline and determini
 node scripts/validate.mjs
 ```
 
-It checks every JSON file, each manifest and client example, evaluation-schema conformance, package version and endpoint consistency, relative Markdown links, demo/proof inventory, the proprietary license boundary, the 512px [`assets/icon.png`](assets/icon.png), and the Docker submission files. Only after the owner, legal, and source-rights gates clear, the following command may make read-only discovery, `initialize`, and `tools/list` requests against an authorized deployed endpoint:
+It checks every JSON file, each manifest and client example, evaluation-schema conformance, package version and endpoint consistency, relative Markdown links, demo/proof inventory, the proprietary license boundary, the 512px [`assets/icon.png`](assets/icon.png), and the Docker submission files.
+
+The unflagged validator is deliberately held-mode: it requires the current hold disclosures and
+rejects an actual `assets/release-evidence.json`. Active-release readiness uses the explicit release
+posture, which retains the shared structural checks and invokes the stricter active-release
+verifier:
+
+```bash
+node scripts/validate.mjs --release
+```
+
+That command is expected to fail for this held candidate. It can pass only after active manifest
+copy, cleared source-rights state, completed production eval evidence, and owner-reviewed capture
+evidence all exist. CI selects the matching validation semantics when the actual evidence record is
+present, or when a reviewer explicitly selects the `release_readiness` input. Both paths are
+non-authorizing checks: neither can publish, approve, tag, release, or substitute for the separate
+owner-protected registry workflow.
+
+For release, `server.json` must use the exact name
+`com.worldeventtrading/prediction-markets`, stable package version, endpoint
+`https://www.worldeventtrading.com/api/mcp`, repository
+`https://github.com/Corbinvking/wet-mcp`, icon
+`https://www.worldeventtrading.com/icon.png`, and this approved listing copy:
+
+- title: `World Event Trading (W.E.T.) — Prediction Market Intelligence`
+- Registry description: `Agent-safe prediction-market research with live books, verified identity, refusals and benchmarks.`
+- tagline: `Prediction-market intelligence your agent can quote safely.`
+
+Copy [`assets/release-evidence.template.json`](assets/release-evidence.template.json) to the
+untracked-until-real `assets/release-evidence.json` only when every referenced artifact exists. The
+v3 evidence record binds the listing and package version; deployed application SHA; exact
+source-rights policy and current public-output-contract SHA-256; reviewed grant-set SHA-256;
+qualified rights-reviewer role (`legal-counsel` or `source-rights-reviewer`) and login; durable
+evidence reference; strict UTC review, effective, optional expiry, evaluation, capture, approval,
+and preparation times; and the SHA-256 of `evals/latest-release-run.json`. Rights review,
+evaluation, capture, approval, and preparation timestamps must be nonfuture and inside the same
+seven-day release window. The effective timestamp is strict UTC and nonfuture but may predate that
+window; the grant set must be effective and either perpetual (`expiresAt: null`) or carry a strict
+future expiry. The chronological review/evaluation/capture/approval order must hold. Final owner
+approval must record the exact canonical repository owner's GitHub login, `Corbinvking` (matched
+case-insensitively).
+
+A scored report is not self-authenticating. Release evidence must also enumerate every raw final
+answer and every raw MCP tool result in `evals/release-artifacts/`. Each case answer is stored as
+`CASE_ID.answer.txt`; each tool response is stored as
+`CASE_ID.tool-NN-TOOL_NAME.json`. The report's `answerSha256` and each `resultSha256`, the release
+artifact entry, and the recomputed file digest must all agree. Tool-call `evidenceRef` values and
+qualitative assertion evidence must name those files, and the directory may contain no
+unreferenced files, subdirectories, or symlinks. The v2 raw-artifact record requires every answer
+and tool result to be explicitly marked `redacted: true` and `publicDisplayApproved: true`. Answers
+are capped at 256 KiB; tool results are capped at 4 MiB. The verifier rejects common credential,
+cookie, email, telephone, and Social Security number patterns. Tool-result files must be nonempty
+UTF-8 JSON-RPC 2.0 success envelopes with nonempty text content and structured content. It derives and
+compares `protocolSafe`, `usefulResult`, `sourceRightsPending`, result/answer signals, and refusal
+codes from those exact bytes; caller-entered booleans cannot establish a pass. Store only the exact
+public response and final answer bytes—never credentials, cookies, private prompts, or unrelated
+client state.
+
+After the protected Registry environment is approved, the publish job deletes its temporary tag
+reference and explicitly refetches the exact remote release tag before rechecking that it peels to
+the dispatched `main` SHA. A tag deleted or retargeted during the approval wait therefore stops
+publication.
+
+Release screenshots must be real PNG files of at least 800x450 and 16 KiB. Validation covers every
+chunk CRC, legal IHDR parameters and ordering, zlib inflation, exact scanline sizing (including
+Adam7), and filter bytes—not only the container signature. Release demos must be real MP4 files of
+at least 100 KiB with a nonempty video track, dimensions, visual sample description, consistent
+nonzero timing/chunk/sample tables, and sample ranges inside populated `mdat` data. The encoded
+duration must be no more than 90 seconds and match the declared duration within 0.5 seconds. Every non-documentation file in the
+screenshot and demo directories must be referenced exactly once by approved, redacted evidence;
+unreferenced files fail release validation.
+
+Only after the owner, legal, and source-rights gates clear may `--live` make read-only discovery,
+`initialize`, and `tools/list` requests against an authorized deployed endpoint:
 
 ```bash
 node scripts/validate.mjs --live

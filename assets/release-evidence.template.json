@@ -1,0 +1,90 @@
+{
+  "templateOnly": true,
+  "notice": "TEMPLATE ONLY — this file is not release evidence. Copy it to assets/release-evidence.json only after the rights review, production evaluation, redacted and public-approved raw answer/tool-result artifacts, listed captures, and owner approval actually exist; replace every placeholder and false flag, and populate evaluation.artifacts from evidence created inside the current seven-day release window. Every evaluation artifact record must explicitly set redacted and publicDisplayApproved to true.",
+  "schemaVersion": "wet.release-evidence/v3",
+  "serverName": "com.worldeventtrading/prediction-markets",
+  "packageVersion": "0.5.0",
+  "releaseTag": "v0.5.0",
+  "releaseTitle": "World Event Trading (W.E.T.) — Prediction Market Intelligence",
+  "releaseDescription": "Agent-safe prediction-market research with live books, verified identity, refusals and benchmarks.",
+  "releaseTagline": "Prediction-market intelligence your agent can quote safely.",
+  "websiteUrl": "https://www.worldeventtrading.com/mcp",
+  "repositoryUrl": "https://github.com/Corbinvking/wet-mcp",
+  "iconUrl": "https://www.worldeventtrading.com/icon.png",
+  "preparedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+  "deployment": {
+    "endpoint": "https://www.worldeventtrading.com/api/mcp",
+    "applicationCommitSha": "REPLACE_WITH_DEPLOYED_APPLICATION_COMMIT_SHA"
+  },
+  "sourceRights": {
+    "policyVersion": "mcp-source-rights/2026-09-05.phase1",
+    "outputContractVersion": "wet-mcp-public-output/0.5.0",
+    "outputContractSha256": "bf12adf28281632a32dc1c134ba99b1201ce95b2f9803e2b9004ab64b7c0ca2b",
+    "grantSetSha256": "REPLACE_WITH_LOWERCASE_SHA256",
+    "reviewedByRole": "REPLACE_WITH_REVIEWER_ROLE",
+    "reviewedByLogin": "REPLACE_WITH_GITHUB_LOGIN",
+    "reviewedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+    "effectiveAt": "REPLACE_WITH_UTC_TIMESTAMP",
+    "expiresAt": null,
+    "evidenceRef": "REPLACE_WITH_DURABLE_EVIDENCE_REF"
+  },
+  "evaluation": {
+    "reportPath": "evals/latest-release-run.json",
+    "reportSha256": "REPLACE_WITH_LOWERCASE_SHA256",
+    "artifactSchemaVersion": "wet.eval-raw-artifacts/v2",
+    "artifactDirectory": "evals/release-artifacts",
+    "artifacts": []
+  },
+  "review": {
+    "status": "not-approved",
+    "reviewedByRole": "owner",
+    "reviewedByLogin": "REPLACE_WITH_GITHUB_LOGIN",
+    "reviewedAt": "REPLACE_WITH_UTC_TIMESTAMP"
+  },
+  "demos": [
+    {
+      "kind": "positive-index-workflow",
+      "path": "assets/demo/positive-index-workflow.mp4",
+      "sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "capturedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+      "durationSeconds": 0,
+      "publicDisplayApproved": false,
+      "redacted": false
+    },
+    {
+      "kind": "typed-refusal",
+      "path": "assets/demo/typed-refusal.mp4",
+      "sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "capturedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+      "durationSeconds": 0,
+      "publicDisplayApproved": false,
+      "redacted": false
+    }
+  ],
+  "screenshots": [
+    {
+      "kind": "anonymous-tools-list",
+      "path": "assets/screenshots/anonymous-tools-list.png",
+      "sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "capturedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+      "publicDisplayApproved": false,
+      "redacted": false
+    },
+    {
+      "kind": "positive-index-workflow",
+      "path": "assets/screenshots/positive-index-workflow.png",
+      "sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "capturedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+      "publicDisplayApproved": false,
+      "redacted": false
+    },
+    {
+      "kind": "typed-refusal",
+      "path": "assets/screenshots/typed-refusal.png",
+      "sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "capturedAt": "REPLACE_WITH_UTC_TIMESTAMP",
+      "publicDisplayApproved": false,
+      "redacted": false
+    }
+  ]
+}

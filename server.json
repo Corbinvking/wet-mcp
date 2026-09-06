@@ -25,6 +25,7 @@
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "tagline": "Production returns mcp_release_held—do not install, configure, connect, or call until owner, legal, and source-rights clearance.",
+      "releaseState": "held",
       "access": {
         "research": "keyless-read-only",
         "account": "oauth-optional"
@@ -36,7 +37,11 @@
         "venue-native-volume-units"
       ],
       "sourceRights": {
+        "rightsState": "pending",
         "policyVersion": "mcp-source-rights/2026-09-05.phase1",
+        "outputContractVersion": "wet-mcp-public-output/0.5.0",
+        "outputContractSha256": "bf12adf28281632a32dc1c134ba99b1201ce95b2f9803e2b9004ab64b7c0ca2b",
+        "grantSetSha256": null,
         "enforcement": "default-deny",
         "filtering": "coarse-all-rights-protected-sources",
         "mixedSourceFiltering": false,
