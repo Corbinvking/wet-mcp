@@ -1,6 +1,6 @@
 # Directory submission worksheet
 
-**Status: draft only — no submission by W.E.T. is claimed.** No acceptance, approval, or successful client setup is claimed either. A Gemini CLI gallery crawler auto-indexed the public repository without an intentional submission. Its cached listing still appeared after the repository discovery topic was removed and must be rechecked after `2026-09-07T05:15:00Z`. The official MCP Registry has zero W.E.T. records. Production is route-wide held at HTTP `503`/`mcp_release_held`; do not submit any draft below. Reconfirm every field against a future authorized deployment and the directory's then-current form immediately before submission.
+**Status: draft only for the MCP destinations below — no submission by W.E.T. to those destinations is claimed.** No acceptance, approval, or successful client setup is claimed. A Gemini CLI gallery crawler auto-indexed the public repository without an intentional submission. Its cached listing still appeared after the repository discovery topic was removed and must be rechecked after `2026-09-07T05:15:00Z`. A separate legacy W.E.T.-authored prediction-market catalog PR is recorded in the submission log; it is open but unmerged and is not compatible with current launch copy. The official MCP Registry has zero W.E.T. records. Production is route-wide held at HTTP `503`/`mcp_release_held`; do not submit any draft below. Reconfirm every field against a future authorized deployment and the directory's then-current form immediately before submission.
 
 This worksheet is deliberately source-neutral. Do not add a third-party feed, venue, logo, screenshot, price, market title, or coverage claim unless its public distribution rights and brand use are documented for that exact use.
 
@@ -102,7 +102,7 @@ Explain why local fixtures, protocol checks, and a source_rights_pending result 
 
 ## Destination-specific unsent readiness
 
-These destination records are intentionally inert. `HELD_UNSENT` means preparation is blocked from submission; `BLOCKED_ELIGIBILITY` means only an owner-authorized eligibility preflight may occur; `AUTO_INDEX_MONITOR_ONLY` is observation of an unsolicited crawler result, not a submission path; and `SKIPPED` means no submission is planned. Empty value cells and unchecked boxes are mandatory until the owner separately authorizes action for that exact destination at action time. Completing a global release gate does not authorize any destination action.
+These destination records are intentionally inert. `HELD_UNSENT` means preparation is blocked from submission; `READY_OWNER_ACTION_TIME_SEND_CONFIRMATION` means a narrow eligibility inquiry is prepared but not authorized or sent; `BLOCKED_ELIGIBILITY` applies to the actual listing unless an affirmative written preflight response clears it; `AUTO_INDEX_MONITOR_ONLY` is observation of an unsolicited crawler result, not a submission path; `LEGACY_OPEN_PR_RECONCILIATION_REQUIRED` identifies a pre-existing external PR that must not merge as written; and `SKIPPED` means no submission is planned. Empty value cells and unchecked boxes are mandatory until the owner separately authorizes action for that exact destination at action time. Completing a global release gate does not authorize any destination action.
 
 ### Official MCP Registry
 
@@ -286,7 +286,7 @@ Destination constraint: this is an eligibility inquiry only. An affirmative writ
 
 | Readiness field | Ready | Value |
 |---|:---:|---|
-| Status | — | `BLOCKED_ELIGIBILITY` |
+| Status | — | `READY_OWNER_ACTION_TIME_SEND_CONFIRMATION` |
 | Deployment SHA | [ ] | |
 | Release version | [ ] | |
 | Canonical endpoint | [ ] | |
@@ -394,8 +394,9 @@ two streams with an IP address or claim an install from a page view.
 | MCP.so | _Not submitted_ | — | — | `HELD_UNSENT`; destination requirements and all action gates remain open. |
 | PulseMCP | _Not submitted_ | — | — | `HELD_UNSENT`; destination requirements and all action gates remain open. |
 | awesome-mcp-servers | _Not submitted_ | — | — | `HELD_UNSENT`; no repository change or pull request is authorized. |
-| OpenAI eligibility | _Not submitted_ | — | — | `BLOCKED_ELIGIBILITY`; no eligibility inquiry or listing submission is authorized. |
+| OpenAI eligibility | _Not submitted_ | — | — | `READY_OWNER_ACTION_TIME_SEND_CONFIRMATION`; the narrow inquiry is prepared, but no transmission is authorized or claimed. The actual listing remains `BLOCKED_ELIGIBILITY`. |
 | Gemini CLI gallery | Automated crawler; no intentional W.E.T. submission | — | — | `AUTO_INDEX_MONITOR_ONLY`; recheck the cached crawler result after `2026-09-07T05:15:00Z`. |
+| Awesome Prediction Market Tools (`aarora4`) | `Corbinvking` | `2026-07-13T22:31:18Z` | `https://github.com/aarora4/Awesome-Prediction-Market-Tools/pull/145` | `LEGACY_OPEN_PR_RECONCILIATION_REQUIRED`; open, non-draft, unmerged, and merge-conflicting. Its Aggregator/inferred-divergence copy must not merge as written. Owner action-time authorization is required to close it or replace it with index-led, confirmed-identity-only analytics/research copy. |
 | Cursor | _Not submitted_ | — | — | `SKIPPED`; no submission is planned. |
 | Claude Plugin | _Not submitted_ | — | — | `SKIPPED`; no submission is planned. |
 

@@ -1481,7 +1481,7 @@ await check('directory worksheet is source-neutral, bounded, and explicitly unsu
     ['MCP.so', 'HELD_UNSENT'],
     ['PulseMCP', 'HELD_UNSENT'],
     ['awesome-mcp-servers', 'HELD_UNSENT'],
-    ['OpenAI eligibility', 'BLOCKED_ELIGIBILITY'],
+    ['OpenAI eligibility', 'READY_OWNER_ACTION_TIME_SEND_CONFIRMATION'],
     ['Gemini CLI gallery', 'AUTO_INDEX_MONITOR_ONLY'],
     ['Cursor', 'SKIPPED'],
     ['Claude Plugin', 'SKIPPED'],
@@ -1525,6 +1525,10 @@ await check('directory worksheet is source-neutral, bounded, and explicitly unsu
   assert(
     /Completing a global release gate does not authorize any destination action/iu.test(readiness),
     'directory readiness must preserve separate destination action-time authorization',
+  );
+  assert(
+    /\| OpenAI eligibility \|[^\r\n]*READY_OWNER_ACTION_TIME_SEND_CONFIRMATION[^\r\n]*actual listing remains `BLOCKED_ELIGIBILITY`/iu.test(worksheet),
+    'OpenAI eligibility may stage only the unsent preflight while the actual listing remains blocked',
   );
 
   const landingStart = worksheet.indexOf('## Channel-specific owned landing links');
