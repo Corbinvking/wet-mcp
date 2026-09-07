@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Corbinvking/wet-mcp/blob/main/evals/run-result-schema.json",
+  "title": "W.E.T. MCP evaluation run result",
+  "type": "object",
+  "required": ["$schema", "schemaVersion", "status", "runId", "startedAt", "completedAt", "target", "sourceState", "cases"],
+  "properties": {
+    "$schema": { "const": "./run-result-schema.json" },
+    "schemaVersion": { "const": "wet.eval-run/v1" },
+    "status": { "enum": ["not-run", "completed"] },
+    "runId": { "type": "string", "minLength": 1 },
+    "startedAt": { "type": ["string", "null"], "format": "date-time" },
+    "completedAt": { "type": ["string", "null"], "format": "date-time" },
+    "target": {
+      "type": "object",
+      "required": ["endpoint", "environment", "client", "clientVersion", "model", "serverVersion", "packageVersion", "candidateCommitSha"],
+      "properties": {
+        "endpoint": { "type": "string" },
+        "environment": { "enum": ["localhost", "preview", "production", "not-set"] },
+        "client": { "type": "string" },
+        "clientVersion": { "type": "string" },
+        "model": { "type": "string" },
+        "serverVersion": { "type": "string" },
+        "packageVersion": { "type": "string" },
+        "candidateCommitSha": {
+          "type": "string",
+          "description": "Full source commit SHA of the deployed W.E.T. application exercised by this run; this is not the wet-mcp package repository commit."
+        }
+      },
+      "additionalProperties": false
+    },
+    "sourceState": {
+      "type": "object",
+      "required": ["policyVersion", "rightsState", "healthState", "observedAt", "evidenceRef"],
+      "properties": {
+        "policyVersion": { "type": "string" },
+        "rightsState": { "enum": ["pending", "cleared", "mixed", "not-observed"] },
+        "healthState": { "enum": ["ok", "degraded", "unavailable", "not-observed"] },
+        "observedAt": { "type": ["string", "null"], "format": "date-time" },
+        "evidenceRef": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "items": {
+        "type": "object",
+        "required": ["id", "view", "observedTools", "toolCalls", "answerSha256", "answerSignals", "observedRefusalCodes", "assertions"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "view": { "enum": ["positive", "refusal"] },
+          "observedTools": { "type": "array", "items": { "type": "string", "pattern": "^wet_" } },
+          "toolCalls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["tool", "protocolSafe", "usefulResult", "sourceRightsPending", "resultSha256", "resultSignals", "refusalCodes", "evidenceRef"],
+              "properties": {
+                "tool": { "type": "string", "pattern": "^wet_" },
+                "protocolSafe": { "type": "boolean" },
+                "usefulResult": { "type": "boolean" },
+                "sourceRightsPending": { "type": "boolean" },
+                "resultSha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+                "resultSignals": { "$ref": "#/$defs/signals" },
+                "refusalCodes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+                "evidenceRef": { "type": ["string", "null"] }
+              },
+              "additionalProperties": false
+            }
+          },
+          "answerSha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+          "answerSignals": { "$ref": "#/$defs/signals" },
+          "observedRefusalCodes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "assertions": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["text", "status", "evidence", "scoredBy"],
+              "properties": {
+                "text": { "type": "string", "minLength": 1 },
+                "status": { "enum": ["not-run", "pass", "fail", "blocked"] },
+                "evidence": { "type": ["string", "null"] },
+                "scoredBy": { "enum": ["unscored", "human", "deterministic"] }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "signals": {
+      "type": "object",
+      "required": ["source_url", "venue", "timestamp"],
+      "properties": {
+        "source_url": { "type": "boolean" },
+        "venue": { "type": "boolean" },
+        "timestamp": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

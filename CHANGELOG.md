@@ -2,24 +2,62 @@
 
 All notable integration-package and hosted MCP contract changes are recorded here. The hosted [W.E.T. changelog](https://www.worldeventtrading.com/changelog) remains the broader product record.
 
+## 0.7.0 — 2026-09-06
+
+**Release status: held candidate; not authorized, tagged, released, or intentionally submitted.**
+Production remains behind the route-wide HTTP `503`/`mcp_release_held` containment boundary. These
+additive schema changes do not clear source rights, authorize deployment or activation, establish a
+successful sourced result, or permit any registry, directory, tag, or release action.
+
+Two published but not yet enforced coverage revisions advance the unreleased candidate from 0.5.0
+through the intermediate 0.6.0 schema identity to 0.7.0; no 0.6.0 package was released:
+
+- Added `coverage.searchable`, which sizes the post-clustering, post-horizon board actually searched
+  and counts a cross-venue event under every venue filter it can answer.
+- Added optional `coverage.swept`, which records each venue's larger pre-clustering, pre-horizon read,
+  its `complete`, `capped`, `degraded`, or `unavailable` status, and the generation observation time.
+- Made `coverage.status` an actionable health-and-sweep verdict instead of a permanently partial
+  label. `degradedSources` now means measured and cold; `unmeasuredSources` separately names venues
+  covered by neither the health plane nor that generation's sweep; `means` names the cause.
+- Kept `resultsComplete: false` as the distinct bounded-board disclosure. Even a `complete` coverage
+  status means “nothing failed,” not “every listing everywhere was searched.”
+- Advanced the rights-bound public contract to `wet-mcp-public-output/0.7.0`, SHA-256
+  `0ffc504add260ff197cedaca26bff3e11f64f5716293a61f935424892c5fbe82`.
+
 ## 0.5.0 — 2026-09-05
 
-- Release status: held and unreleased. Production returns HTTP `503`/`mcp_release_held` before
-  discovery or tool dispatch; no install, tag, Registry, or directory action is authorized.
+**Release status: held candidate; not authorized, tagged, or released.** Production briefly
+advertised v0.5.0 and exposed source-derived results without authorization. Emergency containment
+commit `5eaf5f026491d9ab64ede00234e01a36f6a8ccf9` deployed at `2026-09-06T05:26:05Z`; the canonical
+endpoint now returns route-wide HTTP `503`/`mcp_release_held` with `Cache-Control: no-store` and
+`Retry-After: 3600` before discovery or tool dispatch. See the dated
+[containment record](evidence/2026-09-06-production-containment.md).
+
+Do not install, configure, connect to, or call the candidate until owner authorization, legal
+review, and source-rights clearance are complete and a final release action is authorized. No
+current availability is claimed by the candidate contract or by a cached external listing.
+
+The changes below describe the held candidate contract, not currently enabled production behavior:
+
 - Added current MCP `server/discover` behavior while retaining supported legacy protocol clients.
 - Added content-negotiated browser discovery at `GET /api/mcp`; protocol/SSE GET remains method-rejected.
 - Added exact-origin browser CORS with `Authorization` support and no cross-origin raw API-key header.
 - Added OAuth protected-resource and authorization-server discovery, public dynamic client registration, PKCE S256, scoped authorization, refresh rotation, and revocation.
-- Kept seven public W.E.T. Research tools keyless and read-only; OAuth appends only authorized scanner and alert tools.
+- Kept seven public W.E.T. Research tools keyless and read-only; OAuth appends only authorized scanner and alert tools and cannot bypass source-rights policy.
+- Added default-deny policy `mcp-source-rights/2026-09-05.phase1`: six W.E.T.-sourced/derived tools return typed `source_rights_pending` with zero market or index values, while `wet_resolve` is the proposed caller-supplied-text exception after a future authorized release.
 - Reduced anonymous `tools/list` payload size while retaining structural input/output schemas and typed-refusal semantics.
+- Added optional `responseDetail: "summary" | "full"` to all seven anonymous research tools. Successful calls default to a materially smaller, omission-enumerated summary; full preserves the complete payload, and refusals/source-rights holds are never projected or bypassed.
 - Added complete tool annotations, including destructive hints for delete actions and open-world hints for live-source tools.
 - Separated service liveness from per-feed readiness; every enabled feed now has a bounded health adapter.
 - Added public security, terms, support, coverage, limitations, data-source, methodology, history-API, and client-install records.
-- Prepared the canonical registry, Agent Plugins, Claude plugin, Gemini extension, Docker Catalog, client-config, and evaluation artifacts for publication; availability is not claimed until each external listing is accepted.
+- Prepared the canonical registry, Agent Plugins, Claude plugin, Gemini extension, Docker Catalog, client-config, and evaluation artifacts for a future authorized publication. A Gemini CLI crawler auto-indexed the public repository without an intentional submission; its cached entry is a discovery fact, not approval or release evidence. The official MCP Registry has zero W.E.T. records, and all publication actions remain held.
 - Added a dependency-free package validator, offline CI, opt-in live endpoint checks, a Goose client example, and a 512px package icon.
-- Added positive and negative demo storyboards plus a dependency-free clean-client proof that times and hashes bounded calls to all seven public tools without storing market values.
+- Added positive and negative demo storyboards plus a dependency-free clean-client verifier that separates protocol-safe responses from useful sourced results and does not pass default launch readiness while required sourced tools are held.
+- Added non-authorizing release-readiness CI plus a fail-closed v3 release-evidence verifier that binds canonical listing copy, source-rights policy/output-contract/grant-set digests, reviewer identity and ordered UTC validity windows, and production-eval report/raw artifacts. Raw artifacts are size-bounded, secret/PII-scanned, explicitly redacted/public-approved, and mechanically re-derived; PNG proof is CRC/decode validated and MP4 proof requires a populated video track and sample tables. Registry publication freshly refetches the remote version tag after protected-environment approval.
 
 ## 0.4.0 — 2026-09-03
 
-- Published seven keyless research tools and scoped API-key account tools on the hosted endpoint.
-- Added output schemas and expanded identity/refusal semantics.
+- Historical pre-containment record, superseded by the v0.5.0 hold: seven keyless research tools
+  and scoped API-key account tools were previously exposed on the hosted endpoint.
+- Historical pre-containment record: added output schemas and expanded identity/refusal semantics;
+  this does not describe current availability.

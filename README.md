@@ -1,62 +1,84 @@
 # W.E.T. MCP
 
-> **Temporary release hold — do not install or connect.** W.E.T. MCP v0.5.0 has not been
-> authorized, tagged, released, or intentionally submitted to a registry or directory. Production
-> currently returns HTTP `503` with `mcp_release_held` before discovery or tool dispatch. Do not
-> treat a cached or crawler-created listing as approval, and do not tag, publish, submit, or run the
-> setup commands below while the hold is active. See [Support](SUPPORT.md) for contact details and
-> [benchmark publication status](https://www.worldeventtrading.com/status) for the separate index
-> desk status; that page is not an MCP-release indicator.
+> **Incident containment and launch hold — release candidate only.** The full W.E.T. MCP v0.7.0
+> candidate has not been authorized, tagged, released, or intentionally submitted to a registry or
+> directory. Production briefly advertised v0.5.0 and exposed source-derived results before
+> emergency containment commit `5eaf5f026491d9ab64ede00234e01a36f6a8ccf9` was deployed at
+> `2026-09-06T05:26:05Z`. The hosted endpoint now fails closed before discovery or tool dispatch:
+> every GET, initialize request, and tool call returns HTTP `503` with `mcp_release_held`,
+> `Cache-Control: no-store`, and `Retry-After: 3600`. Do not install, configure, connect to, or call
+> the endpoint until the owner-authorization, legal-review, and source-rights gates all clear and a
+> final release action is authorized. The connection commands below are post-clearance examples,
+> not currently usable setup instructions. A Gemini CLI gallery crawler
+> auto-indexed the public repository without an intentional submission; the discovery topic was
+> removed, but its cached listing remains pending the next daily crawl (recheck after
+> `2026-09-07T05:15:00Z`). The official MCP Registry has zero W.E.T. records. All launch,
+> directory, registry, deployment-enable, and source-rights gates remain closed. The sole external
+> publication workflow, GitHub Actions workflow `350715290`, is manually disabled and has zero
+> historical runs; do not re-enable it without a protected reviewer environment, an
+> environment-scoped publishing key, and complete release clearance.
 
-The unreleased candidate is designed as a governed index and research layer across prediction-market
-feeds. Its source-backed output remains unavailable pending source-rights, legal, deployment, and
-release review.
+**Release-candidate prediction-market research with explicit source-rights refusals.**
 
-The held endpoint is retained for future post-clearance use:
+After every release gate clears in an authorized candidate environment, the proposed public contract
+has seven anonymous, read-only tools. Under default-deny policy
+`mcp-source-rights/2026-09-05.phase1`, six W.E.T.-sourced/derived tools return typed
+`source_rights_pending` with policy and exclusion metadata and no market or index value fields.
+`wet_resolve` is the candidate's sole proposed tool-level exception and accepts only caller-supplied
+listing text; its grouping is not proof of contract equivalence. Production's route-wide
+`mcp_release_held` response supersedes that candidate behavior.
+
+The held production endpoint reserved for future post-clearance use is:
 
 ```text
 https://www.worldeventtrading.com/api/mcp
 ```
 
-The candidate inventory defines seven keyless, read-only research tools. No hosted MCP tool is
-currently discoverable while the route-wide hold is active. Optional OAuth and source-backed account
-tools are not an exception to the hold. No W.E.T. MCP scope can place, route, cancel, simulate, or
-custody a trade, and no venue credential or wallet permission is requested.
+The proposed seven-tool inventory is keyless and read-only. After a future authorized release,
+optional OAuth can add account-scoped scanner and alert tools that write only to the signed-in user's
+W.E.T. account. An API key, OAuth grant, paid tier, readable or enabled adapter, or environment
+setting cannot approve rights or bypass the hold; environment controls may only disable sources. No
+W.E.T. MCP scope can place, route, cancel, simulate, or custody a trade, and no venue credential or
+wallet permission is requested.
+
+Phase 1 is coarse `coarse-all-rights-protected-sources` enforcement. Mixed-source filtering is not implemented, partial source approval cannot emit a partial sourced answer, and a disabled audited source remains rights-protected because historical derived material may persist.
 
 ## Post-clearance connection reference — do not run now
 
-This command is retained only for a future authorized release:
+Only after the owner, legal, and source-rights gates clear and a final release is authorized, the
+future Claude Code setup command is:
 
 ```bash
 claude mcp add --transport http wet https://www.worldeventtrading.com/api/mcp
 ```
 
-Claude Code, Gemini CLI, Goose, Cursor, Cline, Windsurf, and VS Code examples are retained in
-[`clients/`](clients/) for post-clearance review. Do not install them while production returns
-`mcp_release_held`.
+Claude Code, Gemini CLI, Goose, Cursor, Cline, Windsurf, and VS Code configuration examples are
+retained in [`clients/`](clients/) for post-clearance review. Do not install, copy, configure,
+connect, or call them while the hold remains active. A repeatable
+[MCP Inspector CLI check](examples/mcp-inspector.md) is retained for future authorized reviewers.
+The W.E.T.-owned [`worldeventtrading.com/mcp`](https://www.worldeventtrading.com/mcp) page is the
+current hold notice and will become the supported client guide only after release authorization.
 
-After a future authorized release, a reviewer may try:
-
-```text
-Find Trump mention markets that resolve this week. Show the named outcomes,
-refresh quoted prices only where the venue has a live drill-down adapter,
-include the venue and timestamp, and preserve any typed refusal.
-```
+After a future authorized release re-enables the endpoint, use the candidate resolver only with listing text you supply:
 
 ```text
-Show confirmed cross-venue same-question groups with material published gaps.
-Explain the identity evidence, quote basis, timestamp and spread quality;
-do not infer equivalence from shared event grouping.
+Parse these caller-supplied listing titles and rule excerpts into structural
+candidates. Explain the fields used and do not claim shared wording proves
+identical settlement terms.
 ```
+
+The held-tool behavior is retained as a protocol contract for future authorized review, but a
+`source_rights_pending` response is not a useful research result or live-data evidence. Do not call
+production or a candidate endpoint while the owner, legal, or source-rights gates remain open.
 
 ## The four W.E.T. surfaces
 
 | Surface | Boundary | Access |
 |---|---|---|
-| W.E.T. Benchmarks | Governed indexes, constituents, methodology, closes, corrections | Public; attribution required |
-| W.E.T. Research | Candidate event, market, news, identity, and refusal tools | Release held; production returns `mcp_release_held` before discovery |
-| W.E.T. Scanners | Candidate account-scoped scanner and alert controls | Release held; OAuth does not bypass the hold |
-| W.E.T. Data | Normalized current venue API and higher throughput | Premium account/API-key entitlement |
+| W.E.T. Benchmarks | Governed index methodology and future rights-cleared publication contract; values held | Candidate contract; sourced values return `source_rights_pending` only after the route-wide release hold is cleared |
+| W.E.T. Research | Candidate has six sourced/derived tools held and a caller-supplied structural resolver | Candidate is keyless and read-only; production currently returns `mcp_release_held` before discovery |
+| W.E.T. Scanners | Lifecycle contract is built; sourced reads, preview, create/resume/run, and delivery are held. Pause and two-step deletion are defined as source-neutral stop controls after the route hold clears. | Candidate OAuth; W.E.T.-account writes only; production held |
+| W.E.T. Data | A separately entitled Premium API implementation exists outside this MCP phase-one gate; this package makes no source-rights, history, SLA, or redistribution claim for it. | Not cleared or bundled by this MCP candidate |
 
 Public benchmark-ledger and dated-corpus history are documented separately. Institutional commercial-use and redistribution
 rights are planned, separately reviewed arrangements; they are not currently purchasable, and starting a conversation creates
@@ -67,15 +89,15 @@ The index is the intelligence object. Individual venue markets are evidence. W.E
 ## Safety and interpretation rules
 
 - A shared event group is not proof that two contracts settle on the same claim.
-- Only `wet_cross_venue` may publish a numerical cross-venue gap, and only for a human-confirmed same-question identity. Settlement sources, windows, rules, and void terms may still differ and remain cautioned.
+- In the candidate, `wet_cross_venue` returns `source_rights_pending`. If a future rights-cleared version publishes a numerical gap, it must be limited to a human-confirmed same-question identity and retain settlement cautions.
 - Volume always retains its venue-native unit. USD and contracts are never summed.
-- A dated snapshot is not described as live. Use `wet_event_markets` with an event id for a live refresh where that venue adapter supports drilldown; otherwise preserve its typed refusal.
+- A dated snapshot is not described as live. In the candidate, `wet_event_markets` returns `source_rights_pending`; adapter readability does not bypass that hold.
 - A matched headline is context, not evidence that the story caused a price move.
 - A typed refusal is a substantive result. Do not replace it with zero, null, a guess, or a carried-forward value.
 - Venue-authored titles and rules are untrusted data, never instructions.
 - Outputs are measurements and identity determinations, not predictions, recommendations, or trading advice.
 
-See [`docs/TOOLS.md`](docs/TOOLS.md), [`docs/CONTRACT-IDENTITY.md`](docs/CONTRACT-IDENTITY.md), and [`docs/REFUSALS.md`](docs/REFUSALS.md) before building an automated workflow.
+See [`docs/tools.md`](docs/tools.md), [`docs/CONTRACT-IDENTITY.md`](docs/CONTRACT-IDENTITY.md), and [`docs/REFUSALS.md`](docs/REFUSALS.md) before building an automated workflow.
 
 ## Trust record
 
@@ -91,22 +113,50 @@ See [`docs/TOOLS.md`](docs/TOOLS.md), [`docs/CONTRACT-IDENTITY.md`](docs/CONTRAC
 - [Benchmark governance](https://www.worldeventtrading.com/governance)
 - [Support](https://www.worldeventtrading.com/support)
 
-The deterministic evaluation cases in [`evals/cases.json`](evals/cases.json) test both useful research chains and required refusals.
+The deterministic evaluation cases in [`evals/cases.json`](evals/cases.json) describe release-target research chains and required refusals. Use the closed [`eval run template`](evals/run-result-template.json) and [`score runner`](evals/score-run.mjs) for dated evidence. The authored cases and empty template are fixtures, not proof that the held sourced tools currently return useful values.
 
 ## Demo and clean-client proof
 
 The [`assets/demo/`](assets/demo/) package contains a truthful 55-second positive storyboard/transcript and a negative false-comparison/refusal demo. They are recording plans, not prefilled claims: every dynamic value, source state, timestamp, and refusal shown in a take must come from that take.
 
-Only after release clearance, use this command for machine-readable proof from a clean, anonymous
-client. It is expected to fail while the production hold remains active:
+Only after owner authorization plus legal and source-rights clearance, run the default
+launch-readiness verification from a clean, anonymous client:
 
 ```bash
-node scripts/verify-live.mjs > wet-live-proof.ndjson
+node scripts/verify-live.mjs --expected-deployment-sha "$DEPLOYED_WET_SITE_SHA" > wet-live-proof.ndjson
 ```
 
-The script initializes a new stateless client, verifies the anonymous seven-tool contract, and calls each public tool exactly once with bounded arguments. Its NDJSON records observed UTC times, durations, HTTP status, semantic result summaries, and SHA-256 hashes of the actual tool results; it deliberately omits market values. Typed W.E.T. refusals count as successful results. No cookie, authorization header, API key, account tool, or write is used.
+The script first runs the complete Gate 4 network preflight: public `GET /api/mcp`, trusted and untrusted CORS preflights, the unauthenticated OAuth challenge and all three discovery documents, every owned trust/client/eval URL and its intended content type, plus the keyless service/feed-health contract. It then initializes a new stateless client, verifies the anonymous seven-tool contract and its 30 KiB `tools/list` ceiling, and calls each public tool exactly once with bounded arguments.
 
-The endpoint defaults to `server.json`. Use `--endpoint "$PREVIEW_MCP_ENDPOINT"` or `WET_MCP_ENDPOINT` for a preview deployment, and `--timeout-ms 60000` when testing a slower environment. A nonzero exit means the version, transport, tool list, annotations, or a tool call failed.
+Its NDJSON records observed UTC times, durations, HTTP status, bounded semantic summaries, and SHA-256 result digests; it deliberately omits market values, response bodies, protected source names, credentials, and cookies. Default launch readiness requires Gate 4 to pass, health to be current and healthy, advertised-feed counts to fit within the rights-approved count, and every required sourced tool to return a useful result. A protected account-tool probe is sent only without credentials so the server must refuse it before dispatch; the verifier performs no account mutation or external write.
+
+The endpoint defaults to `server.json`. Use `--endpoint "$PREVIEW_MCP_ENDPOINT"` or `WET_MCP_ENDPOINT` for a preview deployment, and `--timeout-ms 60000` when testing a slower environment. Owned URLs are checked on the selected endpoint origin; canonical production URLs advertised by a preview are accepted only where the runtime contract intentionally permits them. Plain HTTP is accepted only on localhost or loopback.
+
+The `--candidate-allow-source-rights-pending` option is retained to test typed-hold semantics after
+the owner, legal, and source-rights gates clear and an endpoint is expressly authorized for review;
+it is not permission to call the held production route or any unapproved candidate endpoint. If the
+mode observes the legacy typed hold, it permits an exit-zero result only when the Gate 4 structures
+and MCP protocol are conformant and the six sourced tools return the expected refusal. Health,
+freshness, and rights-count failures remain visible in `gate4LaunchBlockers`, `healthLaunchReady`, and
+`launchReady: false`; candidate mode never upgrades them into production evidence. A nonzero default
+exit means a Gate 4 check, version, transport, tool list, annotation, tool call, health/right
+alignment, or sourced launch-readiness gate failed.
+
+After an authorized production release, reduce one successful, exact-SHA-bound `verify-live` artifact
+per observed UTC day into the fixed, redacted rollout ledger. Do not omit
+`--expected-deployment-sha`, and do not start or backfill this clock before the deployed release is
+truthful and rights-cleared:
+
+```bash
+node scripts/rollout-evidence.mjs record --input wet-live-proof-YYYY-MM-DD.ndjson --ledger wet-rollout.ndjson
+node scripts/rollout-evidence.mjs verify --ledger wet-rollout.ndjson
+```
+
+`record` performs no network calls or scheduling and writes only the UTC date, package version,
+deployment SHA, four evidence hashes, and green health/freshness state. It rejects duplicate or
+nonconsecutive days, a changed SHA or version, degraded/stale feeds, localhost or preview/alternate
+origin evidence, and raw fields in the ledger.
+`verify` passes only after exactly seven consecutive green days on one immutable deployment.
 
 ## Validate the package
 
@@ -116,21 +166,90 @@ Node.js 22 is the only requirement. The default command is offline and determini
 node scripts/validate.mjs
 ```
 
-It checks every JSON file, each manifest and client example, evaluation-schema conformance, package version and endpoint consistency, relative Markdown links, demo/proof inventory, the proprietary license boundary, the 512px [`assets/icon.png`](assets/icon.png), and the Docker submission files. Only after release clearance, this command also makes read-only discovery, `initialize`, and `tools/list` requests against the deployed endpoint:
+It checks every JSON file, each manifest and client example, evaluation-schema conformance, package version and endpoint consistency, relative Markdown links, demo/proof inventory, the proprietary license boundary, the 512px [`assets/icon.png`](assets/icon.png), and the Docker submission files.
+
+The unflagged validator is deliberately held-mode: it requires the current hold disclosures and
+rejects an actual `assets/release-evidence.json`. Active-release readiness uses the explicit release
+posture, which retains the shared structural checks and invokes the stricter active-release
+verifier:
+
+```bash
+node scripts/validate.mjs --release
+```
+
+That command is expected to fail for this held candidate. It can pass only after active manifest
+copy, cleared source-rights state, completed production eval evidence, and owner-reviewed capture
+evidence all exist. CI selects the matching validation semantics when the actual evidence record is
+present, or when a reviewer explicitly selects the `release_readiness` input. Both paths are
+non-authorizing checks: neither can publish, approve, tag, release, or substitute for the separate
+owner-protected registry workflow.
+
+For release, `server.json` must use the exact name
+`com.worldeventtrading/prediction-markets`, stable package version, endpoint
+`https://www.worldeventtrading.com/api/mcp`, repository
+`https://github.com/Corbinvking/wet-mcp`, icon
+`https://www.worldeventtrading.com/icon.png`, and this approved listing copy:
+
+- title: `World Event Trading (W.E.T.) — Prediction Market Intelligence`
+- Registry description: `Agent-safe prediction-market research with live books, verified identity, refusals and benchmarks.`
+- tagline: `Prediction-market intelligence your agent can quote safely.`
+
+Copy [`assets/release-evidence.template.json`](assets/release-evidence.template.json) to the
+untracked-until-real `assets/release-evidence.json` only when every referenced artifact exists. The
+v3 evidence record binds the listing and package version; deployed application SHA; exact
+source-rights policy and current public-output-contract SHA-256; reviewed grant-set SHA-256;
+qualified rights-reviewer role (`legal-counsel` or `source-rights-reviewer`) and login; durable
+evidence reference; strict UTC review, effective, optional expiry, evaluation, capture, approval,
+and preparation times; and the SHA-256 of `evals/latest-release-run.json`. Rights review,
+evaluation, capture, approval, and preparation timestamps must be nonfuture and inside the same
+seven-day release window. The effective timestamp is strict UTC and nonfuture but may predate that
+window; the grant set must be effective and either perpetual (`expiresAt: null`) or carry a strict
+future expiry. The chronological review/evaluation/capture/approval order must hold. Final owner
+approval must record the exact canonical repository owner's GitHub login, `Corbinvking` (matched
+case-insensitively).
+
+A scored report is not self-authenticating. Release evidence must also enumerate every raw final
+answer and every raw MCP tool result in `evals/release-artifacts/`. Each case answer is stored as
+`CASE_ID.answer.txt`; each tool response is stored as
+`CASE_ID.tool-NN-TOOL_NAME.json`. The report's `answerSha256` and each `resultSha256`, the release
+artifact entry, and the recomputed file digest must all agree. Tool-call `evidenceRef` values and
+qualitative assertion evidence must name those files, and the directory may contain no
+unreferenced files, subdirectories, or symlinks. The v2 raw-artifact record requires every answer
+and tool result to be explicitly marked `redacted: true` and `publicDisplayApproved: true`. Answers
+are capped at 256 KiB; tool results are capped at 4 MiB. The verifier rejects common credential,
+cookie, email, telephone, and Social Security number patterns. Tool-result files must be nonempty
+UTF-8 JSON-RPC 2.0 success envelopes with nonempty text content and structured content. It derives and
+compares `protocolSafe`, `usefulResult`, `sourceRightsPending`, result/answer signals, and refusal
+codes from those exact bytes; caller-entered booleans cannot establish a pass. Store only the exact
+public response and final answer bytes—never credentials, cookies, private prompts, or unrelated
+client state.
+
+After the protected Registry environment is approved, the publish job deletes its temporary tag
+reference and explicitly refetches the exact remote release tag before rechecking that it peels to
+the dispatched `main` SHA. A tag deleted or retargeted during the approval wait therefore stops
+publication.
+
+Release screenshots must be real PNG files of at least 800x450 and 16 KiB. Validation covers every
+chunk CRC, legal IHDR parameters and ordering, zlib inflation, exact scanline sizing (including
+Adam7), and filter bytes—not only the container signature. Release demos must be real MP4 files of
+at least 100 KiB with a nonempty video track, dimensions, visual sample description, consistent
+nonzero timing/chunk/sample tables, and sample ranges inside populated `mdat` data. The encoded
+duration must be no more than 90 seconds and match the declared duration within 0.5 seconds. Every non-documentation file in the
+screenshot and demo directories must be referenced exactly once by approved, redacted evidence;
+unreferenced files fail release validation.
+
+Only after the owner, legal, and source-rights gates clear may `--live` make read-only discovery,
+`initialize`, and `tools/list` requests against an authorized deployed endpoint:
 
 ```bash
 node scripts/validate.mjs --live
 ```
 
-The live package check currently fails because production is intentionally held. That failure is not a
-release defect and must not be bypassed. The check creates no account state and calls no account or
-market tool. `WET_MCP_ENDPOINT` can point both live checks at a future approved preview deployment.
+The live package check intentionally fails when the deployed server version or anonymous seven-tool contract has not caught up with the package. It also fails while production returns the route-wide `mcp_release_held` containment response; that is the expected safe state until every launch gate clears. A preview may advertise either its requested endpoint or the canonical production endpoint. The check creates no account state and calls no account or market tool. `WET_MCP_ENDPOINT` can point both live checks at a preview deployment. CI runs the offline validator and proof-script syntax check on every package change; a manual workflow dispatch can opt into live protocol checks. Local fixtures and structural/runtime checks do not prove source-rights clearance, venue coverage, freshness, reliability, or a post-deploy clean-client pass.
 
 ## Docker MCP Catalog submission
 
-The Docker MCP Catalog entry is retained in [`docker/servers/world-event-trading/`](docker/servers/world-event-trading/)
-as a post-clearance artifact. Do not copy, enable, submit, or run it while the release hold is active.
-After a future authorized release, the upstream review flow is:
+The held Docker MCP Catalog entry is retained in [`docker/servers/world-event-trading/`](docker/servers/world-event-trading/) for post-clearance use. Do not copy, install, configure, connect, enable, submit, or run it while any owner, legal, or source-rights gate remains open. After all gates clear and a final release is authorized, copy that directory to `servers/world-event-trading/` in a fork of the [Docker MCP Registry](https://github.com/docker/mcp-registry), then run the upstream review flow:
 
 ```bash
 task catalog -- world-event-trading
@@ -141,12 +260,10 @@ docker mcp gateway run
 
 After testing, `docker mcp catalog reset` restores Docker's default catalog configuration. Publishing requires an accepted upstream pull request and Docker review; these package checks do not perform either action.
 
-The entry omits Docker's credential block because W.E.T.'s seven public research tools are keyless. Optional W.E.T.-account OAuth is discovered from the hosted MCP protected-resource metadata; it is not represented as a required personal-access-token secret. These files are submission artifacts, not a claim that Docker has accepted or published the listing.
+The entry omits Docker's credential block because the candidate anonymous seven-tool inventory is keyless. Six sourced/derived tools remain held regardless of credentials; `wet_resolve` is the candidate's only tool-level exception. Production currently stops all discovery and calls with `mcp_release_held`. Optional W.E.T.-account OAuth is discovered from the hosted MCP protected-resource metadata after a future authorized release; it is not represented as a required personal-access-token secret. These files are held submission artifacts, not a claim that Docker has accepted or published the listing.
 
 ## Repository boundary
 
-This is a held public integration, documentation, and evaluation package for W.E.T.'s hosted MCP
-candidate. It does not contain the proprietary hosted implementation, canonical event graph, index
-calculation code, credentials, or source-licensed venue datasets. See [`LICENSE`](LICENSE).
+This is the public integration, documentation, and evaluation package for W.E.T.'s hosted MCP server. It does not contain the proprietary hosted implementation, canonical event graph, index calculation code, credentials, or source-licensed venue datasets. See [`LICENSE`](LICENSE).
 
 Security reports should follow [`SECURITY.md`](SECURITY.md). General integration support is described in [`SUPPORT.md`](SUPPORT.md).

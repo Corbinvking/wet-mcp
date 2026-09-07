@@ -6,6 +6,11 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      release_readiness:
+        description: Run non-authorizing active-release readiness validation; actual evidence also selects matching validation semantics
+        required: false
+        default: false
+        type: boolean
       live:
         description: Also validate the deployed endpoint
         required: false
@@ -16,6 +21,11 @@ on:
         required: false
         default: https://www.worldeventtrading.com/api/mcp
         type: string
+      candidate_protocol_only:
+        description: Permit the expected source-rights hold for candidate evidence; never reports launch readiness
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -24,26 +34,56 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - run: |
           node --check scripts/verify-live.mjs
-          node scripts/validate.mjs
+          node --check scripts/rollout-evidence.mjs
+          node --check scripts/rollout-evidence-verify.mjs
+          node --check scripts/release-package-verify.mjs
+          node scripts/rollout-evidence-verify.mjs
+          node --check evals/score-run.mjs
+          validation_args=()
+          if [[ "${{ github.event_name == 'workflow_dispatch' && inputs.release_readiness }}" == "true" || -f assets/release-evidence.json ]]; then
+            validation_args+=(--release)
+          fi
+          node scripts/validate.mjs "${validation_args[@]}"
+          if [[ -f assets/release-evidence.json ]]; then
+            node evals/score-run.mjs evals/latest-release-run.json
+          else
+            node evals/score-run.mjs evals/run-result-template.json --allow-incomplete
+          fi
 
   live:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.live }}
     needs: package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
-      - run: node scripts/validate.mjs --live
+      - run: |
+          validation_args=(--live)
+          if [[ "${{ github.event_name == 'workflow_dispatch' && inputs.release_readiness }}" == "true" || -f assets/release-evidence.json ]]; then
+            validation_args+=(--release)
+          fi
+          node scripts/validate.mjs "${validation_args[@]}"
         env:
           WET_MCP_ENDPOINT: ${{ inputs.endpoint }}
-      - run: node scripts/verify-live.mjs
+      - name: Gate 4 launch-readiness proof
+        if: ${{ !inputs.candidate_protocol_only }}
+        run: node scripts/verify-live.mjs
+        env:
+          WET_MCP_ENDPOINT: ${{ inputs.endpoint }}
+      - name: Gate 4 candidate protocol proof
+        if: ${{ inputs.candidate_protocol_only }}
+        run: node scripts/verify-live.mjs --candidate-allow-source-rights-pending
         env:
           WET_MCP_ENDPOINT: ${{ inputs.endpoint }}

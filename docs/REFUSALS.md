@@ -2,6 +2,8 @@
 
 A refusal is how W.E.T. prevents an unsupported numerical or identity claim. It is a result, not a transport failure and not a synonym for missing data.
 
+Production currently returns route-wide HTTP `503`/`mcp_release_held` before tool-level refusal handling. In a controlled candidate environment, the default-deny source-rights refusal is `source_rights_pending` under policy `mcp-source-rights/2026-09-05.phase1`. It applies to six W.E.T.-sourced/derived tools and returns policy and exclusion metadata with no market or index value fields. It is protocol-safe but not a useful sourced result or launch-readiness pass. Credentials, paid access, adapters, and environment settings cannot bypass either hold.
+
 A refusal identifies:
 
 - the rule that stopped;

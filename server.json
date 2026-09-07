@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.worldeventtrading/prediction-markets",
   "title": "W.E.T. Prediction-Market Intelligence",
-  "description": "Release held: production returns mcp_release_held before discovery. Do not install or connect.",
-  "version": "0.5.0",
+  "description": "mcp_release_held. Six source_rights_pending/default-deny; wet_resolve; no credential bypass.",
+  "version": "0.7.0",
   "websiteUrl": "https://www.worldeventtrading.com/mcp",
   "repository": {
     "url": "https://github.com/Corbinvking/wet-mcp",
@@ -24,7 +24,8 @@
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
-      "tagline": "Release held; production is unavailable pending review.",
+      "tagline": "Production returns mcp_release_held—do not install, configure, connect, or call until owner, legal, and source-rights clearance.",
+      "releaseState": "held",
       "access": {
         "research": "keyless-read-only",
         "account": "oauth-optional"
@@ -35,6 +36,27 @@
         "no-inferred-cross-venue-gaps",
         "venue-native-volume-units"
       ],
+      "sourceRights": {
+        "rightsState": "pending",
+        "policyVersion": "mcp-source-rights/2026-09-05.phase1",
+        "outputContractVersion": "wet-mcp-public-output/0.7.0",
+        "outputContractSha256": "0ffc504add260ff197cedaca26bff3e11f64f5716293a61f935424892c5fbe82",
+        "grantSetSha256": null,
+        "enforcement": "default-deny",
+        "filtering": "coarse-all-rights-protected-sources",
+        "mixedSourceFiltering": false,
+        "heldTools": [
+          "wet_benchmark_value",
+          "wet_search_events",
+          "wet_screen_markets",
+          "wet_event_markets",
+          "wet_cross_venue",
+          "wet_event_headlines"
+        ],
+        "usableTools": ["wet_resolve"],
+        "refusalCode": "source_rights_pending",
+        "credentialBypass": false
+      },
       "privacyUrl": "https://www.worldeventtrading.com/privacy",
       "termsUrl": "https://www.worldeventtrading.com/terms",
       "supportUrl": "https://www.worldeventtrading.com/support"
