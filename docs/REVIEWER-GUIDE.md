@@ -31,7 +31,7 @@ For a candidate-phase safety review, verify the typed hold on one authorized sou
 
 ### Post-clearance full lifecycle review
 
-After public venue and headline-source rights clear, the separate account-output contract is approved and pinned, and migration `0032_scanner_lifecycle` is present, run the full lifecycle against one disposable test-account fixture: preview, create with an idempotency key, read, non-persisting test, persisted run-now, revision-guarded update, status/history inspection, pause, resume, and two-step delete. Treat that sequence as post-clearance evidence, not current candidate capability.
+After public venue and headline-source rights clear, the separate account-output contract is approved and pinned, and migration `0033_scanner_lifecycle` is present, run the full lifecycle against one disposable test-account fixture: preview, create with an idempotency key, read, non-persisting test, persisted run-now, revision-guarded update, status/history inspection, pause, resume, and two-step delete. Treat that sequence as post-clearance evidence, not current candidate capability.
 
 Expected boundaries:
 

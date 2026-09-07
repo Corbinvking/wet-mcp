@@ -2,7 +2,7 @@
 
 A scanner is a saved, structured research filter inside a user's W.E.T. account. It is not a recommendation, signal, trading bot, venue action, or order-routing instruction. A match means only that an event satisfied the stored criteria at the recorded W.E.T. board observation.
 
-The v0.5 lifecycle becomes available only after database migration `0032_scanner_lifecycle` is applied. Before that migration, legacy reads can remain available and are explicitly labeled `legacy-pre-0032`; every lifecycle mutation, including deletion, returns typed `schema_pending`. The scheduled scanner tick also returns `schemaPending` with zero due-row reads, run-history writes, firing-memory changes, or legacy deliveries. A client or worker must never fall back to older create, update, pause, resume, run, or immediate-delete semantics.
+The v0.5 lifecycle becomes available only after database migration `0033_scanner_lifecycle` is applied. Before that migration, legacy reads can remain available and are explicitly labeled `legacy-pre-0033`; every lifecycle mutation, including deletion, returns typed `schema_pending`. The scheduled scanner tick also returns `schemaPending` with zero due-row reads, run-history writes, firing-memory changes, or legacy deliveries. A client or worker must never fall back to older create, update, pause, resume, run, or immediate-delete semantics.
 
 ## Preview, authorize, then create
 

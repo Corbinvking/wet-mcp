@@ -1268,7 +1268,7 @@ await check('distribution doctrine, health, routing, and rights copy stay aligne
   assert(tools.includes('wet_run_scanner') && /post-clearance behavior|current exception/iu.test(tools), 'tool reference must document persisted runs without implying current execution');
   assert(scanners.includes(SOURCE_RIGHTS_POLICY) && /default-deny/iu.test(scanners), 'scanner guide must disclose the current default-deny source-rights policy');
   assert(/(?:API keys|OAuth credentials)[\s\S]{0,100}cannot bypass (?:either|the) hold/iu.test(scanners), 'scanner guide must reject credential bypass');
-  for (const marker of ['0032_scanner_lifecycle', 'schema_pending', 'wet_run_scanner', 'expectedRevision', 'idempotencyKey', 'two-step', 'durable outbox']) {
+  for (const marker of ['0033_scanner_lifecycle', 'schema_pending', 'wet_run_scanner', 'expectedRevision', 'idempotencyKey', 'two-step', 'durable outbox']) {
     assert(scanners.includes(marker), `scanner guide is missing lifecycle boundary: ${marker}`);
   }
   assert(
